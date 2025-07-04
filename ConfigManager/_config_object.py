@@ -84,7 +84,11 @@ class ConfigObject:
         # 统一处理为类型元组
         types = (target_types,) if isinstance(target_types, type) else target_types
 
-        # 情况2：优先检查原始类型
+        # 情况2：优先匹配原始类型
+        if type(raw_value) in types:
+            return deepcopy(raw_value)
+
+        # 情况3：优先检查原始类型
         if skip_conversion_if_match:
             if type(raw_value) in types:  # 精确匹配类型
                 return deepcopy(raw_value)
@@ -93,7 +97,7 @@ class ConfigObject:
             if None in types and raw_value is None:  # 处理None特殊情况
                 return None
 
-        # 情况3：尝试类型转换
+        # 情况4：尝试类型转换
         type_handlers = {
             bool: lambda x: x if isinstance(x, bool) else str(x).lower() in ("true", "1", "yes"),
             Path: lambda x: x if isinstance(x, Path) else Path(str(x)),

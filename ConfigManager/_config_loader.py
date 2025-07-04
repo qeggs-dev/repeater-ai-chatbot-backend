@@ -93,7 +93,7 @@ class ConfigLoader:
                 config = ConfigObject(name = name)
 
             for value_item in reversed(config_model.values):
-                if value_item.system in {system, "*", "all", None}:
+                if (value_item.system.lower() if value_item.system else None) in {system, "*", "all", None}:
                     type = value_item.type
                     TYPES = {
                         "int": int,

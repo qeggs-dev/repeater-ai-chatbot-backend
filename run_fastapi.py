@@ -49,6 +49,7 @@ from core import (
 from core.CallLog import CallAPILog
 from Markdown import markdown_to_image, STYLES as MARKDOWN_STYLES
 from admin_apikey_manager import AdminKeyManager
+from PathProcessors import validate_path
 # endregion
 
 # region Global Objects
@@ -72,7 +73,7 @@ def validate_path(base_path: str | Path, user_path: str | Path) -> bool:
     requested_path = (base_path.resolve() / user_path).resolve()
     
     # 检查路径是否在base_path的子目录内
-    return requested_path.is_relative_to(base_path)
+    return requested_path.is_relative_to(base_path.resolve())
 # endregion
 
 # region Readme
@@ -155,6 +156,10 @@ async def render(
     """
     Endpoint for rendering markdown text to image
     """
+
+    if text == None:
+        raise HTTPException(status_code=400, detail="text is required")
+    
     # 生成图片ID
     fuuid = uuid4()
     filename = f"{fuuid}.png"
@@ -220,8 +225,8 @@ async def render(
             "style": style,
             "timeout": timeout,
             "text": text,
-            "create": create,
-            "create_ms": create_ms
+            "created": create,
+            "created_ms": create_ms
         }
     )
 # endregion
@@ -665,6 +670,10 @@ async def render_file(file_uuid: str):
     Endpoint for rendering file
     """
     rendered_image_dir = configs.get_config("rendered_image_dir", "./temp/render").get_value(Path)
+    # 防止遍历攻击
+    if not validate_path(rendered_image_dir, file_uuid):
+        raise HTTPException(status_code=400, detail="Invalid file UUID")
+    
     # 检查文件是否存在
     if not (rendered_image_dir / f"{file_uuid}.png").exists():
         raise HTTPException(detail="File not found", status_code=404)

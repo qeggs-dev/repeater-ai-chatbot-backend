@@ -61,7 +61,8 @@ def markdown_to_image(
         default_options.update(options)
     
     # 4. 转换并保存图片
-    config = imgkit.config(wkhtmltoimage=configs.get_config("wkhtmltoimage_path").get_value(str))
+    wkhtmltoimage_path = configs.get_config("wkhtmltoimage_path").get_value(Path)
+    config = imgkit.config(wkhtmltoimage=wkhtmltoimage_path)
     imgkit.from_string(
         string=full_html,
         output_path=output_path,
