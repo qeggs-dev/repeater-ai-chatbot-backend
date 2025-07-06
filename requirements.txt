@@ -1,12 +1,13 @@
-aiofiles
-environs
-pydantic
-fastapi
-python-multipart
-loguru
-openai
-orjson
-uvicorn
-markdown
-imgkit
-httpx
+aiofiles # 用于异步文件操作 (core.DataManager)
+environs # 用于环境变量管理 (Everyone)
+pydantic # 用于数据验证和设置管理 (ConfigManager)
+fastapi # 用于构建API (API/run_fastapi.py)
+python-multipart # 用于处理多部分表单数据 (API)
+loguru # 用于日志记录 (Everyone)
+openai # 用于与OpenAI API交互 (core.CallAPI)
+orjson # 用于高性能的JSON序列化和反序列化 (core.DataManager/API)
+uvicorn # 用于运行FastAPI应用 (run_fastapi.py)
+markdown # 用于处理Markdown文本 (Markdown)
+imgkit # 用于将HTML转换为PDF (Markdown)
+httpx # 用于发送HTTP请求 (core.FuncerClient)
+pyyaml # 用于处理YAML文件 (API)
