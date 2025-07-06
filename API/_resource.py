@@ -5,7 +5,6 @@ from pathlib import Path
 # ==== 第三方库 ==== #
 from environs import Env
 env = Env()
-env.read_env()
 from fastapi import FastAPI
 
 # ==== 自定义库 ==== #

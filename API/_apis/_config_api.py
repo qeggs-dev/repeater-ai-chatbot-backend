@@ -2,7 +2,7 @@ from .._resource import (
     chat,
     app
 )
-from types import Any
+from typing import Any
 from fastapi.responses import (
     JSONResponse,
     PlainTextResponse

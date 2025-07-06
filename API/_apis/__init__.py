@@ -1,4 +1,6 @@
 from ._chat_api import chat_endpoint
+from ._render_api import render
+from ._expand_variables_api import expand_variables
 from ._context_api import (
     get_context,
     get_context_length,
