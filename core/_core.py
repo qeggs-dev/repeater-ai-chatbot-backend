@@ -40,7 +40,7 @@ from ConfigManager import ConfigLoader
 # ==== 本模块代码 ==== #
 configs = ConfigLoader()
 
-__version__ = configs.get_config("VERSION", "4.1.0.0").get_value(str)
+__version__ = configs.get_config("VERSION", "4.1.2.0").get_value(str)
 
 @dataclass
 class _Output:

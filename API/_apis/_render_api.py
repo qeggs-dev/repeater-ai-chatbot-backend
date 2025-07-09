@@ -91,7 +91,7 @@ async def render(
     background_tasks.add_task(_wait_delete, timeout, filename)
 
     # 生成图片的URL
-    fileurl = request.url_for("get_render_file", file_uuid=fuuid)
+    fileurl = request.url_for("render_file", file_uuid=fuuid)
 
     return JSONResponse(
         {
