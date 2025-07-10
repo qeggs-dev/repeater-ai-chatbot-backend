@@ -82,12 +82,13 @@ class ConfigLoader:
         """
         if expand_name == '.json':
             import orjson
-            self._config_data = orjson.loads(load_data)
+            config_data = orjson.loads(load_data)
         elif expand_name in {'.yaml', '.yml'}:
             import yaml
-            self._config_data = yaml.safe_load(load_data)
+            config_data = yaml.safe_load(load_data)
         else:
             raise ValueError(f'Unsupported file extension: {expand_name}')
+        return config_data
 
         
     def _decode_config(self, config_list: list[dict[str, Any]]):
