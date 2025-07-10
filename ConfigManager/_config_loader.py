@@ -1,4 +1,3 @@
-import orjson
 import asyncio
 import aiofiles
 import threading
@@ -48,36 +47,61 @@ class ConfigLoader:
     async def load_config_async(self, file_path: str | Path):
         """
         This method is used to load configuration information from a file.
+
         :param file_path: The file path of the configuration file.
         :return: None
         """
         async with self._config_async_lock:
             async with aiofiles.open(file_path, mode='rb') as f:
                 config = await f.read()
-            config:list[dict[str, Any]] = orjson.loads(config)
+            config:list[dict[str, Any]] = self._loads_data(config, Path(file_path).suffix)
             await asyncio.to_thread(self._decode_config(config))
     
     def load_config(self, file_path: str | Path):
         """
         This method is used to load configuration information from a file.
+
         :param file_path: The file path of the configuration file.
         :return: None
         """
+        import orjson
         with self._config_sync_lock:
             with open(file_path, mode='rb') as f:
                 config = f.read()
-            config:list[dict[str, Any]] = orjson.loads(config)
+            
+            config:list[dict[str, Any]] = self._loads_data(config, Path(file_path).suffix)
             self._decode_config(config)
+    
+    def _loads_data(self, load_data: str, expand_name: str):
+        """
+        This method is used to load data from a file.
+
+        :param load_data: The data to be loaded.
+        :param expand_name: The file extension name.
+        :return: None
+        """
+        if expand_name == '.json':
+            import orjson
+            self._config_data = orjson.loads(load_data)
+        elif expand_name in {'.yaml', '.yml'}:
+            import yaml
+            self._config_data = yaml.safe_load(load_data)
+        else:
+            raise ValueError(f'Unsupported file extension: {expand_name}')
+
         
     def _decode_config(self, config_list: list[dict[str, Any]]):
         """
         This method is used to decode the configuration information.
+
         :return: The decoded configuration information.
         """
         if not isinstance(config_list, list):
             raise TypeError("Config must be a list.")
         system = platform.system().lower()
         configs = self._get_config
+        import orjson
+        import yaml
         for item in reversed(config_list):
             try:
                 config_model = Config_Model(**item)
@@ -114,16 +138,24 @@ class ConfigLoader:
                                 value = bool(value_item.value)
                         elif type == "json":
                             value = orjson.loads(value_item.value)
+                        elif type == "yaml":
+                            value = yaml.load(value_item.value)
                         elif type == "path":
                             value = Path(value_item.value)
                         elif type in {"auto", "other"}:
                             value = value_item.value
                         config.value = value
-                    except (ValueError, TypeError, orjson.JSONDecodeError):
+                    except (ValueError, TypeError, orjson.JSONDecodeError, yaml.YAMLError):
                         logger.warning(f"The custom configuration data type conversion failed, and an attempt has been made to use the {config.value_type} type.", user_id = "[System]")
                         config.value = value_item.value
             
             configs[name] = config
+    
+    def __getitem__(self, name: str) -> ConfigObject:
+        configs = self._get_config()
+        if name not in configs:
+            raise KeyError(f"The configuration item '{name}' does not exist.")
+        return configs[name]
 
     def get_config(self, name: str, default: Any = None) -> ConfigObject:
         configs = self._get_config

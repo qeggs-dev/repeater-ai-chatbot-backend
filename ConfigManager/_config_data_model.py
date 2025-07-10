@@ -6,7 +6,7 @@ from pydantic import (
 from typing import Literal, List, Dict, Any
 
 class Config_Item(BaseModel):
-    type: Literal["int", "float", "str", "bool", "list", "dict", "json", "path", "auto", "other"] = "auto"
+    type: Literal["int", "float", "str", "bool", "list", "dict", "json", "yaml", "path", "auto", "other"] = "auto"
     type_name: str | None = None
     system: str | None = None
     value: Any | None = None
