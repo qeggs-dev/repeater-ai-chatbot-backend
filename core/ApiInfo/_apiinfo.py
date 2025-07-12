@@ -13,6 +13,7 @@ class ApiInfo:
         self._api_types: Dict[str, List[ApiGroup]] = {}
         self._api_names: Dict[str, List[ApiGroup]] = {}
         self._api_baseGroups: Dict[str, List[ApiGroup]] = {}
+        self._api_task_types: Dict[str, List[ApiGroup]] = {}
         self.CaseSensitive = CaseSensitive
 
     def _create_api_group(self, api_data: dict, model_data: dict) -> ApiGroup:
@@ -28,6 +29,7 @@ class ApiInfo:
             url = model_data.get('URL', api_data.get('URL', '')),
             model_id = model_data.get('Id', ''),
             model_type = model_data.get('Type', ''),
+            task_type = model_data.get('TaskType', ''),
             metadata = metadata,
         )
 
@@ -40,10 +42,12 @@ class ApiInfo:
             self._api_types.setdefault(api_group.model_type, []).append(api_group)
             self._api_names.setdefault(api_group.model_name, []).append(api_group)
             self._api_baseGroups.setdefault(api_group.group_name, []).append(api_group)
+            self._api_task_types.setdefault(api_group.task_type, []).append(api_group)
         else:
             self._api_types.setdefault(api_group.model_type.lower(), []).append(api_group)
             self._api_names.setdefault(api_group.model_name.lower(), []).append(api_group)
             self._api_baseGroups.setdefault(api_group.group_name.lower(), []).append(api_group)
+            self._api_task_types.setdefault(api_group.task_type.lower(), []).append(api_group)
 
     def _parse_api_groups(self, raw_api_groups: List[dict]) -> None:
         """Parse raw API groups data and populate indexes."""
@@ -89,41 +93,71 @@ class ApiInfo:
         except OSError as e:
             raise IOError(f'Failed to read file: {e}')
 
-    def find_type(self, model_type: str) -> List[ApiGroup]:
+    def find_type(self, model_type: str, default: list[ApiGroup] = None) -> List[ApiGroup]:
         """Find API groups by model type."""
         if not self.CaseSensitive:
             if model_type.lower() in self._api_types:
                 return self._api_types[model_type.lower()].copy()
             else:
+                if default is not None:
+                    return default.copy()
                 raise APIGroupNotFoundError(f'API group not found for model type: {model_type}')
         else:
             if model_type in self._api_types:
                 return self._api_types[model_type].copy()
             else:
+                if default is not None:
+                    return default.copy()
                 raise APIGroupNotFoundError(f'API group not found for model type: {model_type}')
-    def find_name(self, model_name: str) -> List[ApiGroup]:
+    
+    def find_name(self, model_name: str, default: list[ApiGroup] = None) -> List[ApiGroup]:
         """Find API groups by model name."""
         if not self.CaseSensitive:
             if model_name.lower() in self._api_names:
                 return self._api_names[model_name.lower()].copy()
             else:
+                if default is not None:
+                    return default.copy()
                 raise APIGroupNotFoundError(f'API group not found for model name: {model_name}')
         else:
             if model_name in self._api_names:
                 return self._api_names[model_name].copy()
             else:
+                if default is not None:
+                    return default.copy()
                 raise APIGroupNotFoundError(f'API group not found for model name: {model_name}')
     
-    def find_baseGroup(self, group_name: str) -> List[ApiGroup]:
+    def find_baseGroup(self, group_name: str, default: list[ApiGroup] = None) -> List[ApiGroup]:
         """Find API groups by base group name."""
         if not self.CaseSensitive:
             if group_name.lower() in self._api_baseGroups:
                 return self._api_baseGroups[group_name.lower()].copy()
             else:
+                if default is not None:
+                    return default.copy()
                 raise APIGroupNotFoundError(f'API group not found for base group name: {group_name}')
         else:
             if group_name in self._api_baseGroups:
                 return self._api_baseGroups[group_name].copy()
             else:
+                if default is not None:
+                    return default.copy()
                 raise APIGroupNotFoundError(f'API group not found for base group name: {group_name}')
+
+    def find_task_type(self, task_type: str, default: list[ApiGroup] = None) -> List[ApiGroup]:
+        """Find API groups by model task type."""
+        if not self.CaseSensitive:
+            if task_type.lower() in self._api_task_types:
+                return self._api_task_types[task_type.lower()].copy()
+            else:
+                if default is not None:
+                    return default.copy()
+                raise APIGroupNotFoundError(f'API group not found for task type: {task_type}')
+        else:
+            if task_type in self._api_task_types:
+                return self._api_task_types[task_type].copy()
+            else:
+                if default is not None:
+                    return default.copy()
+                raise APIGroupNotFoundError(f'API group not found for task type: {task_type}')
         
