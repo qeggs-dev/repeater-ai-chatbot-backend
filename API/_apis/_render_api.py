@@ -79,7 +79,8 @@ async def render(
     await markdown_to_image(
         markdown_text = text,
         output_path = rendered_image_dir / filename,
-        style = style
+        style = style,
+        preprocess_map = configs.get_config("markdown_to_image_preprocess_map", {}).get_value(dict),
     )
     create_ms = time.time_ns() // 10**6
     create = create_ms // 1000

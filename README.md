@@ -157,6 +157,7 @@
 | 环境变量 | 描述 | 是否必填 | 默认值(*示例值*) |
 | :---: | :---: | :---: | :---: |
 | `*API_KEY` | API_Key (具体变量名由`API_INFO_FILE_PATH`指向 文件中`ApiKeyEnv`字段的名称) | **必填** | *\*可从[Deepseek开放平台/API Keys](https://platform.deepseek.com/api_keys)页面获取* |
+| `ADMIN_API_KEY` | 管理员API_Key (用于框架的管理员操作身份验证) | **选填但生产环境建议填写** | *\*自动生成随机 API Key* |
 
 ## 配置选项表
 
@@ -180,6 +181,8 @@
 | `README_FILE_PATH` | README文件位置 | *选填* | `./README.md` |
 | `VERSION` | 版本号 | *选填* | \*由代码自动生成 |
 | `RENDERED_DEFAULT_IMAGE_TIMEOUT` | 渲染图片的默认超时时间 | *选填* | 60 |
+| `RENDER_STYLES_DIR` | 渲染图片的样式文件夹 | *选填* | `./styles` |
+| `MARKDOWN_TO_IMAGE_PREPROCESS_MAP` | 渲染图片的预处理映射 | *选填* | `{"\\n": "<br>"}` |
 | `MAX_CONCURRENCY` | 最大并发数 | *选填* | 1000 |
 | `DEFAULT_PROMPT_DIR` | 默认提示词文件夹 | *选填* | `./PresetsPrompt` |
 | `PARSET_PROMPT_NAME` | 默认提示词文件名(不包括后缀) | *选填* | `default` |

@@ -32,8 +32,13 @@ async def get_style(style_name: str, use_base: bool = True) -> str:
     try:
         return await _read_style(style_file_path)
     except (FileNotFoundError, ValueError):
-        logger.warning(f"Style file not found: {style_file_path}", user_id = "[System]")
-        return BASE_STYLE
+        if use_base:
+            logger.warning(f"Style file not found: {style_file_path}", user_id = "[System]")
+            return BASE_STYLE
+        else:
+            logger.error(f"Style file not found: {style_file_path}", user_id = "[System]")
+            raise ValueError(f"Style file not found: {style_file_path}")
+            
 
 async def get_style_names() -> list[str]:
     basepath = configs.get_config("RENDER_STYLES_DIR", "./styles").get_value(Path)

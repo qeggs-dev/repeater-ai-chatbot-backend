@@ -55,7 +55,14 @@ class ConfigLoader:
             async with aiofiles.open(file_path, mode='rb') as f:
                 config = await f.read()
             config:list[dict[str, Any]] = self._loads_data(config, Path(file_path).suffix)
-            await asyncio.to_thread(self._decode_config(config))
+            await asyncio.to_thread(self._decode_config, config)
+    
+    async def reload_config_async(self):
+        """
+        This method is used to reload configuration information.
+        """
+        if self._config_file_path is not None:
+            await self.load_config_async(self._config_file_path)
     
     def load_config(self, file_path: str | Path):
         """
@@ -71,6 +78,13 @@ class ConfigLoader:
             
             config:list[dict[str, Any]] = self._loads_data(config, Path(file_path).suffix)
             self._decode_config(config)
+    
+    def reload_config(self):
+        """
+        This method is used to reload configuration information.
+        """
+        if self._config_file_path is not None:
+            self.load_config(self._config_file_path)
     
     def _loads_data(self, load_data: str, expand_name: str):
         """

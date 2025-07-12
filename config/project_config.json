@@ -18,6 +18,18 @@
         ]
     },
     {
+        "name": "MARKDOWN_TO_IMAGE_PREPROCESS_MAP",
+        "values": [
+            {
+                "type": "dict",
+                "value": {
+                    "<code>": "<pre><code>",
+                    "</code>": "</code></pre>"
+                }
+            }
+        ]
+    },
+    {
         "name": "RENDERED_IMAGE_DIR",
         "values": [
             {

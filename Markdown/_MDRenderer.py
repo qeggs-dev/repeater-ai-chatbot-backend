@@ -12,8 +12,9 @@ async def markdown_to_image(
     markdown_text: str,
     output_path: str,
     width: int = 800,
-    css: str = None,
+    css: str | None = None,
     style: str = "light",
+    preprocess_map: dict[str, str] | None = None,
     options: dict = None
 ) -> str:
     """
@@ -25,6 +26,7 @@ async def markdown_to_image(
     - width: 目标宽度 (像素)
     - css: 自定义 CSS 样式 (优先级高于style参数)
     - style: 预设样式名称 (light/dark/pink/blue/green)
+    - preprocess_map: 自定义字符映射
     - options: wkhtmltoimage 高级选项
     
     返回: 输出文件路径
@@ -51,6 +53,10 @@ async def markdown_to_image(
     <body>{html_content}</body>
     </html>
     """
+
+    if preprocess_map:
+        for key, value in preprocess_map.items():
+            full_html = full_html.replace(key, value)
     
     # 3. 配置转换选项
     default_options = {
