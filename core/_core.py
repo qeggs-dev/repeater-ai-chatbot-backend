@@ -51,6 +51,7 @@ class _Output:
     model_id: str = ""
     create_time: int = 0
     id: str = ""
+    finish_reason_cause: str = ""
 
     @property
     def as_dict(self):
@@ -114,6 +115,14 @@ class Core:
             lock = self.session_locks[user_id]
         return lock
     
+    def _Generate_UUID4(self) -> str:
+        if hasattr(self._Generate_UUID4, "_uuid"):
+            return self._Generate_UUID4._uuid
+        else:
+            import uuid
+            self._Generate_UUID4._uuid = uuid
+        
+        return self._Generate_UUID4._uuid.uuid4()
     
     # region > get prompt_vp
     async def get_prompt_vp(
@@ -137,6 +146,7 @@ class Core:
         bot_birthday_day = configs.get_config("birthday_day").get_value(int)
         timezone = configs.get_config("timezone", 8).get_value(int)
         bot_name = configs.get_config("bot_name", "Bot").get_value(str)
+        
         return await self.promptvariable.get_prompt_variable(
             user_id = user_id,
             user_name = user_name,
@@ -153,7 +163,8 @@ class Core:
             age = lambda **kw: calculate_age(bot_birthday_year, bot_birthday_month, bot_birthday_day, offset_timezone = config.get("timezone", timezone)),
             random = lambda min, max: random.randint(int(min), int(max)),
             randfloat = lambda min, max: random.uniform(float(min), float(max)),
-            randchoice = lambda *args: random.choice(args)
+            randchoice = lambda *args: random.choice(args),
+            generate_uuid = lambda **kw: self._Generate_UUID4()
         )
     # endregion
     
@@ -439,6 +450,8 @@ class Core:
             output.content = response.context.last_content.content
             output.create_time = response.created
             output.id = response.id
+
+            output.finish_reason_cause = response.finish_reason_cause
             return output.as_dict
     # endregion
 

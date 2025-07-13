@@ -102,3 +102,14 @@ class Response:
     logprobs: list[Logprob] | None = None
     calling_log: CallLog | None = None
 
+    @property
+    def finish_reason_cause(self) -> str:
+        stop_cause_map = {
+            "stop": "Reached STOP list or natural stopping point.",
+            "length": "Exceeded maximum output length limit.",
+            "content_filter": "Content triggered filtering policy.",
+            "tool_calls": "Output contains tool calls.",
+            "insufficient_system_resource": "Insufficient system resources."
+        }
+        return stop_cause_map[self.finish_reason]
+
