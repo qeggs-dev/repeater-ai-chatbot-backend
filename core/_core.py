@@ -341,6 +341,8 @@ class Core:
                 reference_context_id = reference_context_id,
                 prompt_vp = prompt_vp
             )
+
+            user_input = context.last_content
             
             # 创建请求对象
             request = CallAPI.Request()
@@ -360,8 +362,8 @@ class Core:
             logger.info(f"API Model: {api.model_name}", user_id = user_id)
 
             # 打印上下文信息
-            if request.context.last_content.content:
-                logger.info(f"Message:{request.context.last_content.content}", user_id = user_id)
+            if user_input.content:
+                logger.info(f"Message:\n{user_input.content}", user_id = user_id)
             else:
                 logger.warning("No message to send", user_id = user_id)
             logger.info(f"User Name: {user_name}", user_id = user_id)
@@ -410,9 +412,15 @@ class Core:
 
             # 保存上下文
             if save_context:
+                context = response.context
+                if reference_context_id:
+                    historical_context = await context_loader.get_context_object(user_id)
+                    historical_context.append(user_input)
+                    historical_context.append(response.context.last_content)
+                    context = historical_context
                 await context_loader.save(
                     user_id = user_id,
-                    context = response.context
+                    context = context
                 )
             else:
                 logger.warning("Context not saved", user_id = user_id)
@@ -427,7 +435,6 @@ class Core:
             logger.success(f"API call successful", user_id = user_id)
 
             # 返回模型输出内容
-            
             output.reasoning_content = response.context.last_content.reasoning_content
             output.content = response.context.last_content.content
             output.create_time = response.created

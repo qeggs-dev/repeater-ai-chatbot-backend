@@ -207,3 +207,4 @@ class ContextLoader:
         :param context: 上下文对象
         """
         await self.context.save(user_id, context.context)
+        logger.info(f"Save Context: {len(context)}", user_id = user_id)
