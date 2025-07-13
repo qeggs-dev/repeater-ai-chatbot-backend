@@ -199,5 +199,27 @@ class ConfigLoader:
 
         configs[name] = config
     
+    def seek_config(self, name: str, index: int) -> bool:
+        """
+        Seek to a specific index.
+
+        :param index: The index to seek to.
+        """
+        config = self._get_config
+        if name in config:
+            return config[name].seek(index)
+        return False
+    
+    def forwardtracking_config(self, name: str, offset: int = 1) -> bool:
+        """
+        Forward tracking.
+
+        :param offset: The offset to forward tracking.
+        """
+        config = self._get_config
+        if name in config:
+            return config[name].forwardtracking(offset)
+        return False
+    
     def __contains__(self, name: str) -> bool:
         return name in self._get_config

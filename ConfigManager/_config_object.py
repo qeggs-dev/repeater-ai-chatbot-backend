@@ -37,6 +37,8 @@ class ConfigObject:
 
         Note! If you need high performance, don't rely on this value! 
         Please cache it yourself.
+
+        :return: The current value.
         """
         if len(self._values) == 0:
             return None
@@ -47,6 +49,8 @@ class ConfigObject:
     def value(self, value: Any) -> None:
         """
         Set the current value.
+
+        :param value: The value to set.
         """
         if self.strict_type and not isinstance(value, self.value_type):
             raise TypeError(f"Value must be of type {self.value_type.__name__}")
@@ -129,6 +133,8 @@ class ConfigObject:
     def downgrade(self) -> Any:
         """
         Downgrade to the previous value.
+
+        :return: The previous value.
         """
         if len(self._values) > 1:
             item = self._values.pop()
@@ -140,18 +146,35 @@ class ConfigObject:
     def backtracking(self) -> bool:
         """
         Backtracking to the previous value.
+
+        :return: Whether backtracking is successful.
         """
         if self._now_index > 0:
             self._now_index -= 1
             return True
         return False
 
-    def forwardtracking(self) -> bool:
+    def forwardtracking(self, offset: int = 1) -> bool:
         """
         Forwardtracking to the next value.
+
+        :param offset: The number of steps to forwardtracking.
+        :return: Whether the forwardtracking is successful.
         """
-        if self._now_index < len(self._values) - 1:
-            self._now_index += 1
+        if self._now_index + offset < len(self._values) - 1:
+            self._now_index += offset
+            return True
+        return False
+    
+    def seek(self, index: int) -> bool:
+        """
+        Seek to a specific index.
+
+        :param index: The index to seek to.
+        :return: True if the index is valid, False otherwise.
+        """
+        if index < len(self._values) - 1:
+            self._now_index = index
             return True
         return False
 
@@ -169,6 +192,7 @@ class ConfigObject:
         Remove a callback function when the value changes.
 
         :param key: The key of the function.
+        :return: True if the callback was removed, False otherwise.
         """
         if key in self._changed_callbacks:
             del self._changed_callbacks[key]
