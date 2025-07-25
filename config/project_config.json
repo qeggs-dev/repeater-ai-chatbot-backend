@@ -392,5 +392,23 @@
                 "value": 1000
             }
         ]
+    },
+    {
+        "name": "BLACKLIST_FILE_PATH",
+        "values": [
+            {
+                "type": "path",
+                "value": "./config/blacklist.regex"
+            }
+        ]
+    },
+    {
+        "name": "BLACKLIST_MATCH_TIMEOUT",
+        "values": [
+            {
+                "type": "int",
+                "value": 10
+            }
+        ]
     }
 ]
