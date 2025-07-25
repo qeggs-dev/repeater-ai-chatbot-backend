@@ -9,6 +9,7 @@ from fastapi import (
 from fastapi.responses import (
     StreamingResponse
 )
+from loguru import logger
 from io import BytesIO
 import zipfile
 import yaml
@@ -44,6 +45,8 @@ async def get_userdata_file(user_id: str):
         zipf.writestr("user_config.json", orjson.dumps(config.configs))
         zipf.writestr("user_config_readable.yaml", (yaml.dump(config.configs, indent = 2, allow_unicode = True) if config.configs else ""))
     buffer.seek(0)
+
+    logger.info(f"downloaded userdata file", user_id = user_id)
 
     # 返回zip文件
     return StreamingResponse(buffer, media_type = "application/zip")

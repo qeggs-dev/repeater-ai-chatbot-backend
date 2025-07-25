@@ -13,6 +13,7 @@ from fastapi import (
 from fastapi import (
     Form
 )
+from loguru import logger
 
 @app.get("/userdata/config/get/{user_id}")
 async def change_config(user_id: str):
@@ -21,6 +22,8 @@ async def change_config(user_id: str):
     """
     # 获取用户ID为user_id的配置
     config = await chat.get_config(user_id = user_id)
+    
+    logger.info(f"Get user config", user_id = user_id)
 
     # 返回配置
     return JSONResponse(config.configs)
@@ -56,7 +59,9 @@ async def set_config(user_id: str, value_type: str, key: str = Form(...), value:
     config[key] = value
 
     # 保存配置
-    await chat.user_config_manager.force_write(user_id=user_id, configs=config)
+    await chat.user_config_manager.save(user_id=user_id, configs=config)
+    
+    logger.info("Set user config {key}={value}(type:{value_type})", user_id = user_id, key = key, value = value, value_type = value_type)
 
     # 返回新配置内容
     return JSONResponse(config.configs)
@@ -78,7 +83,9 @@ async def delkey_config(user_id: str, key: str = Form(...)):
     del config[key]
 
     # 保存配置
-    await chat.user_config_manager.force_write(user_id=user_id, configs=config)
+    await chat.user_config_manager.save(user_id=user_id, configs=config)
+
+    logger.info("Del user config {key}", user_id = user_id, key = key)
 
     # 返回新配置内容
     return JSONResponse(config)
@@ -92,6 +99,8 @@ async def get_config_userlist():
     # 获取所有用户ID
     userid_list = await chat.user_config_manager.get_all_user_id()
 
+    logger.info(f"Get user config userlist", user_id = "[System]")
+
     # 返回用户ID列表
     return JSONResponse(userid_list)
 
@@ -101,10 +110,12 @@ async def get_config_branch_id(user_id: str):
     Endpoint for get config branch id
     """
 
-    # 设置平行配置路由
+    # 获取平行配置路由ID列表
     branchs = await chat.user_config_manager.get_all_item_id(user_id)
 
-    # 返回分支ID
+    logger.info(f"Get user branchs list", user_id = user_id)
+
+    # 返回分支ID列表
     return JSONResponse(branchs)
 
 @app.get("/userdata/config/now_branch/{user_id}")
@@ -113,8 +124,10 @@ async def get_config_now_branch_id(user_id: str):
     Endpoint for get config branch id
     """
 
-    # 设置平行配置路由
+    # 获取当前配置路由ID
     branch_id = await chat.user_config_manager.get_default_item(user_id)
+
+    logger.info(f"Get user now branch id", user_id = user_id)
 
     # 返回分支ID
     return PlainTextResponse(branch_id)
@@ -128,6 +141,8 @@ async def change_config(user_id: str, new_branch_id: str = Form(...)):
     # 设置平行配置路由
     await chat.user_config_manager.set_default_item(user_id, item = new_branch_id)
 
+    logger.info("Change user config branch id to {new_branch_id}", user_id = user_id, new_branch_id = new_branch_id)
+
     # 返回成功文本
     return PlainTextResponse("Config changed successfully")
 
@@ -139,6 +154,8 @@ async def delete_config(user_id: str):
     """
     # 删除配置
     await chat.user_config_manager.delete(user_id)
+
+    logger.info("Delete user config", user_id = user_id)
 
     # 返回成功文本
     return PlainTextResponse("Config deleted successfully")

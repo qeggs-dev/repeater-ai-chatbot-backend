@@ -9,6 +9,7 @@ from fastapi.responses import (
     PlainTextResponse
 )
 from fastapi import HTTPException
+from loguru import logger
 
 @app.get("/userdata/context/get/{user_id}")
 async def get_context(user_id: str):
@@ -17,6 +18,9 @@ async def get_context(user_id: str):
     """
     # 从chat.context_manager中加载用户ID为user_id的上下文
     context = await chat.context_manager.load(user_id, [])
+
+    logger.info(f"Get Context", user_id = user_id)
+
     # 返回JSON格式的上下文
     return JSONResponse(context)
 
@@ -30,6 +34,9 @@ async def get_context_length(user_id: str):
     context = await context_loader.get_context_object(user_id)
     # 将上下文转换为Context.ContextObject对象
     context = core.Context.ContextObject().from_context(context)
+    
+    logger.info(f"Get Context length", user_id = user_id)
+
     # 返回JSONResponse，包含上下文的总长度和上下文的长度
     return JSONResponse(
         {
@@ -45,6 +52,8 @@ async def get_context_userlist():
     """
     # 从chat.context_manager中获取所有用户ID
     userid_list = await chat.context_manager.get_all_user_id()
+
+    logger.info(f"Get Context userlist", user_id = "[System]")
 
     # 返回JSONResponse，包含所有用户ID
     return JSONResponse(userid_list)
@@ -64,6 +73,8 @@ async def withdraw_context(user_id: str, index: int = Form(...)):
         await context_loader.save(user_id, context)
     else:
         raise HTTPException(400, "Index out of range")
+    
+    logger.info(f"Withdraw a Last Context", user_id = user_id)
     
     # 返回JSONResponse，新的上下文内容
     return JSONResponse(context)
@@ -90,6 +101,8 @@ async def rewrite_context(user_id: str, index: int = Form(...), content: str = F
     else:
         raise HTTPException(400, "Index out of range")
     
+    logger.info(f"Rewrite {index} Context", user_id = user_id)
+    
     # 返回JSONResponse，新的上下文内容
     return JSONResponse(context)
 
@@ -101,6 +114,8 @@ async def get_context_branch_id(user_id: str):
     # 获取用户ID为user_id的上下文分支ID
     branchs = await chat.context_manager.get_all_item_id(user_id)
 
+    logger.info(f"Get Context branch id list", user_id = user_id)
+
     # 返回上下文分支ID
     return JSONResponse(branchs)
 
@@ -111,6 +126,8 @@ async def get_context_now_branch_id(user_id: str):
     """
     # 获取用户ID为user_id的上下文分支ID
     branch_id = await chat.context_manager.get_default_item_id(user_id)
+
+    logger.info(f"Get Context branch id", user_id = user_id)
 
     # 返回上下文分支ID
     return PlainTextResponse(branch_id)
@@ -124,6 +141,8 @@ async def change_context(user_id: str, new_branch_id: str):
     # 设置用户ID为user_id的上下文为new_context_id
     await chat.context_manager.set_default_item_id(user_id, item = new_branch_id)
 
+    logger.info("Change Context to {new_branch_id}", user_id = user_id, new_branch_id = new_branch_id)
+
     # 返回成功文本
     return PlainTextResponse("Context changed successfully")
 
@@ -134,6 +153,8 @@ async def delete_context(user_id: str):
     """
     # 删除用户ID为user_id的上下文
     await chat.context_manager.delete(user_id)
+
+    logger.info("Delete Context", user_id = user_id)
 
     # 返回成功文本
     return PlainTextResponse("Context deleted successfully")

@@ -7,6 +7,7 @@ from fastapi.responses import (
     JSONResponse,
     PlainTextResponse
 )
+from loguru import logger
 
 @app.get("/userdata/prompt/get/{user_id}")
 async def get_prompt(user_id: str):
@@ -15,6 +16,8 @@ async def get_prompt(user_id: str):
     """
     # 获取用户ID为user_id的提示词
     prompt = await chat.prompt_manager.load(user_id)
+
+    logger.info("Get prompt", user_id=user_id)
 
     # 返回提示词内容
     return PlainTextResponse(prompt)
@@ -27,6 +30,8 @@ async def set_prompt(user_id: str, prompt: str = Form(...)):
     # 设置用户ID为user_id的提示词为prompt
     await chat.prompt_manager.save(user_id, prompt)
 
+    logger.info("Set prompt", user_id=user_id)
+
     # 返回成功文本
     return PlainTextResponse("Prompt set successfully")
 
@@ -37,6 +42,8 @@ async def get_prompt_userlist():
     """
     # 获取所有用户ID
     userid_list = await chat.prompt_manager.get_all_user_id()
+
+    logger.info("Get prompt user list", user_id = "[System]")
 
     # 返回用户ID列表
     return JSONResponse(userid_list)
@@ -49,6 +56,8 @@ async def get_prompt_branch_id(user_id: str):
     # 获取用户ID为user_id的提示词分支ID
     branchs = await chat.prompt_manager.get_all_item_id(user_id)
 
+    logger.info("Get prompt branch", user_id=user_id)
+
     # 返回分支ID
     return JSONResponse(branchs)
 
@@ -59,6 +68,8 @@ async def get_prompt_now_branch_id(user_id: str):
     """
     # 获取用户ID为user_id的提示词分支ID
     branch_id = await chat.prompt_manager.get_default_item_id(user_id)
+
+    logger.info("Get prompt branch", user_id=user_id)
 
     # 返回分支ID
     return PlainTextResponse(branch_id)
@@ -71,6 +82,8 @@ async def change_prompt(user_id: str, new_branch_id: str):
     # 设置用户ID为user_id的提示词为new_prompt_id
     await chat.prompt_manager.set_default_item_id(user_id, item = new_branch_id)
 
+    logger.info("Change prompt to {new_branch_id}", user_id=user_id, new_branch_id=new_branch_id)
+
     # 返回成功文本
     return PlainTextResponse("Prompt changed successfully")
 
@@ -81,6 +94,8 @@ async def delete_prompt(user_id: str):
     """
     # 删除用户ID为user_id的提示词
     await chat.prompt_manager.delete(user_id)
+
+    logger.info("Delete prompt", user_id=user_id)
 
     # 返回成功文本
     return PlainTextResponse("Prompt deleted successfully")
