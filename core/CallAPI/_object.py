@@ -1,7 +1,7 @@
 from dataclasses import dataclass, asdict, field
 from typing import Callable, Coroutine, Literal
 
-from ..Context import ContextObject
+from ..Context import ContextObject, CallingFunctionRequest
 from ..CallLog import CallLog
 
 @dataclass
@@ -41,11 +41,11 @@ class Delta:
     id: str = ""
     reasoning_content: str = ""
     content: str = ""
-    function_id: str | None = None
-    function_type: str | None = None
-    function_name: str | None = None
-    function_arguments: str | None = None
-    token_usage: TokensCount | None = None
+    function_id: str = ""
+    function_type: str = ""
+    function_name: str = ""
+    function_arguments: str = ""
+    token_usage: TokensCount = TokensCount()
     finish_reason: Literal["stop", "length", "content_filter", "tool_calls", "insufficient_system_resource"] | None = None
     created: int = 0
     model: str = ""
@@ -80,6 +80,7 @@ class Request:
     logprobs: bool = False
     top_logprobs: int | None = None
     print_chunk: bool = True
+    function_calling: CallingFunctionRequest | None = None
     continue_processing_callback_function: Callable[[str, Delta], bool] | None = None
 
 @dataclass
@@ -88,7 +89,7 @@ class Response:
     This class is used to store the response data
     """
     id: str = ""
-    context: ContextObject | None = None
+    context: ContextObject = field(default_factory=ContextObject)
     created: int = 0
     model: str = ""
     token_usage: TokensCount | None = None

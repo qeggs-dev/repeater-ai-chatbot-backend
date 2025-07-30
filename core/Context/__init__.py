@@ -1,5 +1,5 @@
 from ._object import ContextObject, ContentUnit, ContextRole
-from ._object import (
+from ._func_calling_obj import (
     FunctionResponseUnit,
     CallingFunction,
     FunctionParameters,

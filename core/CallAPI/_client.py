@@ -135,6 +135,7 @@ class Client:
             stop = request.stop,
             stream = False,
             messages = remove_keys_from_dicts(request.context.full_context, {"reasoning_content"}) if not request.context.last_content.prefix else request.context.full_context,
+            tools = request.function_calling.tools if request.function_calling else None,
         )
         request_end_time = time.time_ns()
 
@@ -310,6 +311,7 @@ class Client:
             stop = request.stop,
             stream = True,
             messages = remove_keys_from_dicts(request.context.full_context, {"reasoning_content"}) if not request.context.last_content.prefix else request.context.full_context,
+            tools = request.function_calling.tools if request.function_calling else None,
         )
         request_end_time = time.time_ns()
 
