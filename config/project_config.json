@@ -410,5 +410,32 @@
                 "value": 10
             }
         ]
+    },
+    {
+        "name": "LOG_FILE_DIR",
+        "values": [
+            {
+                "type": "path",
+                "value": "./log"
+            }
+        ]
+    },
+    {
+        "name": "MAX_LOG_FILE_SIZE",
+        "values": [
+            {
+                "type": "str",
+                "value": "10 MB"
+            }
+        ]
+    },
+    {
+        "name": "LOG_RETENTION",
+        "values": [
+            {
+                "type": "str",
+                "value": "14 days"
+            }
+        ]
     }
 ]

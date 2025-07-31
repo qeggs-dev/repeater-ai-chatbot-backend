@@ -13,6 +13,7 @@ from typing import (
 import random
 from pathlib import Path
 from dataclasses import dataclass, asdict
+import traceback
 
 # ==== 第三方库 ==== #
 from loguru import logger
@@ -77,6 +78,8 @@ class Core:
         )
 
         log_dir = configs.get_config("log_file_dir", "./logs").get_value(Path)
+        max_log_file_size = configs.get_config("max_log_file_size", "10MB").get_value(str)
+        log_retention = configs.get_config("log_retention", "10 days").get_value(str)
         if not log_dir.exists():
             log_dir.mkdir(parents=True, exist_ok=True)
         log_file = log_dir / "repeater_log_{time:YYYY-MM-DD_HH-mm-ss}.log"
@@ -84,7 +87,10 @@ class Core:
             log_file,
             format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {extra[user_id]} - {message}",
             enqueue=True,
-            delay=True
+            delay=True,
+            rotation=max_log_file_size,
+            retention=log_retention,
+            compression="zip"
         )
 
         # 全局锁(用于获取会话锁)
@@ -387,168 +393,164 @@ class Core:
         :param continue_completion: 是否继续完成
         :return: 返回对话结果
         """
-        try:
-            # 记录开始时间
-            task_start_time = time.time_ns()
+        # 记录开始时间
+        task_start_time = time.time_ns()
 
-            # 获取用户锁对象
-            lock = await self._get_session_lock(user_id)
+        # 获取用户锁对象
+        lock = await self._get_session_lock(user_id)
+        
+        # 加锁执行
+        async with lock:
+            logger.info("====================================", user_id = user_id)
+            logger.info("Start Task", user_id = user_id)
+
+            # 判断用户是否在黑名单中
+            if await self.in_blacklist(user_id):
+                return _Output(
+                    content="Error: Sorry, you are in blacklist.",
+                    finish_reason_cause="User in blacklist"
+                ).as_dict
+
+            # 进行用户名映射
+            user_name = await self.load_nickname_mapping(user_id, user_name)
+
+            # 获取配置
+            config = await self.get_config(user_id)
             
-            # 加锁执行
-            async with lock:
-                logger.info("====================================", user_id = user_id)
-                logger.info("Start Task", user_id = user_id)
+            # 获取模型类型
+            if not model_type:
+                model_type = config.get("model_type", configs.get_config("default_model_type", "chat").get_value(str))
 
-                # 判断用户是否在黑名单中
-                if await self.in_blacklist(user_id):
-                    return _Output(
-                        content="Error: Sorry, you are in blacklist.",
-                        finish_reason_cause="User in blacklist"
-                    ).as_dict
+            # 获取Prompt_vp以展开变量内容
+            prompt_vp = await self.get_prompt_vp(
+                user_id = user_id,
+                user_name = user_name,
+                model_type = model_type,
+                config = config
+            )
 
-                # 进行用户名映射
-                user_name = await self.load_nickname_mapping(user_id, user_name)
+            # 获取上下文加载器
+            context_loader = await self.get_context_loader()
 
-                # 获取配置
-                config = await self.get_config(user_id)
-                
-                # 获取模型类型
-                if not model_type:
-                    model_type = config.get("model_type", configs.get_config("default_model_type", "chat").get_value(str))
+            # 获取上下文
+            context = await self.get_context(
+                context_loader = context_loader,
+                user_id = user_id,
+                message = message,
+                user_name = user_name,
+                role = role,
+                role_name = role_name,
+                load_prompt = load_prompt,
+                continue_completion = continue_completion,
+                reference_context_id = reference_context_id,
+                prompt_vp = prompt_vp
+            )
 
-                # 获取Prompt_vp以展开变量内容
-                prompt_vp = await self.get_prompt_vp(
-                    user_id = user_id,
-                    user_name = user_name,
-                    model_type = model_type,
-                    config = config
+            user_input = context.last_content
+            
+            # 创建请求对象
+            request = CallAPI.Request()
+            # 设置上下文
+            request.context = context
+
+            # 获取API信息
+            apilist = self.apiinfo.find_type(model_type = model_type)
+            # 取第一个API
+            api = apilist[0]
+            
+            # 设置请求对象的API信息
+            request.url = api.url
+            request.model = api.model_id
+            request.key = api.api_key
+            logger.info(f"API URL: {api.url}", user_id = user_id)
+            logger.info(f"API Model: {api.model_name}", user_id = user_id)
+
+            # 打印上下文信息
+            if user_input.content:
+                logger.info("Message:\n{message}", message = user_input.content, user_id = user_id)
+            else:
+                logger.warning("No message to send", user_id = user_id)
+            logger.info(f"User Name: {user_name}", user_id = user_id)
+
+            # 如果有设置角色名称信息，则打印日志
+            if role_name:
+                logger.info(f"Role Name: {role_name}", user_id = user_id)
+
+            # 设置请求对象的参数信息
+            request.user_name = user_name
+            request.temperature = config.get("temperature", configs.get_config("default_temperature", 1.0).get_value(float))
+            request.top_p = config.get("top_p", configs.get_config("default_top_p", 1.0).get_value(float))
+            request.max_tokens = config.get("max_tokens", configs.get_config("default_max_tokens", 4096).get_value(int))
+            request.max_completion_tokens = config.get("max_completion_tokens", configs.get_config("default_max_completion_tokens", 4096).get_value(int))
+            request.stop = config.get("stop", configs.get_config("default_stop", None).get_value((list, None)))
+            request.stream = configs.get_config("stream", True).get_value(bool)
+            request.frequency_penalty = config.get("frequency_penalty", configs.get_config("default_frequency_penalty", 0.0).get_value(float))
+            request.presence_penalty = config.get("presence_penalty", configs.get_config("default_presence_penalty", 0.0).get_value(float))
+            request.print_chunk = print_chunk
+
+            # 记录预处理结束时间
+            call_prepare_end_time = time.time_ns()
+
+            # 输出 (为了自动填充输出内容)
+            output = _Output()
+            output.model_name = api.group_name
+            output.model_type = api.model_type
+            output.model_id = api.model_id
+
+            # 提交请求
+            try:
+                response = await self._sendmsg(
+                    user_id=user_id,
+                    request=request
                 )
-
-                # 获取上下文加载器
-                context_loader = await self.get_context_loader()
-
-                # 获取上下文
-                context = await self.get_context(
-                    context_loader = context_loader,
-                    user_id = user_id,
-                    message = message,
-                    user_name = user_name,
-                    role = role,
-                    role_name = role_name,
-                    load_prompt = load_prompt,
-                    continue_completion = continue_completion,
-                    reference_context_id = reference_context_id,
-                    prompt_vp = prompt_vp
-                )
-
-                user_input = context.last_content
-                
-                # 创建请求对象
-                request = CallAPI.Request()
-                # 设置上下文
-                request.context = context
-
-                # 获取API信息
-                apilist = self.apiinfo.find_type(model_type = model_type)
-                # 取第一个API
-                api = apilist[0]
-                
-                # 设置请求对象的API信息
-                request.url = api.url
-                request.model = api.model_id
-                request.key = api.api_key
-                logger.info(f"API URL: {api.url}", user_id = user_id)
-                logger.info(f"API Model: {api.model_name}", user_id = user_id)
-
-                # 打印上下文信息
-                if user_input.content:
-                    logger.info("Message:\n{message}", message = user_input.content, user_id = user_id)
-                else:
-                    logger.warning("No message to send", user_id = user_id)
-                logger.info(f"User Name: {user_name}", user_id = user_id)
-
-                # 如果有设置角色名称信息，则打印日志
-                if role_name:
-                    logger.info(f"Role Name: {role_name}", user_id = user_id)
-
-                # 设置请求对象的参数信息
-                request.user_name = user_name
-                request.temperature = config.get("temperature", configs.get_config("default_temperature", 1.0).get_value(float))
-                request.top_p = config.get("top_p", configs.get_config("default_top_p", 1.0).get_value(float))
-                request.max_tokens = config.get("max_tokens", configs.get_config("default_max_tokens", 4096).get_value(int))
-                request.max_completion_tokens = config.get("max_completion_tokens", configs.get_config("default_max_completion_tokens", 4096).get_value(int))
-                request.stop = config.get("stop", configs.get_config("default_stop", None).get_value((list, None)))
-                request.stream = configs.get_config("stream", True).get_value(bool)
-                request.frequency_penalty = config.get("frequency_penalty", configs.get_config("default_frequency_penalty", 0.0).get_value(float))
-                request.presence_penalty = config.get("presence_penalty", configs.get_config("default_presence_penalty", 0.0).get_value(float))
-                request.print_chunk = print_chunk
-
-                # 记录预处理结束时间
-                call_prepare_end_time = time.time_ns()
-
-                # 输出 (为了自动填充输出内容)
-                output = _Output()
-                output.model_name = api.group_name
-                output.model_type = api.model_type
-                output.model_id = api.model_id
-
-                # 提交请求
-                try:
-                    response = await self._sendmsg(
-                        user_id=user_id,
-                        request=request
-                    )
-                except CallAPI.Exceptions.CallApiException as e:
-                    logger.error(f"CallAPI Error: {e}")
-                    output.content = f"Error:{e}"
-                    return output.as_dict
-
-                # 补充调用日志的时间信息
-                response.calling_log.task_start_time = task_start_time
-                response.calling_log.call_prepare_start_time = task_start_time
-                response.calling_log.call_prepare_end_time = call_prepare_end_time
-                response.calling_log.created_time = response.created
-
-                # 展开模型输出内容中的变量
-                response.context.last_content.content = prompt_vp.process(response.context.last_content.content)
-                # 记录Prompt_vp的命中情况
-                logger.info(f"Prompt Hits Variable: {prompt_vp.hit_var()}/{prompt_vp.discover_var()}({prompt_vp.hit_var() / prompt_vp.discover_var() if prompt_vp.discover_var() != 0 else 0:.2%})", user_id = user_id)
-
-                # 保存上下文
-                if save_context:
-                    context = response.context
-                    if reference_context_id:
-                        historical_context = await context_loader.get_context_object(user_id)
-                        historical_context.append(user_input)
-                        historical_context.append(response.context.last_content)
-                        context = historical_context
-                    await context_loader.save(
-                        user_id = user_id,
-                        context = context
-                    )
-                else:
-                    logger.warning("Context not saved", user_id = user_id)
-
-                # 记录任务结束时间
-                response.calling_log.task_end_time = time.time_ns()
-
-                # 记录调用日志
-                await self.calllog.add_call_log(response.calling_log)
-
-                # 记录API调用成功
-                logger.success(f"API call successful", user_id = user_id)
-
-                # 返回模型输出内容
-                output.reasoning_content = response.context.last_content.reasoning_content
-                output.content = response.context.last_content.content
-                output.create_time = response.created
-                output.id = response.id
-
-                output.finish_reason_cause = response.finish_reason_cause
+            except CallAPI.Exceptions.CallApiException as e:
+                logger.error(f"CallAPI Error: {e}")
+                output.content = f"Error:{e}"
                 return output.as_dict
-        except Exception as e:
-            logger.error("API call failed: {exception}", user_id = user_id, exception = e)
-            raise
+
+            # 补充调用日志的时间信息
+            response.calling_log.task_start_time = task_start_time
+            response.calling_log.call_prepare_start_time = task_start_time
+            response.calling_log.call_prepare_end_time = call_prepare_end_time
+            response.calling_log.created_time = response.created
+
+            # 展开模型输出内容中的变量
+            response.context.last_content.content = prompt_vp.process(response.context.last_content.content)
+            # 记录Prompt_vp的命中情况
+            logger.info(f"Prompt Hits Variable: {prompt_vp.hit_var()}/{prompt_vp.discover_var()}({prompt_vp.hit_var() / prompt_vp.discover_var() if prompt_vp.discover_var() != 0 else 0:.2%})", user_id = user_id)
+
+            # 保存上下文
+            if save_context:
+                context = response.context
+                if reference_context_id:
+                    historical_context = await context_loader.get_context_object(user_id)
+                    historical_context.append(user_input)
+                    historical_context.append(response.context.last_content)
+                    context = historical_context
+                await context_loader.save(
+                    user_id = user_id,
+                    context = context
+                )
+            else:
+                logger.warning("Context not saved", user_id = user_id)
+
+            # 记录任务结束时间
+            response.calling_log.task_end_time = time.time_ns()
+
+            # 记录调用日志
+            await self.calllog.add_call_log(response.calling_log)
+
+            # 记录API调用成功
+            logger.success(f"API call successful", user_id = user_id)
+
+            # 返回模型输出内容
+            output.reasoning_content = response.context.last_content.reasoning_content
+            output.content = response.context.last_content.content
+            output.create_time = response.created
+            output.id = response.id
+
+            output.finish_reason_cause = response.finish_reason_cause
+            return output.as_dict
     # endregion
 
     # region > 发送请求
