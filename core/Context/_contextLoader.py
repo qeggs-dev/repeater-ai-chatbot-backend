@@ -57,7 +57,7 @@ class ContextLoader:
             logger.info(f"Load User Prompt", user_id = user_id)
         else:
             # 加载默认提示词
-            default_prompt_dir = configs.get_config("Default_Prompt_Dir", Path()).get_value(Path)
+            default_prompt_dir = configs.get_config("Default_Prompt_Dir", Path("./Prompt/Presets")).get_value(Path)
             if default_prompt_dir.exists():
                 # 如果存在默认提示词文件，则加载默认提示词文件
                 config = await self.config.load(user_id)

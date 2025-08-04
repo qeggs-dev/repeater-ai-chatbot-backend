@@ -52,7 +52,7 @@ class ConfigManager:
 
         if self._cache_switch:
             if user_id in cache:
-                logger.debug("Get config form cache", user_id = user_id)
+                logger.info("Get config form cache", user_id = user_id)
                 config = cache[user_id]
             else:
                 config = Configs(
@@ -60,7 +60,7 @@ class ConfigManager:
                     configs = await self._user_config_manager.load(user_id)
                 )
                 cache[user_id] = config
-                logger.debug("Get config from database and save to cache", user_id = user_id)
+                logger.info("Get config from database and save to cache", user_id = user_id)
             
             # 如果已有任务，先取消
             if user_id in self._downgrade_tasks and not self._downgrade_tasks[user_id].done():
@@ -71,7 +71,7 @@ class ConfigManager:
             self._downgrade_tasks[user_id] = task
             return config
         else:
-            logger.debug("Get config from database", user_id = user_id)
+            logger.info("Get config from database", user_id = user_id)
             return Configs(
                 user_id = user_id,
                 configs = await self._user_config_manager.load(user_id)
@@ -90,7 +90,7 @@ class ConfigManager:
         if self._cache_switch:
             if user_id in cache:
                 if isinstance(configs, Configs):
-                    logger.debug("Save config to cache", user_id = user_id)
+                    logger.info("Save config to cache", user_id = user_id)
                     cache[user_id] = configs
 
                     if user_id in cache and (user_id in self._debonce_save_tasks and not self._debonce_save_tasks[user_id].done()):
@@ -103,7 +103,7 @@ class ConfigManager:
                 else:
                     raise TypeError("configs must be Configs object")
         else:
-            logger.debug("Save config to database", user_id = user_id)
+            logger.info("Save config to database", user_id = user_id)
             await self._user_config_manager.save(user_id, configs.configs)
     
     async def _wait_and_downgrade(self, user_id: str, wait_time: float = 5) -> None:
@@ -117,7 +117,7 @@ class ConfigManager:
             await asyncio.sleep(wait_time)
             cache = await self._get_cache()
             if user_id in cache:
-                logger.debug("Downgrade config", user_id = user_id)
+                logger.info("Downgrade config", user_id = user_id)
                 del cache[user_id]
         except asyncio.CancelledError:
             logger.info("User config downgrade task cancelled", user_id = user_id)
@@ -133,7 +133,7 @@ class ConfigManager:
             await asyncio.sleep(wait_time)
             cache = await self._get_cache()
             if user_id in cache:
-                logger.debug("Save config", user_id = user_id)
+                logger.info("Save config", user_id = user_id)
                 await self._user_config_manager.save(user_id, cache[user_id].configs)
                 del cache[user_id]
         except asyncio.CancelledError:
@@ -158,7 +158,7 @@ class ConfigManager:
         :return: None
         """
         await self._user_config_manager.set_default_item_id(user_id, item)
-        logger.debug("Set default config item", user_id = user_id, item = item)
+        logger.info("Set default config item", user_id = user_id, item = item)
     
     async def delete(self, user_id: str) -> None:
         """
@@ -171,7 +171,7 @@ class ConfigManager:
         if user_id in cache:
             del cache[user_id]
         await self._user_config_manager.delete(user_id)
-        logger.debug("Delete config", user_id = user_id)
+        logger.info("Delete config", user_id = user_id)
     
     async def clear_cache(self) -> None:
         """
@@ -190,7 +190,7 @@ class ConfigManager:
         cache = await self._get_cache()
         await self._user_config_manager.save(user_id, configs.configs)
         cache[user_id] = configs
-        logger.debug("Force write config", user_id = user_id)
+        logger.info("Force write config", user_id = user_id)
 
     async def save_all(self) -> None:
         """
@@ -203,7 +203,7 @@ class ConfigManager:
         for user_id, configs in cache.items():
             await self._user_config_manager.save(user_id, configs.configs)
         
-        logger.debug(f"Saved {len(cache)} config", user_id = user_id)
+        logger.info(f"Saved {len(cache)} config", user_id = user_id)
         cache.clear()
     
     async def get_all(self):
@@ -221,7 +221,7 @@ class ConfigManager:
                 user_id = user_id,
                 configs = await self._user_config_manager.load(user_id)
             )
-        logger.debug(f"Loaded {len(cache)} configs")
+        logger.info(f"Loaded {len(cache)} configs")
         return cache
     
     async def get_all_user_id(self):
