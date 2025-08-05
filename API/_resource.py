@@ -14,7 +14,7 @@ configs = ConfigLoader(
     config_file_path = env.path("CONFIG_FILE_PATH", "./configs/project_config.json")
 )
 import core
-from admin_apikey_manager import AdminKeyManager
+from AdminApikeyManager import AdminKeyManager
 from PathProcessors import validate_path
 # endregion
 
