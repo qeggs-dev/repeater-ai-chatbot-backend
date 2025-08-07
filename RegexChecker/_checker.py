@@ -20,8 +20,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> if regex_checker.check("test@example.com"):
             ...     print("Matched")
             ... else:
@@ -52,8 +54,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> if regex_checker.full_check("test@example.com"):
             ...     print("Matched")
             ... else:
@@ -84,9 +88,12 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> results = regex_checker.check_all(["test@example.com", "test2 @example.com"])
+
             >>> for result in results:
             ...     if result:
             ...         print("Matched")
@@ -107,10 +114,10 @@ class RegexChecker:
         example:
             >>> regex_checker = RegexChecker()
             >>> with open("regexs.txt", "r") as f:
-            >>>     def stream():
-            >>>         for line in f:
-            >>>             yield line
-            >>>     regex_checker.load_strstream(stream())
+            ...     def stream():
+            ...         for line in f:
+            ...             yield line
+            ...     regex_checker.load_strstream(stream())
 
         :param stream: The stream to load the regexs from.
         :return: A LoaderDetailsData object containing the number of successful and unusual.
@@ -143,7 +150,9 @@ class RegexChecker:
 
         example:
             >>> checker = RegexChecker()
+
             >>> with open("regexs.txt", "r") as f:
+
             >>>     checker.load(f.read())
 
         :param file: The file to load the regexs from.
@@ -157,6 +166,7 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.loads_from_iterator(iter([("[a-z]+", True), ("[a-z", False)]))
             LoaderDetailsData(successful=1, unusual=1)
 
@@ -182,6 +192,7 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.load([("[a-z]+", True), ("[a-z", False)])
             LoaderDetailsData(successful=1, unusual=1)
 
@@ -197,8 +208,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> for line in regex_checker.dump_strstream():
             ...     print(line)
             [REGEX SERIES FILE]
@@ -216,8 +229,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> with open("regexs.txt", "w") as f:
             ...     f.write(regex_checker.dump())
 
@@ -233,11 +248,15 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> regexs, mode = regex_checker.dumps_to_iterator()
+
             >>> print(mode)
             CheckerMode.SERIES
+
             >>> for regex, enabled in regexs:
             ...     print(f"'{regex}' | {enabled}")
             '[\S]+@[\S]+\.[\S]+' | True
@@ -256,11 +275,15 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> regexs, mode = regex_checker.dumps()
+
             >>> print(mode)
             CheckerMode.SERIES
+
             >>> for regex, enabled in regexs:
             ...     print(f"'{regex}' | {enabled}")
             '[\S]+@[\S]+\.[\S]+' | True
@@ -275,6 +298,7 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
 
@@ -293,8 +317,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> regex_checker[0]
             '[\\S]+@[\\S]+\.[\\S]+'
 
@@ -318,8 +344,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> regex_checker[0] = r"[\S]+@[\S]+\.[\S]+"
             '[\S]+@[\S]+\.[\S]+'
 
@@ -343,9 +371,12 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> del regex_checker[0]
+
             >>> len(regex_checker)
             0
 
@@ -359,8 +390,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> len(regex_checker)
             1
 
@@ -374,8 +407,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> for regex in regex_checker:
             ...     print(regex.pattern)
             '[\S]+@[\S]+\.[\S]+'
@@ -392,8 +427,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> regex_checker == RegexChecker()
             False
 
@@ -412,9 +449,12 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> regex_checker.clear()
+
             >>> len(regex_checker)
             0
         """
@@ -427,6 +467,7 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.mode
             CheckerMode.SERIES
 
@@ -441,6 +482,7 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.mode = CheckerMode.PARALLEL
             CheckerMode.PARALLEL
 
@@ -454,8 +496,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> regex_checker.enable(0)
 
         :param index: The index of the regex to enable.
@@ -468,8 +512,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> regex_checker.disable(0)
 
         :param index: The index of the regex to disable.
@@ -482,8 +528,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> regex_checker.find_regex(r"[\S]+@[\S]+\.[\S]+")
             0
 
@@ -501,8 +549,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> regex_checker.recompile()
         """
         regexs: list[tuple[re.Pattern, bool]] = []
@@ -516,8 +566,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> regex_checker.set_flags(re.IGNORECASE)
 
         :param flags: The regex flags to set.
@@ -531,8 +583,10 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> regex_checker.get_all_enabled()
             ['[\S]+@[\S]+\.[\S]+']
 
@@ -546,9 +600,12 @@ class RegexChecker:
 
         example:
             >>> regex_checker = RegexChecker()
+
             >>> regex_checker.add_regex(r"[\S]+@[\S]+\.[\S]+")
             True
+
             >>> regex_checker.disable(0)
+            
             >>> regex_checker.get_all_disabled()
             ['[\S]+@[\S]+\.[\S]+']
 

@@ -48,7 +48,7 @@ from RegexChecker import RegexChecker
 # ==== 本模块代码 ==== #
 configs = ConfigLoader()
 
-__version__ = configs.get_config("VERSION", "4.1.2.0").get_value(str)
+__version__ = configs.get_config("VERSION", "4.2.0.0").get_value(str)
 
 @dataclass
 class _Output:
@@ -212,10 +212,10 @@ class Core:
         )
     # endregion
     
-    # region > load nickname mapping
-    async def load_nickname_mapping(self, user_id: str, user_name: str) -> str:
+    # region > nickname mapping
+    async def nickname_mapping(self, user_id: str, user_name: str) -> str:
         """
-        加载用户昵称映射
+        用户昵称映射
         :param user_id: 用户ID
         :param user_name: 用户名
         :return: 昵称
@@ -229,12 +229,14 @@ class Core:
             try:
                 nickname_mapping = orjson.loads(fdata)
             except orjson.JSONDecodeError:
+                logger.warning(f"Failed to decode nickname mapping file [{user_nickname_mapping_file_path}]", user_id=user_id)
                 nickname_mapping = {}
         
         if user_name in nickname_mapping:
             logger.info(f"User Name [{user_name}] -> [{nickname_mapping[user_name]}]", user_id=user_id)
             user_name = nickname_mapping[user_name]
         elif user_id in nickname_mapping:
+            logger.info(f"User Name [{user_name}] -> [{nickname_mapping[user_name]}]", user_id=user_id)
             user_name = nickname_mapping[user_id]
         
         return user_name
@@ -334,8 +336,11 @@ class Core:
         
         if blacklist_file_path.exists():
             self.blacklist.clear()
-            async with aiofiles.open(blacklist_file_path, 'r') as f:
-                self.blacklist.load(await f.read())
+            try:
+                async with aiofiles.open(blacklist_file_path, 'r') as f:
+                    self.blacklist.load(await f.read())
+            except ValueError as e:
+                logger.warning(f"load blacklist failed: {e}")
     # endregion
 
     # region > in blacklist
@@ -413,7 +418,7 @@ class Core:
                     ).as_dict
 
                 # 进行用户名映射
-                user_name = await self.load_nickname_mapping(user_id, user_name)
+                user_name = await self.nickname_mapping(user_id, user_name)
 
                 # 获取配置
                 config = await self.get_config(user_id)
