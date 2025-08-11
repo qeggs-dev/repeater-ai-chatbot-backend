@@ -4,12 +4,13 @@ import inspect
 from typing import (
     Any,
     Awaitable,
+    Callable
 )
-import time
 from datetime import datetime, timezone
 
 # ==== 第三方库 ==== #
 import openai
+from openai.types.chat import ChatCompletion
 from environs import Env
 from loguru import logger
 
@@ -28,7 +29,7 @@ from ...Context import (
     ContentUnit,
     ContextRole
 )
-from ...CallLog import CallLog
+from ...CallLog import CallLog, TimeStamp
 from ...CoroutinePool import CoroutinePool
 from TimeParser import (
     format_deltatime,
@@ -69,8 +70,8 @@ class CallAPI(CallNstreamAPIBase):
         
         # 发送请求
         logger.info(f"Send Request", user_id = user_id)
-        request_start_time = time.time_ns()
-        response = await client.chat.completions.create(
+        request_start_time = TimeStamp()
+        response: ChatCompletion = await client.chat.completions.create(
             model = request.model,
             temperature = request.temperature,
             top_p = request.top_p,
@@ -83,7 +84,7 @@ class CallAPI(CallNstreamAPIBase):
             messages = remove_keys_from_dicts(request.context.full_context, {"reasoning_content"}) if not request.context.last_content.prefix else request.context.full_context,
             tools = request.function_calling.tools if request.function_calling else None,
         )
-        request_end_time = time.time_ns()
+        request_end_time = TimeStamp()
 
         # 创建响应内容单元
         model_response_content_unit:ContentUnit = ContentUnit()

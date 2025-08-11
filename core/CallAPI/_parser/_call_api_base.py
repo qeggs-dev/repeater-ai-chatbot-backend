@@ -1,4 +1,4 @@
-from typing import overload, Literal, AsyncIterator
+from typing import overload, Literal, AsyncIterator, Callable, Awaitable
 from abc import ABC, abstractmethod
 from .._object import Request, Response, Delta
 
@@ -7,17 +7,12 @@ class BaseCallAPI(ABC):
     Abstract class for calling API
     """
     @abstractmethod
-    async def call(self, request: Request) -> Response | AsyncIterator[Delta]:
+    async def call(self, user_id: str, request: Request) -> Response | AsyncIterator[Delta]:
         pass
 
     @property
     @abstractmethod
     def streamable(self) -> bool:
-        pass
-
-    @property
-    @abstractmethod
-    def last_response(self) -> Response | None:
         pass
 
 class CallNstreamAPIBase(BaseCallAPI, ABC):
@@ -29,12 +24,7 @@ class CallNstreamAPIBase(BaseCallAPI, ABC):
         return False
 
     @abstractmethod
-    async def call(self, request: Request) -> Response:
-        pass
-
-    @property
-    @abstractmethod
-    def last_response(self) -> Response | None:
+    async def call(self, user_id: str, request: Request) -> Response:
         pass
 
 class CallStreamAPIBase(BaseCallAPI, ABC):
@@ -46,10 +36,5 @@ class CallStreamAPIBase(BaseCallAPI, ABC):
         return True
 
     @abstractmethod
-    async def call(self, request: Request) -> AsyncIterator[Delta]:
-        pass
-    
-    @property
-    @abstractmethod
-    def last_response(self) -> Response | None:
+    async def call(self, user_id: str, request: Request) -> AsyncIterator[Delta]:
         pass

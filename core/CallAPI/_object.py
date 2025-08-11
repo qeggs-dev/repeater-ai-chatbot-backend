@@ -1,8 +1,8 @@
 from dataclasses import dataclass, asdict, field
-from typing import Callable, Coroutine, Literal
+from typing import Callable, Coroutine, Literal, Any
 
 from ..Context import ContextObject, CallingFunctionRequest
-from ..CallLog import CallLog
+from ..CallLog import CallLog, TimeStamp
 
 @dataclass
 class TokensCount:
@@ -47,7 +47,7 @@ class Delta:
     function_arguments: str = ""
     token_usage: TokensCount = field(default_factory=TokensCount)
     finish_reason: Literal["stop", "length", "content_filter", "tool_calls", "insufficient_system_resource"] | None = None
-    created: int = 0
+    created: TimeStamp = 0
     model: str = ""
     system_fingerprint: str = ""
     logprobs: list[Logprob] = field(default_factory=list)
@@ -60,7 +60,7 @@ class Delta:
         return not (self.reasoning_content or self.content or self.function_name or self.function_arguments or self.token_usage)
     
     @property
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         """
         Convert the delta data to a dictionary.
         """
@@ -97,18 +97,18 @@ class Response:
     """
     id: str = ""
     context: ContextObject = field(default_factory=ContextObject)
-    created: int = 0
+    created: TimeStamp = 0
     model: str = ""
     token_usage: TokensCount | None = None
     stream: bool = False
 
-    stream_processing_start_time_ns:int = 0
-    stream_processing_end_time_ns:int = 0
-    chunk_times: list[int] = field(default_factory=list)
+    stream_processing_start_time_ns:TimeStamp = 0
+    stream_processing_end_time_ns:TimeStamp = 0
+    chunk_times: list[TimeStamp] = field(default_factory=list)
     finish_reason: Literal["stop", "length", "content_filter", "tool_calls", "insufficient_system_resource"] = "stop"
     system_fingerprint: str = ""
     logprobs: list[Logprob] | None = None
-    calling_log: CallLog | None = None
+    calling_log: CallLog = field(default_factory=CallLog)
 
     @property
     def finish_reason_cause(self) -> str:

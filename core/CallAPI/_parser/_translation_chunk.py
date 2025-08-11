@@ -1,11 +1,11 @@
 from .._object import Delta, TokensCount
+from openai.types.chat import ChatCompletion
 
-
-async def process_chunk(
-    chunk
+async def translation_chunk(
+    chunk: ChatCompletion,
 ) -> Delta:
     """
-    处理单个OpenAI API响应块
+    翻译单个OpenAI API响应块
 
     :param chunk: API响应块
     :return: Delta_data对象
