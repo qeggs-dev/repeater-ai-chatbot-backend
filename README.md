@@ -32,93 +32,42 @@
 ## License
 这个项目基于[MIT License](LICENSE)发布。
 
+### 依赖项License:
+| Name              | Version   | License                                           | License Text Link                                                                                     |
+|-------------------|-----------|---------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+| Markdown          | 3.8.2     | BSD 3-Clause License                              | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          |
+| PyYAML            | 6.0.2     | MIT License                                       | [MIT](https://opensource.org/license/mit/)                                                            |
+| aiofiles          | 24.1.0    | Apache Software License                           | [Apache-2.0](https://opensource.org/license/apache-2-0/)                                              |
+| environs          | 14.2.0    | MIT License                                       | [MIT](https://opensource.org/license/mit/)                                                            |
+| fastapi           | 0.115.13  | MIT License                                       | [MIT](https://opensource.org/license/mit/)                                                            |
+| httpx             | 0.28.1    | BSD License                                       | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          |
+| imgkit            | 1.2.3     | MIT License                                       | [MIT](https://opensource.org/license/mit/)                                                            |
+| loguru            | 0.7.3     | MIT License                                       | [MIT](https://opensource.org/license/mit/)                                                            |
+| openai            | 1.90.0    | Apache Software License                           | [Apache-2.0](https://opensource.org/license/apache-2-0/)                                              |
+| orjson            | 3.10.18   | Apache Software License; MIT License              | [Apache-2.0](https://opensource.org/license/apache-2-0/) / [MIT](https://opensource.org/license/mit/) |
+| prompt_toolkit    | 3.0.51    | BSD License                                       | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          |
+| pydantic          | 2.11.7    | MIT License                                       | [MIT](https://opensource.org/license/mit/)                                                            |
+| python-multipart  | 0.0.20    | Apache Software License                           | [Apache-2.0](https://opensource.org/license/apache-2-0/)                                              |
+| uvicorn           | 0.34.3    | BSD License                                       | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          |
+
+
 ---
 
-<details>
-    <summary>旧版部署教程(已废弃)</summary>
-
-> ## 主要依赖
-> #### [`NoneBot`](https://nonebot.dev/)：一个基于Python的异步OneBot框架
-> 安装步骤(默认你已经安装了Python)：
-> 
-> > 1. 打开命令行终端，切换路径到你希望安装NoneBot的目录下
-> > 2. 初始化虚拟环境(此处以venv为例，已经有虚拟环境的可以跳过此步骤)：python -m venv venv
-> > 3. 激活虚拟环境(如果已经激活可以跳过此步骤)：venv\Scripts\activate（Windows）或source venv/bin/activate（Linux）
-> 
-> 部署步骤(默认你已经获取到了复读机的NoneBot插件)：
-> 
-> > 1. 命令行输入pip install nb-cli，回车运行命令
-> > 2. 再次输入nb create回车，创建一个项目
-> > 3. 选择simple模板
-> > 4. 给项目起个名字
-> > 5. 建议使用FastAPI驱动器
-> > 6. **至少必须选择OneBot V11适配器**
-> > 7. 输入Yes安装默认依赖
-> > 8. 输入Yes安装虚拟环境
-> > 9. 如果需要，可以选择内置插件，如echo
-> > 11. 在项目目录下，找到`.env`文件
-> > 12. 填写HOST(x.x.x.x)和PORT(数字)，并保存
-> > 13. 将复读机的NoneBot插件放入项目目录下（通常是`plugins`文件夹下）
-> > 14. 部署完成后，运行nb run
-> 
-> #### [`OpenAI SDK`](https://github.com/openai/openai-python)：一个基于Python的大模型对接SDK
-> 安装步骤(默认你已经安装了Python)：
-> 
-> > 1. 打开命令行终端，切换路径到你希望安装OpenAI SDK的目录下
-> > 2. 初始化虚拟环境(此处以venv为例，已经有虚拟环境的可以跳过此步骤)：python -m venv venv
-> > 3. 激活虚拟环境(如果已经激活可以跳过此步骤)：venv\Scripts\activate（Windows）或source venv/bin/activate（Linux）
-> > 4. 输入命令pip install openai，回车运行命令
-> 
-> #### [`FastAPI`](https://fastapi.tiangolo.com/)：一个用于构建高性能、可扩展的API的Python框架
-> 安装步骤(默认你已经安装了Python)：
-> 
-> > 1. 打开命令行终端，切换路径到你希望安装FastAPI的目录下
-> > 2. 初始化虚拟环境(此处以venv为例，已经有虚拟环境的可以跳过此步骤)：python -m venv venv
-> > 3. 激活虚拟环境(如果已经激活可以跳过此步骤)：venv\Scripts\activate（Windows）或source venv/bin/activate（Linux）
-> > 4. 输入命令pip install fastapi，回车运行命令
-> 
-> #### [`uvicorn`](https://www.uvicorn.org/)：一个基于ASGI的Python服务器，用于运行FastAPI应用
-> 安装步骤(默认你已经安装了Python)：
-> 
-> > 1. 打开命令行终端，切换路径到你希望安装uvicorn的目录下
-> > 2. 初始化虚拟环境(此处以venv为例，已经有虚拟环境的可以跳过此步骤)：python -m venv venv
-> > 3. 激活虚拟环境(如果已经激活可以跳过此步骤)：venv\Scripts\activate（Windows）或source venv/bin/activate（Linux）
-> > 4. 输入命令pip install uvicorn，回车运行命令
-> 
-> #### [`NapCat`](https://napneko.github.io/guide/napcat): 一个用于处理QQ消息的OneBot适配器
-> 安装步骤(此处默认选择Shell版安装方式)
-> 
-> > 1. 前往 NapCatQQ 的 release 页面 下载NapCat.Shell.zip解压
-> > 2. 确保QQ版本安装且最新
-> > 3. 双击目录下launcher.bat启动(如果是win10 则使用launcher-win10.bat)
-> 
-> 配置步骤：
-> 
-> > 1. 启动后，扫码登陆NapCatQQ
-> > 2. 访问WebUI(http://127.0.0.1:xxxx/webui/?token=napcat)
-> > 3. 点击`网络配置`
-> > 4. 点击`新建`，选择`WebSocket客户端`
-> > 5. 打开`启用`，输入一个名称
-> > 6. 输入NoneBot配置时填写的`HOST`和`PORT`(格式：ws://`HOST`:`PORT`/onebot/v11/ws)
-> > 7. 输入token(如果你没改密码那么就填入`napcat`，否则需要填入你的密码)
-> > 8. 点击`保存`，等待连接成功
-> 
-> ---
-> 
-> ## 次级依赖
-> 
-> *默认你已经完成主要依赖的安装*
-> 
->  - aiofiles
->  - environs
->  - python-multipart
->  - loguru
->  - orjson
->  - uvicorn
->  - markdown
->  - imgkit
->  - httpx
-</details>
+## 依赖项
+- aiofiles: 用于异步文件操作 (`core.DataManager`)
+- environs: 用于环境变量管理 (`Entire Project`)
+- pydantic: 用于数据验证和设置管理 (`core.ConfigManager`)
+- fastapi: 用于构建API (`API & run_fastapi.py`)
+- python-multipart: 用于处理多部分表单数据 (`API(FastAPI)`)
+- loguru: 用于日志记录 (`Entire Project`)
+- openai: 用于与OpenAI API交互 (`core.CallAPI`)
+- orjson: 用于高性能的JSON序列化和反序列化 (`core.DataManager & API`)
+- uvicorn: 用于运行FastAPI应用 (`run_fastapi.py`)
+- markdown: 用于处理Markdown文本 (`Markdown`)
+- imgkit: 用于将HTML转换为PDF (`Markdown`)
+- httpx: 用于发送HTTP请求 (`core.FuncerClient`)
+- pyyaml: 用于处理YAML文件 (`API & ConfigManager`)
+- prompt_toolkit: 用于启动脚本中的自动搜索补全功能 (`run.py`)
 
 ---
 
@@ -284,7 +233,6 @@ PS: `system`字段可以让配置加载器在读取该项的时候自动按照�
 | `chat` | 聊天 |
 | `reasoner` | 推理 |
 | `coder` | 编码 |
-| `prover` | 证明 |
 
 ---
 

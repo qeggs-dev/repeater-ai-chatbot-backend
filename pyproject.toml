@@ -1,0 +1,29 @@
+[project]
+name = "repeater-backend-server"
+version = "4.2.0"
+description = "An experimental QQ chatbot backend service developed based on NoneBot and OpenAI SDK."
+authors = [
+    {name = "Qeggs",email = "get_boot@outlook.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "aiofiles (>=24.1.0,<25.0.0)",
+    "environs (>=14.3.0,<15.0.0)",
+    "pydantic (>=2.11.7,<3.0.0)",
+    "fastapi (>=0.116.1,<0.117.0)",
+    "python-multipart (>=0.0.20,<0.0.21)",
+    "openai (>=1.99.9,<2.0.0)",
+    "orjson (>=3.11.2,<4.0.0)",
+    "uvicorn (>=0.35.0,<0.36.0)",
+    "markdown (>=3.8.2,<4.0.0)",
+    "imgkit (>=1.2.3,<2.0.0)",
+    "httpx (>=0.28.1,<0.29.0)",
+    "pyyaml (>=6.0.2,<7.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
