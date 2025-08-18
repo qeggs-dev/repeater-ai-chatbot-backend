@@ -64,9 +64,10 @@ class ContextLoader:
                 
                 # 获取默认提示词文件名
                 parset_prompt_name = config.get("parset_prompt_name", configs.get_config("parset_prompt_name", "default").get_value(str))
+                suffix = configs.get_config("Default_Prompt_Suffix", "md").get_value(str)
 
                 # 加载默认提示词文件
-                default_prompt_file = default_prompt_dir / f'{await sanitize_filename_async(parset_prompt_name)}.txt'
+                default_prompt_file = default_prompt_dir / f'{await sanitize_filename_async(parset_prompt_name)}.{suffix}'
                 if not validate_path(default_prompt_dir, default_prompt_file):
                     raise InvalidPromptPathError(f"Invalid Prompt Path: {default_prompt_file}")
                 if default_prompt_file.exists():
