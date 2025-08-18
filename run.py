@@ -59,6 +59,8 @@ class ScriptStarter:
 
         self.last_process_return_code = None
 
+        self.allow_pipx: bool | None = None
+
         self.seek_user_consent_cache: dict[str, bool] = {}
 
         self.starter_run_in_virtual_environment = (
@@ -67,11 +69,11 @@ class ScriptStarter:
         )
     
     @property
-    def venv_python_path(self):
+    def venv_bin_path(self):
         if SYSTEM == "Windows":
-            return self.venv_path / "Scripts" / self.python_path
+            return self.venv_path / "Scripts"
         else:
-            return self.venv_path / "bin" / self.python_path
+            return self.venv_path / "bin"
     
     def seek_user_consent(
             self,
@@ -112,7 +114,7 @@ class ScriptStarter:
             self.seek_user_consent_cache[prompt] = allow
         return allow
     
-    def run_command(self, command: list[str], cwd: str | Path | None = None):
+    def run_command(self, command: list[str], cwd: str | Path | None = None) -> tuple[str, str]:
         """
         运行其他命令时先询问用户是否运行
         """
@@ -122,12 +124,35 @@ class ScriptStarter:
             print(f"in: {cwd}")
         if self.seek_user_consent("Do you want to continue?", default_item=False):
             try:
-                subprocess.run(command, cwd=cwd)
+                process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd, text=True)
+                stdout, stderr = process.communicate()
+                return stdout, stderr
             except Exception as e:
                 print(f"Error: {e}")
                 raise
         else:
             print("Cancelled")
+            return "", ""
+    
+    def install_package(self, package: list[str]):
+        """
+        安装包时先检查是否可用pipx
+        """
+        if self.allow_pipx is None:
+            outpu, _ = self.run_command(["pip", "list"])
+            for line in outpu.splitlines():
+                if "pipx" in line:
+                    self.allow_pipx = True
+                    break
+                else:
+                    self.allow_pipx = False
+        
+        if self.allow_pipx:
+            installer = "pipx"
+        else:
+            installer = "pip"
+        
+        self.run_command([installer, "install"] + package)
     
     @staticmethod
     def choose_one(items: Iterable[T], prompt: str = "Choose one:", item_prefix: str = "> ", select_only_one: bool = True) -> T | None:
@@ -181,7 +206,8 @@ class ScriptStarter:
                 if (Path.cwd() / "requirements.txt").exists():
                     print("Finded requirements.txt.")
                     print("Installing requirements...")
-                    run = [self.python_path, "-m", "pip", "install", "-r", "requirements.txt"]
+                    # 此处因为requirements.txt默认安装到虚拟环境，所以不使用全局包安装器
+                    run = [str(self.venv_bin_path / "pip"), "install", "-r", "requirements.txt"]
                     self.run_command(run)
     
     def check_pyscript(self):
@@ -221,7 +247,7 @@ class ScriptStarter:
         self.check_venv()
         self.check_pyscript()
 
-        run = [str(self.venv_python_path), str(self.script_path)]
+        run = [str(self.venv_bin_path / self.python_path), str(self.script_path)]
         # 默认参数透传
         if len(sys.argv) >= 2:
             run.extend(sys.argv[1:])
@@ -250,7 +276,7 @@ class ScriptStarter:
     def check_import(self):
         global prompt_toolkit, WordCompleter, import_prompt_toolkit
         if not import_prompt_toolkit:
-            self.run_command(["pip", "install", "prompt_toolkit"])
+            self.install_package(["pip", "install", "prompt_toolkit"])
             try:
                 import prompt_toolkit
                 from prompt_toolkit.completion import WordCompleter
