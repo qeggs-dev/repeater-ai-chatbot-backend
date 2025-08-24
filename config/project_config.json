@@ -18,7 +18,18 @@
         ]
     },
     {
-        "name": "MARKDOWN_TO_IMAGE_PREPROCESS_MAP",
+        "name": "MARKDOWN_TO_IMAGE_PREPROCESS_MAP_BEFORE",
+        "values": [
+            {
+                "type": "dict",
+                "value": {
+                    "\n": "<br/>"
+                }
+            }
+        ]
+    },
+    {
+        "name": "MARKDOWN_TO_IMAGE_PREPROCESS_MAP_END",
         "values": [
             {
                 "type": "dict",

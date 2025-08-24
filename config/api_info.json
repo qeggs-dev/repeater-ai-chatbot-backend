@@ -5,19 +5,19 @@
         "URL": "https://api.deepseek.com",
         "models": [
             {
-                "Name": "Deepseek R1",
+                "Name": "Deepseek Think Model",
                 "Id": "deepseek-reasoner",
                 "Type": "reasoner",
                 "TaskType": "LLM Chat"
             },
             {
-                "Name": "Deepseek V3",
+                "Name": "Deepseek Chat Model",
                 "Id": "deepseek-chat",
                 "Type": "chat",
                 "TaskType": "LLM Chat"
             },
             {
-                "Name": "Deepseek Coder",
+                "Name": "Deepseek Coder Model",
                 "Id": "deepseek-coder",
                 "Type": "coder",
                 "TaskType": "LLM Chat"
