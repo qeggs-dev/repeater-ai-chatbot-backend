@@ -246,7 +246,7 @@ class Core:
             ),
             model_type = model_type if model_type else config.get("model_type"),
             botname = bot_name,
-            user_name = user_info.username or "None",
+            username = user_info.username or "None",
             nickname = user_info.nickname or "None",
             user_age = user_info.age or "None",
             user_gender = user_info.gender or "None",
