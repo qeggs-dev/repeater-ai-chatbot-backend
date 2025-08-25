@@ -246,7 +246,7 @@ class Core:
             ),
             model_type = model_type if model_type else config.get("model_type"),
             botname = bot_name,
-            username = user_info.username or "None",
+            user_name = user_info.username or "None",
             nickname = user_info.nickname or "None",
             user_age = user_info.age or "None",
             user_gender = user_info.gender or "None",
@@ -262,10 +262,10 @@ class Core:
         )
     # endregion
     
-    # region > get nickname
-    async def get_nickname(self, user_id: str, user_info: UserInfo) -> str:
+    # region > nickname mapping
+    async def nickname_mapping(self, user_id: str, user_info: UserInfo) -> UserInfo:
         """
-        获取用户昵称
+        用户昵称映射
         :param user_id: 用户ID
         :param user_info: 用户信息
         :return: 昵称
@@ -282,22 +282,18 @@ class Core:
                 logger.warning(f"Failed to decode nickname mapping file [{user_nickname_mapping_file_path}]", user_id=user_id)
                 nickname_mapping = {}
         
+        output = user_info
         if user_info.nickname in nickname_mapping:
             logger.info("User Name [{user_name}] -> [{to_nickname}]", user_id=user_id, user_name = user_info.nickname, to_nickname = nickname_mapping[user_info.nickname])
-            user_name = nickname_mapping[user_info.nickname]
+            output.nickname = nickname_mapping[user_info.nickname]
         elif user_info.username in nickname_mapping:
             logger.info("User Name [{user_name}] -> [{to_nickname}]", user_id=user_id, user_name = user_info.username, to_nickname = nickname_mapping[user_info.username])
-            user_name = nickname_mapping[user_info.username]
+            output.username  = nickname_mapping[user_info.username]
         elif user_id in nickname_mapping:
             logger.info("User Name [{user_id}](ID) -> [{to_nickname}]", user_id=user_id, to_nickname = nickname_mapping[user_id])
-            user_name = nickname_mapping[user_id]
-        else:
-            user_name = None
+            output.username = nickname_mapping[user_id]
         
-        if isinstance(user_name, str):
-            return user_name
-        else:
-            return user_info.nickname or user_info.username
+        return output
     # endregion
 
     # region > get config
@@ -475,8 +471,8 @@ class Core:
                         finish_reason_cause="User in blacklist"
                     ).as_dict
 
-                # 获取用户名
-                user_name = await self.get_nickname(user_id, user_info)
+                # 进行用户名映射
+                user_info = await self.nickname_mapping(user_id, user_info)
 
                 # 获取配置
                 config = await self.get_config(user_id)
@@ -501,7 +497,7 @@ class Core:
                     context_loader = context_loader,
                     user_id = user_id,
                     message = message,
-                    user_name = user_name,
+                    user_name = user_info.nickname or user_info.username,
                     role = role,
                     role_name = role_name,
                     load_prompt = load_prompt,
@@ -548,7 +544,7 @@ class Core:
                     logger.info(f"Role Name: {role_name}", user_id = user_id)
 
                 # 设置请求对象的参数信息
-                request.user_name = user_name
+                request.user_name = user_info.nickname
                 request.temperature = config.get("temperature", configs.get_config("default_temperature", 1.0).get_value(float))
                 request.top_p = config.get("top_p", configs.get_config("default_top_p", 1.0).get_value(float))
                 request.max_tokens = config.get("max_tokens", configs.get_config("default_max_tokens", 4096).get_value(int))

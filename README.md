@@ -159,7 +159,12 @@
 | `CALLLOG_MAX_CACHE_SIZE` | 日志缓存的最大数量 | *选填* | `1000` |
 | `ADMIN_API_KEY` | 机器人管理API的密钥 | *选填* | \*自动生成 |
 
-示例配置文件格式：
+
+---
+
+## 各种配置文件的数据格式
+
+1. 配置文件格式：
 ```json
 [
     {
@@ -184,8 +189,57 @@
     }
 ]
 ```
+YAML同理
 PS: `system`字段可以让配置加载器在读取该项的时候自动按照平台取值哦
 
+2. api_info文件格式：
+```json
+[
+    {
+        "Name": "Deepseek",
+        "ApiKeyEnv": "DEEPSEEK_API_KEY",
+        "URL": "https://api.deepseek.com",
+        "models": [
+            {
+                "Name": "Deepseek Think Model",
+                "Id": "deepseek-reasoner",
+                "Type": "reasoner",
+                "TaskType": "LLM Chat"
+            },
+            {
+                "Name": "Deepseek Chat Model",
+                "Id": "deepseek-chat",
+                "Type": "chat",
+                "TaskType": "LLM Chat"
+            },
+            {
+                "Name": "Deepseek Coder Model",
+                "Id": "deepseek-coder",
+                "Type": "coder",
+                "TaskType": "LLM Chat"
+            }
+        ]
+    }
+]
+```
+YAML同理
+PS: 目前仅支持LLM Chat的任务类型，models中定义该模型的url时会覆盖上层的url
+
+3. blacklist.regex 文件:
+```re
+[REGEX PARALLEL FILE]
+.*example.*
+```
+PS: 首行必须是`[REGEX PARALLEL FILE]`或`[REGEX SERIES FILE]`，表示该文件是`并行`还是`串行`匹配，之后每行都是`正则表达式`，匹配到的`昵称`或`user_id`的请求将会被**拒绝**
+
+4 UserNicknameMapping.json 文件格式：
+```json
+{
+    "old_nickname": "new_nickname",
+    "user_id": "new_nickname"
+}
+```
+PS: `原始昵称`到`模型看到的昵称`的映射关系，键可以是`昵称`或`user_id`，值是`新的昵称`
 ---
 
 ## Markdown图片渲染样式
@@ -251,6 +305,12 @@ PS: `system`字段可以让配置加载器在读取该项的时候自动按照�
 | `random` | 随机数 | 随机数范围 |
 | `randfloat` | 随机浮点数 | 随机数范围 |
 | `randchoice` | 随机选择 | 项目内容 |
+
+传参方式：
+使用空格分割
+```shell
+random 1 10
+```
 
 ---
 

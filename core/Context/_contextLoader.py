@@ -82,6 +82,7 @@ class ContextLoader:
                 prompt = ""
         # 展开变量
         prompt = await self._expand_variables(prompt, variables = prompt_vp, user_id=user_id)
+        logger.debug("Prompt Content:\n{prompt}", user_id = user_id, prompt = prompt)
 
         # 创建Content单元
         prompt = ContentUnit(
