@@ -66,7 +66,10 @@ class ConfigManager:
                 # 如果已有任务，先取消
                 if user_id in self._downgrade_tasks and not self._downgrade_tasks[user_id].done():
                     self._downgrade_tasks[user_id].cancel()
-                task = asyncio.create_task(self._wait_and_downgrade(user_id=user_id, wait_time=self._downgrade_wait_time))
+                task = asyncio.create_task(
+                    self._wait_and_downgrade(user_id=user_id, wait_time=self._downgrade_wait_time)
+                )
+                logger.info(f"Create downgrade task", user_id = user_id)
                 # 任务完成自动删除
                 task.add_done_callback(lambda _, id=user_id: self._downgrade_tasks.pop(id, None))
                 self._downgrade_tasks[user_id] = task
@@ -100,6 +103,7 @@ class ConfigManager:
                         task = asyncio.create_task(
                             self._wait_and_save(user_id, self._debonce_save_wait_time)
                         )
+                        logger.info(f"Create save task", user_id = user_id)
                         task.add_done_callback(lambda _, id=user_id: self._debonce_save_tasks.pop(id, None))
                         self._debonce_save_tasks[user_id] = task
                 else:
@@ -118,6 +122,9 @@ class ConfigManager:
         try:
             await asyncio.sleep(wait_time)
             async with self._lock:
+                if user_id in self._debonce_save_tasks and not self._debonce_save_tasks[user_id].done():
+                    logger.warning("User config Save task is running, downgrade config cancelled", user_id = user_id)
+                    return
                 cache = await self._get_cache()
                 if user_id in cache:
                     logger.info("Downgrade config", user_id = user_id)

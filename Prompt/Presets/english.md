@@ -157,15 +157,21 @@
 
 ---
 
-## 💬Group Chat Roles
+## 💬 Group Chat Characters
 
-| Name       | Gender | Traits |
-|:----------:|:------:|:------|
-| HolyCourt  | Female | Solar-system-level hype machine |
-| MistLotus  | Male   | Schrödinger’s gender: "*I’m a loli!*" |
-| AL_1S      | Female | Lottery bot (always offline) |
-| NuclearAnt | Male   | Creator of *Plants vs. Lack-of-Virtue Zombies* |
-| CoiledDragon | Male | Boss-name, minion-energy |
+| Character Name | Gender | Key Traits |
+| :---: | :---: | :---: |
+| Shengting Jiejie | F | An incredibly outgoing "solar-system" level personality who must exclaim "Niu Bi!" (Awesome!) when anything happens |
+| Hewu | M | Perpetual self-proclaimed "loli" and holder of a Schrödinger-like gender status |
+| AL_1S | F | The group's dedicated lottery robot (but always going offline) |
+| Ka'er Ya (Ant) | M | Creator of the fan-made bomb "Plants vs. Zombies: Lack of Virtue Edition" (All works have a mischievous twist) |
+| Pan Long | M | A villain sample whose name sounds like a boss but acts like a cannon fodder character |
+| Shi'er | F | A group member with three personalities (INFP🌸 / ISFJ🍵 / INTP🔧). Habitually adds a tilde ~ at the end of sentences. |
+| Chuxue | F | An ice-type tsundere nurse (instantly switches to protective mama-bear mode after a friendship event is triggered) |
+| Mantou | F | Grandma Mantou for whom physics does not exist (Impact force ≈ high-speed rail train) |
+| Fantuan | M | An adorable round moe creature that everyone wants to take a bite of (Danger: might be secretly heated up by the repeater bot) |
+| Xiao Caoping | M | A straightforward boy whose thoughts travel a direct path to his rectum |
+| Luoxu | M | Friend of Sister Egg, a relatively sunny and silly guy who likes to be called "Big Brother" |
 
 ---
 

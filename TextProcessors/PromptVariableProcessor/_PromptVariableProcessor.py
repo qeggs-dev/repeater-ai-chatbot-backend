@@ -1,8 +1,11 @@
 import re
+import json
 import types
 import shlex
+from typing import Literal
 from ._escape import escape_string
 from ._exceptions import *
+from ._serialization_mode import SerializationMode
 
 class PromptVP:
     r'''
@@ -94,11 +97,13 @@ class PromptVP:
     # 转义块正则表达式
     _ESCAPE_BLOCK_PATTERN = re.compile(r'<esc:"(.*?)">', re.DOTALL)
 
-    def __init__(self):
+    def __init__(self, indent: int | None = 4, mode: SerializationMode = SerializationMode.STR):
         self.variables = {}
         # 命中计数器
         self.discovered_variable = 0
         self.hit_variable = 0
+        self.indent = indent
+        self.mode = mode
 
     def register_variable(self, name: str, value: str | types.FunctionType):
         '''注册变量'''
@@ -157,7 +162,7 @@ class PromptVP:
     
     def _process_escape_blocks(self, text: str) -> str:
         '''处理转义块'''
-        def replacer(match):
+        def replacer(match: re.Match[str]):
             content = match.group(1)
             try:
                 return escape_string(content)
@@ -237,7 +242,7 @@ class PromptVP:
 
     def _replace_vars(self, text, check_exists=True, **kwargs) -> str:
         '''替换变量（带参数解析）'''
-        def replacer(match):
+        def replacer(match: re.Match[str]):
             slashes = match.group(1)  # 捕获的反斜杠
             full_var = match.group(2)  # 变量内容
             
@@ -264,6 +269,7 @@ class PromptVP:
             if check_exists and var_name not in self.variables:
                 return preserved_slashes  # 变量不存在
 
+            # 获取变量值
             value = self.variables.get(var_name)
             if value is None:
                 return preserved_slashes  # 变量不存在
@@ -277,7 +283,19 @@ class PromptVP:
                 except Exception as e:
                     return preserved_slashes + f"[PromptPV Error | {var_name}]: {e}"
             else:
-                return preserved_slashes + str(value)
+                try:
+                    if self.mode == SerializationMode.JSON:
+                        import json
+                        return preserved_slashes + json.dumps(value, ensure_ascii=False, indent=self.indent)
+                    elif self.mode == SerializationMode.YAML:
+                        import yaml
+                        return preserved_slashes + yaml.dump(value, allow_unicode=True, indent=self.indent)
+                    elif self.mode == SerializationMode.REPR:
+                        return preserved_slashes + repr(value)
+                    elif self.mode == SerializationMode.STR:
+                        return preserved_slashes + str(value)
+                except Exception as e:
+                    return preserved_slashes + str(value)
 
         # 使用更新后的正则表达式
         return self._VAR_PATTERN.sub(replacer, text)

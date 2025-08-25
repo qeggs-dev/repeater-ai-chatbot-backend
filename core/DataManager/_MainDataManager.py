@@ -1,5 +1,6 @@
 from ConfigManager import ConfigLoader
 from .UserDataManager import MainManager as UserDataManager
+from typing import Any
 
 configs = ConfigLoader()
 
@@ -21,11 +22,29 @@ class _baseManager(UserDataManager):
 class ContextManager(_baseManager):
     def __init__(self):
         super().__init__('Context_UserData')
+    
+    async def load(self, user_id: str, default: list = []):
+        return await super().load(user_id, default if isinstance(default, list) else [])
+    
+    async def save(self, user_id: str, data: list):
+        await super().save(user_id, data if isinstance(data, list) else [])
 
 class PromptManager(_baseManager):
     def __init__(self):
         super().__init__('Prompt_UserData')
+    
+    async def load(self, user_id: str, default: str = ""):
+        return await super().load(user_id, default if isinstance(default, str) else "")
+    
+    async def save(self, user_id: str, data: str):
+        await super().save(user_id, data if isinstance(data, str) else "")
 
 class UserConfigManager(_baseManager):
     def __init__(self):
         super().__init__('UserConfig_UserData')
+    
+    async def load(self, user_id: str, default: dict = {}):
+        return await super().load(user_id, default if isinstance(default, dict) else {})
+    
+    async def save(self, user_id: str, data: dict):
+        await super().save(user_id, data if isinstance(data, dict) else {})

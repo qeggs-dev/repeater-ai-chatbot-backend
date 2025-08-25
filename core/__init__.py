@@ -1,4 +1,5 @@
 from ._core import Core
+from . import RequestUserInfo
 from . import UserConfigManager
 from . import ApiInfo
 from . import DataManager

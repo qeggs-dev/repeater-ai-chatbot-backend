@@ -36,6 +36,7 @@ from TextProcessors import (
     PromptVP,
     SafeFormatter,
 )
+from .RequestUserInfo import UserInfo
 from TimeParser import (
     format_timestamp,
     get_birthday_countdown,
@@ -49,7 +50,7 @@ from RegexChecker import RegexChecker
 # ==== 本模块代码 ==== #
 configs = ConfigLoader()
 
-__version__ = configs.get_config("VERSION", "4.2.0.0").get_value(str)
+__version__ = configs.get_config("VERSION", "4.2.2.0").get_value(str)
 
 @dataclass
 class _Output:
@@ -217,9 +218,8 @@ class Core:
     async def get_prompt_vp(
             self,
             user_id: str,
-            user_name: str = "",
             model_type: str = "",
-            user_input: str = "",
+            user_info: UserInfo = UserInfo(),
             config: UserConfigManager.Configs = UserConfigManager.Configs(),
         ) -> PromptVP:
         """
@@ -239,7 +239,6 @@ class Core:
         
         return await self.promptvariable.get_prompt_variable(
             user_id = user_id,
-            user_name = user_name,
             BirthdayCountdown = lambda **kw: get_birthday_countdown(
                 bot_birthday_month,
                 bot_birthday_day,
@@ -247,6 +246,11 @@ class Core:
             ),
             model_type = model_type if model_type else config.get("model_type"),
             botname = bot_name,
+            user_name = user_info.username or "None",
+            nickname = user_info.nickname or "None",
+            user_age = user_info.age or "None",
+            user_gender = user_info.gender or "None",
+            user_info = user_info.as_dict,
             birthday = f'{bot_birthday_year}.{bot_birthday_month}.{bot_birthday_day}',
             zodiac = lambda **kw: date_to_zodiac(bot_birthday_month, bot_birthday_day),
             time = lambda **kw: format_timestamp(time.time(), config.get("timezone", timezone), '%Y-%m-%d %H:%M:%S %Z'),
@@ -259,17 +263,17 @@ class Core:
     # endregion
     
     # region > nickname mapping
-    async def nickname_mapping(self, user_id: str, user_name: str) -> str:
+    async def get_nickname(self, user_id: str, user_info: UserInfo) -> str:
         """
         用户昵称映射
         :param user_id: 用户ID
-        :param user_name: 用户名
+        :param user_info: 用户信息
         :return: 昵称
         """
         user_nickname_mapping_file_path = configs.get_config("user_nickname_mapping_file_path", "./config/user_nickname_mapping.json").get_value(Path)
         unm_path = user_nickname_mapping_file_path
         if not unm_path.exists():
-            return user_name
+            return user_info
         async with aiofiles.open(user_nickname_mapping_file_path, 'rb') as f:
             fdata = await f.read()
             try:
@@ -278,14 +282,22 @@ class Core:
                 logger.warning(f"Failed to decode nickname mapping file [{user_nickname_mapping_file_path}]", user_id=user_id)
                 nickname_mapping = {}
         
-        if user_name in nickname_mapping:
-            logger.info("User Name [{user_name}] -> [{to_nickname}]", user_id=user_id, user_name = user_name, to_nickname = nickname_mapping[user_name])
-            user_name = nickname_mapping[user_name]
+        if user_info.nickname in nickname_mapping:
+            logger.info("User Name [{user_name}] -> [{to_nickname}]", user_id=user_id, user_name = user_info.nickname, to_nickname = nickname_mapping[user_info.nickname])
+            user_name = nickname_mapping[user_info.nickname]
+        elif user_info.username in nickname_mapping:
+            logger.info("User Name [{user_name}] -> [{to_nickname}]", user_id=user_id, user_name = user_info.username, to_nickname = nickname_mapping[user_info.username])
+            user_name = nickname_mapping[user_info.username]
         elif user_id in nickname_mapping:
             logger.info("User Name [{user_id}](ID) -> [{to_nickname}]", user_id=user_id, to_nickname = nickname_mapping[user_id])
             user_name = nickname_mapping[user_id]
+        else:
+            user_name = None
         
-        return user_name
+        if isinstance(user_name, str):
+            return user_name
+        else:
+            return user_info.nickname or user_info.username
     # endregion
 
     # region > get config
@@ -417,7 +429,7 @@ class Core:
             self,
             message: str,
             user_id: str,
-            user_name: str,
+            user_info: UserInfo = UserInfo(),
             role: str = "user",
             role_name:  str = "",
             model_type: str | None = None,
@@ -463,8 +475,8 @@ class Core:
                         finish_reason_cause="User in blacklist"
                     ).as_dict
 
-                # 进行用户名映射
-                user_name = await self.nickname_mapping(user_id, user_name)
+                # 获取用户名
+                user_name = await self.get_nickname(user_id, user_info)
 
                 # 获取配置
                 config = await self.get_config(user_id)
@@ -476,7 +488,7 @@ class Core:
                 # 获取Prompt_vp以展开变量内容
                 prompt_vp = await self.get_prompt_vp(
                     user_id = user_id,
-                    user_name = user_name,
+                    user_info = user_info,
                     model_type = model_type,
                     config = config
                 )
@@ -522,9 +534,16 @@ class Core:
                     logger.info("Message:\n{message}", message = user_input.content, user_id = user_id)
                 else:
                     logger.warning("No message to send", user_id = user_id)
-                logger.info(f"User Name: {user_name}", user_id = user_id)
 
-                # 如果有设置角色名称信息，则打印日志
+                # 如果有设置用户信息，则打印日志
+                if user_info.username:
+                    logger.info(f"User Name: {user_info.username}", user_id = user_id)
+                if user_info.nickname:
+                    logger.info(f"User Nickname: {user_info.nickname}", user_id = user_id)
+                if user_info.gender:
+                    logger.info(f"User Gender: {user_info.gender}", user_id = user_id)
+                if user_info.age:
+                    logger.info(f"User Age: {user_info.age}", user_id = user_id)
                 if role_name:
                     logger.info(f"Role Name: {role_name}", user_id = user_id)
 

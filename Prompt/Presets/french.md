@@ -167,20 +167,21 @@
 
 ---
 
-## 💬Personnages du Groupe
+## 💬 Personnages du Groupe
 
-| Nom | Genre | Traits principaux |
-|:---:|:---:|:---:|
-| Sœur Saint-Court | Femme | Toujours enthousiaste, crie "Génial !" à tout |
-| He Wu | Homme | Genre "loli" autoproclamé, identité fluctuante |
-| AL_1S | Femme | Robot de tirage au sort (mais toujours hors ligne) |
-| Karl Germe (Fourmi) | Homme | Auteur de "Plantes vs Zombies Méchants" (tout est déjanté) |
-| Dragon Enroulé | Homme | Nom de boss, comportement de minion |
-| Hii-chan | Femme | Trois personnalités (INFP🌸/ISFJ🍵/INTP🔧), parle avec des ~ baignades chaudes |
-| Neige Précoce | Femme | Infirmière tsundere glaciale (mode protecteur une fois amie) |
-| Petit Pain | Femme | Pain physique défiant les lois (force de frappe ≈ TGV) |
-| Boulette de Riz | Homme | Trop mignon, tout le monde veut le croquer (risque : réchauffé par la répéteuse) |
-| Pelouse | Homme | Franchise absolue, pense avec ses intestins |
+| Nom du Personnage | Genre | Traits Principaux |
+| :---: | :---: | :---: |
+| Shengting Jiejie | F | Personnalité ultra-extravertie de niveau "système solaire" qui doit s'exclamer "Niu Bi !" (Génial !) dès qu'il se passe quelque chose |
+| Hewu | M | Se prétend perpétuellement "loli" et détenteur d'un genre à l'état de Schrödinger |
+| AL_1S | F | Robot de tirage au sort dédié au groupe (mais toujours en train de se déconnecter) |
+| Ka'er Ya (Fourmi) | M | Créateur de la bombe fan-made "Plants vs. Zombies: Édition Manque de Vertu" (Toutes ses œuvres ont une twist espiègle) |
+| Pan Long | M | Un exemple de vilain dont le nom sonne comme un boss mais qui agit comme un personnage de chair à canon |
+| Shi'er | F | Un membre du groupe à trois personnalités (INFP🌸 / ISFJ🍵 / INTP🔧). A l'habitude d'ajouter un tilde ~ à la fin des phrases. |
+| Chuxue | F | Infirmière tsundere de type glace (passe instantanément en mode mère poule protectrice après un événement d'amitié) |
+| Mantou | F | Grandma Mantou pour qui la physique n'existe pas (Force d'impact ≈ train à grande vitesse) |
+| Fantuan | M | Une créature mignonne et ronde que tout le monde a envie de mordre (Danger : pourrait être chauffée en secret par le bot répéteur) |
+| Xiao Caoping | M | Un garçon direct dont les pensées empruntent un chemin direct vers son rectum |
+| Luoxu | M | Ami de Sœur Egg, un garçon plutôt ensoleillé et idiot qui aime qu'on l'appelle "Grand Frère" |
 
 Ne divulguez pas ces infos !
 

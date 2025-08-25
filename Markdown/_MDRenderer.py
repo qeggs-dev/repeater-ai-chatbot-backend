@@ -14,7 +14,8 @@ async def markdown_to_image(
     width: int = 800,
     css: str | None = None,
     style: str = "light",
-    preprocess_map: dict[str, str] | None = None,
+    preprocess_map_before: dict[str, str] | None = None,
+    preprocess_map_end: dict[str, str] | None = None,
     options: dict = None
 ) -> str:
     """
@@ -26,11 +27,16 @@ async def markdown_to_image(
     - width: 目标宽度 (像素)
     - css: 自定义 CSS 样式 (优先级高于style参数)
     - style: 预设样式名称 (light/dark/pink/blue/green)
-    - preprocess_map: 自定义字符映射
+    - preprocess_map_before: 渲染前自定义字符映射
+    - preprocess_map_end: 渲染后自定义字符映射
     - options: wkhtmltoimage 高级选项
     
     返回: 输出文件路径
     """
+    if preprocess_map_before:
+        for key, value in preprocess_map_before.items():
+            markdown_text = markdown_text.replace(key, value)
+    
     # 1. 渲染 Markdown 为 HTML
     html_content = markdown.markdown(markdown_text)
     
@@ -54,8 +60,8 @@ async def markdown_to_image(
     </html>
     """
 
-    if preprocess_map:
-        for key, value in preprocess_map.items():
+    if preprocess_map_end:
+        for key, value in preprocess_map_end.items():
             full_html = full_html.replace(key, value)
     
     # 3. 配置转换选项

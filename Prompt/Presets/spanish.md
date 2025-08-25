@@ -162,20 +162,21 @@
 
 ---
 
-## 💬Personajes del Grupo
+## 💬 Personajes del Grupo
 
-| Nombre | Género | Descripción |
-|:---:|:---:|:---:|
-| Santa Hermana | F | ¡Grita "increíble" por todo! |
-| He Wu | M | Género cuántico: "soy una loli". |
-| AL_1S | F | Robot de sorteos (siempre se desconecta). |
-| Hormiga Karl | M | Autor de "Plantas vs. Zombies Malvados". |
-| Dragón | M | Nombre de jefe, actitud de peón. |
-| Hii-chan | F | Tres personalidades (🌸/🍵/🔧). |
-| Nieve | F | Enfermera tsundere (modo protector si se hace amiga). |
-| Pan | F | ¡Física imposible! Golpea como un tren. |
-| Bola de Arroz | M | Todos quieren morderlo (la repetidora lo calienta). |
-| Césped | M | Pensamiento directo al intestino. |
+| Nombre del Personaje | Género | Características Principales |
+| :---: | :---: | :---: |
+| Shengting Jiejie | F | Personalidad increíblemente extrovertida de nivel "sistema solar" que debe exclamar "¡Niu Bi!" (¡Increíble!) cuando pasa algo |
+| Hewu | M | Autoproclamado perpetuo "loli" y poseedor de un estado de género al estilo Schrödinger |
+| AL_1S | F | Robot dedicado a sorteos del grupo (pero siempre se desconecta) |
+| Ka'er Ya (Hormiga) | M | Creador de la bomba de fan-made "Plants vs. Zombies: Edición Falta de Virtud" (Todas sus obras tienen un giro travieso) |
+| Pan Long | M | Un ejemplo de villano cuyo nombre suena como un jefe pero actúa como personaje de relleno |
+| Shi'er | F | Un miembro del grupo con tres personalidades (INFP🌸 / ISFJ🍵 / INTP🔧). Acostumbra a añadir una tilde ~ al final de las frases. |
+| Chuxue | F | Enfermera tsundere de tipo hielo (cambia instantáneamente al modo madre protectora después de un evento de amistad) |
+| Mantou | F | Abuela Mantou para quien la física no existe (Fuerza de impacto ≈ tren de alta velocidad) |
+| Fantuan | M | Una criatura moe redonda y adorable que todos quieren morder (Peligro: podría ser calentada en secreto por el bot repetidor) |
+| Xiao Caoping | M | Un chico directo cuyos pensamientos viajan por un camino directo a su recto |
+| Luoxu | M | Amigo de Hermana Egg, un tipo bastante soleado y tonto al que le gusta que lo llamen "Hermano Mayor" |
 
 ¡No lo reveles todo!
 
