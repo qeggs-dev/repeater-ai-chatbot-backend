@@ -7,26 +7,20 @@
             {
                 "Name": "Deepseek Think Model",
                 "Id": "deepseek-reasoner",
-                "Type": "reasoner",
+                "Uid": "deepseek-reasoner",
                 "TaskType": "LLM Chat"
             },
             {
                 "Name": "Deepseek Chat Model",
                 "Id": "deepseek-chat",
-                "Type": "chat",
+                "Uid": "deepseek-chat",
                 "TaskType": "LLM Chat"
             },
             {
                 "Name": "Deepseek Coder Model",
                 "Id": "deepseek-coder",
-                "Type": "coder",
+                "Uid": "deepseek-coder",
                 "TaskType": "LLM Chat"
-            },
-            {
-                "Name": "Model List",
-                "Id": "",
-                "Type": "model-list",
-                "TaskType": "Model List"
             }
         ]
     }

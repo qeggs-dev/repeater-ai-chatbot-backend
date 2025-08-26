@@ -10,12 +10,12 @@ from ._exceptions import *
 class ApiInfo:
     def __init__(self, CaseSensitive: bool = False):
         self._api_groups: List[ApiGroup] = []
-        self._api_types: Dict[str, List[int]] = {}
+        self._api_uids: Dict[str, List[int]] = {}
         self._api_names: Dict[str, List[int]] = {}
         self._api_base_groups: Dict[str, List[int]] = {}
         self._api_task_types: Dict[str, List[int]] = {}
         self.CaseSensitive = CaseSensitive
-        self._filter_expression_parser = re.compile(r"(?P<findmode>type|name|base_group|task_type)\s*=\s*(?P<value>.*)")
+        self._filter_expression_parser = re.compile(r"(?P<findmode>uid|name|base_group|task_type)\s*=\s*(?P<value>.*)")
 
     def _create_api_group(self, api_data: dict, model_data: dict) -> ApiGroup:
         """Create an ApiGroup instance from raw data."""
@@ -34,7 +34,7 @@ class ApiInfo:
             url = model_data.get('URL', api_data.get('URL', '')),
             request_type = request_type,
             model_id = model_data.get('Id', ''),
-            model_type = model_data.get('Type', ''),
+            model_uid = model_data.get('Uid', ''),
             task_type = model_data.get('TaskType', ''),
             metadata = metadata,
         )
@@ -45,17 +45,17 @@ class ApiInfo:
             
         # Update type index
         if self.CaseSensitive:
-            model_type_key = api_group.model_type
+            model_uid_key = api_group.model_uid
             model_name_key = api_group.model_name
             group_name_key = api_group.group_name
             task_type_key = api_group.task_type
         else:
-            model_type_key = api_group.model_type.lower()
+            model_uid_key = api_group.model_uid.lower()
             model_name_key = api_group.model_name.lower()
             group_name_key = api_group.group_name.lower()
             task_type_key = api_group.task_type.lower()
         
-        self._api_types.setdefault(model_type_key, []).append(len(self._api_groups) - 1)
+        self._api_uids.setdefault(model_uid_key, []).append(len(self._api_groups) - 1)
         self._api_names.setdefault(model_name_key, []).append(len(self._api_groups) - 1)
         self._api_base_groups.setdefault(group_name_key, []).append(len(self._api_groups) - 1)
         self._api_task_types.setdefault(task_type_key, []).append(len(self._api_groups) - 1)
@@ -140,15 +140,17 @@ class ApiInfo:
         else:
             raise ValueError(f'Invalid file format: {path.suffix}')
 
-    def find_type(self, model_type: str, default: list[ApiGroup] = None) -> List[ApiGroup]:
-        """Find API groups by model type."""
+    def find_uid(self, model_uid: str, default: list[ApiGroup] = None) -> List[ApiGroup]:
+        """Find API groups by model uid."""
         if self.CaseSensitive:
-            key = model_type
+            key = model_uid
         else:
-            key = model_type.lower()
+            key = model_uid.lower()
 
-        index_list = self._api_types.get(key, None)
+        index_list = self._api_uids.get(key, None)
         if index_list is None:
+            if isinstance(default, list):
+                return default
             return []
         
         return [self._api_groups[i] for i in index_list]
@@ -162,6 +164,8 @@ class ApiInfo:
 
         index_list = self._api_names.get(key, None)
         if index_list is None:
+            if isinstance(default, list):
+                return default
             return []
 
         return [self._api_groups[i] for i in index_list]
@@ -175,6 +179,8 @@ class ApiInfo:
 
         index_list = self._api_base_groups.get(key, None)
         if index_list is None:
+            if isinstance(default, list):
+                return default
             return []
 
         return [self._api_groups[i] for i in index_list]
@@ -188,6 +194,8 @@ class ApiInfo:
 
         index_list = self._api_task_types.get(key, None)
         if index_list is None:
+            if isinstance(default, list):
+                return default
             return []
 
         return [self._api_groups[i] for i in index_list]
@@ -201,8 +209,8 @@ class ApiInfo:
         find_mode = match.group('findmode')
         value = match.group('value')
 
-        if find_mode == "type":
-            api_list = self.find_type(value)
+        if find_mode == "uid":
+            api_list = self.find_uid(value)
         elif find_mode == "name":
             api_list = self.find_name(value)
         elif find_mode == "base_group":

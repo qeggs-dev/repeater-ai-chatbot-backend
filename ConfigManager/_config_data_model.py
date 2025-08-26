@@ -9,6 +9,7 @@ class Config_Item(BaseModel):
     type: Literal["int", "float", "str", "bool", "list", "dict", "json", "yaml", "path", "auto", "other"] = "auto"
     type_name: str | None = None
     system: str | None = None
+    environment: str | None = None
     value: Any | None = None
 
     @field_validator("type_name")

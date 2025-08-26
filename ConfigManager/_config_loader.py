@@ -9,6 +9,9 @@ from loguru import logger
 import platform
 from pydantic import ValidationError
 from pathlib import Path
+from environs import Env
+
+env = Env()
 
 class ConfigLoader:
     """
@@ -26,6 +29,7 @@ class ConfigLoader:
         self._config: dict[str, ConfigObject] = {}
         self._config_sync_lock = threading.Lock()
         self._config_async_lock = asyncio.Lock()
+        self._config_environment = env.str("CONFIG_ENVIRONMENT", "")
 
         self._strictly_case_sensitive = strictly_case_sensitive
 
@@ -96,10 +100,16 @@ class ConfigLoader:
         """
         if expand_name == '.json':
             import orjson
-            config_data = orjson.loads(load_data)
+            try:
+                config_data = orjson.loads(load_data)
+            except orjson.JSONDecodeError:
+                raise ConfigFileLoadError("Failed to load JSON file.")
         elif expand_name in {'.yaml', '.yml'}:
             import yaml
-            config_data = yaml.safe_load(load_data)
+            try:
+                config_data = yaml.safe_load(load_data)
+            except yaml.YAMLError:
+                raise ConfigFileLoadError("Failed to load YAML file.")
         else:
             raise ValueError(f'Unsupported file extension: {expand_name}')
         return config_data
@@ -132,7 +142,17 @@ class ConfigLoader:
                 config = ConfigObject(name = name)
 
             for value_item in reversed(config_model.values):
-                if (value_item.system.lower() if value_item.system else None) in {system, "*", "all", None}:
+                if (
+                    (
+                        # If environment is None, it means it's a global value
+                        value_item.environment is None or
+                        # If environment is set, it must match the current environment
+                        (value_item.environment == self._config_environment)
+                    ) and (
+                        # If system is None, "all", "*", it means it's a global value
+                        (value_item.system.lower() if value_item.system else None) in {system, "*", "all", None}
+                    )
+                ):
                     type = value_item.type
                     TYPES = {
                         "int": int,

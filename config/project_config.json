@@ -1,5 +1,24 @@
 [
     {
+        "name": "LOG_LEVEL",
+        "values": [
+            {
+                "type": "str",
+                "environment": "DEV",
+                "value": "DEBUG"
+            },
+            {
+                "type": "str",
+                "environment": "PROD",
+                "value": "INFO"
+            },
+            {
+                "type": "str",
+                "value": "INFO"
+            }
+        ]
+    },
+    {
         "name": "API_INFO_FILE_PATH",
         "values": [
             {

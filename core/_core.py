@@ -1,5 +1,4 @@
 # ==== 标准库 ==== #
-import re
 import asyncio
 import sys
 import time
@@ -53,7 +52,7 @@ configs = ConfigLoader()
 __version__ = configs.get_config("VERSION", "4.2.2.0").get_value(str)
 
 @dataclass
-class _Output:
+class Response:
     reasoning_content: str = ""
     content: str = ""
     model_name: str = ""
@@ -62,6 +61,7 @@ class _Output:
     create_time: int = 0
     id: str = ""
     finish_reason_cause: str = ""
+    status: int = 200
 
     @property
     def as_dict(self):
@@ -139,11 +139,13 @@ class Core:
 
         # 移除默认处理器
         logger.remove()
+        log_level = configs.get_config("log_level", "INFO").get_value(str)
         # 添加自定义处理器
         logger.add(
             sys.stderr,
-            format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{extra[user_id]}</cyan> - <level>{message}</level>",
-            filter=lambda record: "donot_send_console" not in record["extra"]
+            format = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{extra[user_id]}</cyan> - <level>{message}</level>",
+            filter = lambda record: "donot_send_console" not in record["extra"],
+            level = log_level
         )
 
         log_dir = configs.get_config("log_file_dir", "./logs").get_value(Path)
@@ -154,12 +156,13 @@ class Core:
         log_file = log_dir / "repeater_log_{time:YYYY-MM-DD_HH-mm-ss}.log"
         logger.add(
             log_file,
-            format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {extra[user_id]} - {message}",
-            enqueue=True,
-            delay=True,
-            rotation=max_log_file_size,
-            retention=log_retention,
-            compression="zip"
+            format = "{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {extra[user_id]} - {message}",
+            level = log_level,
+            enqueue = True,
+            delay = True,
+            rotation = max_log_file_size,
+            retention = log_retention,
+            compression = "zip"
         )
         logger.configure(
             extra={
@@ -428,14 +431,14 @@ class Core:
             user_info: UserInfo = UserInfo(),
             role: str = "user",
             role_name:  str = "",
-            model_type: str | None = None,
+            model_uid: str | None = None,
             load_prompt: bool = True,
             print_chunk: bool = True,
             save_context: bool = True,
             reference_context_id: str | None = None,
             continue_completion: bool = False,
             stream: bool = False,
-        ) -> dict[str, str] | AsyncIterator[dict[str, Any]]:
+        ) -> Response | AsyncIterator[dict[str, Any]]:
         """
         与模型对话
 
@@ -466,10 +469,11 @@ class Core:
 
                 # 判断用户是否在黑名单中
                 if await self.in_blacklist(user_id):
-                    return _Output(
-                        content="Error: Sorry, you are in blacklist.",
-                        finish_reason_cause="User in blacklist"
-                    ).as_dict
+                    return Response(
+                        content = "Error: Sorry, you are in blacklist.",
+                        finish_reason_cause = "User in blacklist",
+                        status = 403
+                    )
 
                 # 进行用户名映射
                 user_info = await self.nickname_mapping(user_id, user_info)
@@ -477,15 +481,15 @@ class Core:
                 # 获取配置
                 config = await self.get_config(user_id)
                 
-                # 获取模型类型
-                if model_type is None:
-                    model_type: str = config.get("model_type", configs.get_config("default_model_type", "chat").get_value(str))
+                # 获取默认模型uid
+                if model_uid is None:
+                    model_uid: str = config.get("model_uid", configs.get_config("default_model_uid", "chat").get_value(str))
 
                 # 获取Prompt_vp以展开变量内容
                 prompt_vp = await self.get_prompt_vp(
                     user_id = user_id,
                     user_info = user_info,
-                    model_type = model_type,
+                    model_type = model_uid,
                     config = config
                 )
 
@@ -514,8 +518,15 @@ class Core:
                 request.context = context
                 
                 # 获取API信息
-                apilist = self.apiinfo.find_type(model_type = model_type)
+                apilist = self.apiinfo.find_uid(model_uid = model_uid)
                 # 取第一个API
+                if len(apilist) == 0:
+                    logger.error(f"API not found: {model_uid}")
+                    output = Response(
+                        content = f"API not found: {model_uid}",
+                        status = 404
+                    )
+                    return output
                 api = apilist[0]
                 
                 # 设置请求对象的API信息
@@ -559,9 +570,9 @@ class Core:
                 call_prepare_end_time = CallLog.TimeStamp()
 
                 # 输出 (为了自动填充输出内容)
-                output = _Output()
+                output = Response()
                 output.model_name = api.group_name
-                output.model_type = api.model_type
+                output.model_type = api.model_uid
                 output.model_id = api.model_id
 
                 async def post_treatment(response: CallAPI.Response):
@@ -612,9 +623,9 @@ class Core:
                 try:
                     response: CallAPI.Response = CallAPI.Response()
                     if stream:
-                        async def generator_wrapper(generator: CallAPI.StreamingResponseGenerationLayer) -> AsyncIterator[dict[str, Any]]:
+                        async def generator_wrapper(generator: CallAPI.StreamingResponseGenerationLayer) -> AsyncIterator[CallAPI.Delta]:
                             async for chunk in generator:
-                                yield chunk.as_dict
+                                yield chunk
                         response_iterator = await self.stream_api_client.submit_Request(
                             user_id = user_id,
                             request = request,
@@ -628,12 +639,12 @@ class Core:
                             request = request
                         )
                         await post_treatment(response)
-                        return output.as_dict
+                        return output
 
                 except CallAPI.Exceptions.CallApiException as e:
                     logger.error(f"CallAPI Error: {e}")
                     output.content = f"Error:{e}"
-                    return output.as_dict
+                    return output
 
         except Exception as e:
             traceback_info = traceback.format_exc()
@@ -652,7 +663,7 @@ class Core:
             format_str: str = "{title}\n"
         ) -> str:
         request = MetasoClient.Search.Request()
-        api_group = self.apiinfo.find_type("search")
+        api_group = self.apiinfo.find_uid("search")
         if not api_group:
             return ""
         request.api_key = api_group[0].api_key

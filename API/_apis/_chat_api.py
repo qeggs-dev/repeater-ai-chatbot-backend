@@ -36,7 +36,7 @@ class ChatRequest(BaseModel):
     user_info: UserInfo | None = None
     role: str = "user"
     role_name: str | None = None
-    model_type: str | None = None
+    model_uid: str | None = None
     load_prompt: bool = True
     save_context: bool = True
     reference_context_id: str | None = None
@@ -65,7 +65,7 @@ async def chat_endpoint(
             ),
             role = request.role,
             role_name = request.role_name,
-            model_type = request.model_type,
+            model_uid = request.model_uid,
             print_chunk = True,
             load_prompt = request.load_prompt,
             save_context = request.save_context,
@@ -74,11 +74,11 @@ async def chat_endpoint(
             stream = request.stream
         )
         if not request.stream:
-            return JSONResponse(context)
+            return JSONResponse(context.as_dict)
         else:
-            async def generator_wrapper(context: AsyncIterator[dict[str, Any]]) -> AsyncIterator[bytes]:
+            async def generator_wrapper(context: AsyncIterator[core.CallAPI.Delta]) -> AsyncIterator[bytes]:
                 async for chunk in context:
-                    yield orjson.dumps(chunk) + b"\n"
+                    yield orjson.dumps(chunk.as_dict) + b"\n"
 
             return StreamingResponse(generator_wrapper(context), media_type="application/x-ndjson")
     except core.ApiInfo.APIGroupNotFoundError as e:

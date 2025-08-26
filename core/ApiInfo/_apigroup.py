@@ -14,7 +14,7 @@ class ApiGroup:
     model_name: str = ""
     model_id: str = ""
     request_type: Literal["GET", "POST", "PUT", "DELETE", "PATCH"] | None = "GET"
-    model_type: str = ""
+    model_uid: str = ""
     task_type: str = ""
     metadata: dict = field(default_factory=dict)
 

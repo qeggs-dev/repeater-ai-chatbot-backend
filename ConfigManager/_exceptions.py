@@ -17,3 +17,7 @@ class ConfigSyntaxError(ConfigError):
     def __str__(self):
         import json
         return f"{self.message} {json.dumps(self.errors, indent=4, ensure_ascii=False)}"
+
+class ConfigFileLoadError(ConfigError):
+    """Exception raised for errors in the loading file."""
+    pass
