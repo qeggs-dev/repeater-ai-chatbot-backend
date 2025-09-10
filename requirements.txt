@@ -11,3 +11,4 @@ markdown
 imgkit
 httpx
 pyyaml
+deprecated

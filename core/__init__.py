@@ -1,4 +1,4 @@
-from ._core import Core, Response
+from ._core import Core, Response, __version__
 from . import RequestUserInfo
 from . import UserConfigManager
 from . import ApiInfo
