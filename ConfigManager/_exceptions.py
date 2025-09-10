@@ -21,3 +21,7 @@ class ConfigSyntaxError(ConfigError):
 class ConfigFileLoadError(ConfigError):
     """Exception raised for errors in the loading file."""
     pass
+
+class ConfigPackingError(ConfigError):
+    """Exception raised for errors in the packing config."""
+    pass

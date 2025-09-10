@@ -50,7 +50,7 @@ from RegexChecker import RegexChecker
 # ==== 本模块代码 ==== #
 configs = ConfigLoader()
 
-__version__ = configs.get_config("VERSION", "4.2.2.1").get_value(str)
+__version__ = configs.get_config("VERSION", "4.2.2.2").get_value(str)
 
 @dataclass
 class Response:

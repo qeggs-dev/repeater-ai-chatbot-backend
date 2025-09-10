@@ -32,42 +32,26 @@
 ## License
 这个项目基于[MIT License](LICENSE)发布。
 
-### 依赖项License:
-| Name              | Version   | License                                           | License Text Link                                                                                     |
-|-------------------|-----------|---------------------------------------------------|-------------------------------------------------------------------------------------------------------|
-| Markdown          | 3.8.2     | BSD 3-Clause License                              | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          |
-| PyYAML            | 6.0.2     | MIT License                                       | [MIT](https://opensource.org/license/mit/)                                                            |
-| aiofiles          | 24.1.0    | Apache Software License                           | [Apache-2.0](https://opensource.org/license/apache-2-0/)                                              |
-| environs          | 14.2.0    | MIT License                                       | [MIT](https://opensource.org/license/mit/)                                                            |
-| fastapi           | 0.115.13  | MIT License                                       | [MIT](https://opensource.org/license/mit/)                                                            |
-| httpx             | 0.28.1    | BSD License                                       | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          |
-| imgkit            | 1.2.3     | MIT License                                       | [MIT](https://opensource.org/license/mit/)                                                            |
-| loguru            | 0.7.3     | MIT License                                       | [MIT](https://opensource.org/license/mit/)                                                            |
-| openai            | 1.90.0    | Apache Software License                           | [Apache-2.0](https://opensource.org/license/apache-2-0/)                                              |
-| orjson            | 3.10.18   | Apache Software License; MIT License              | [Apache-2.0](https://opensource.org/license/apache-2-0/) / [MIT](https://opensource.org/license/mit/) |
-| prompt_toolkit    | 3.0.51    | BSD License                                       | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          |
-| pydantic          | 2.11.7    | MIT License                                       | [MIT](https://opensource.org/license/mit/)                                                            |
-| python-multipart  | 0.0.20    | Apache Software License                           | [Apache-2.0](https://opensource.org/license/apache-2-0/)                                              |
-| uvicorn           | 0.34.3    | BSD License                                       | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          |
-
-
 ---
 
-## 依赖项
-- aiofiles: 用于异步文件操作 (`core.DataManager`)
-- environs: 用于环境变量管理 (`Entire Project`)
-- pydantic: 用于数据验证和设置管理 (`core.ConfigManager`)
-- fastapi: 用于构建API (`API & run_fastapi.py`)
-- python-multipart: 用于处理多部分表单数据 (`API(FastAPI)`)
-- loguru: 用于日志记录 (`Entire Project`)
-- openai: 用于与OpenAI API交互 (`core.CallAPI`)
-- orjson: 用于高性能的JSON序列化和反序列化 (`core.DataManager & API`)
-- uvicorn: 用于运行FastAPI应用 (`run_fastapi.py`)
-- markdown: 用于处理Markdown文本 (`Markdown`)
-- imgkit: 用于将HTML转换为PDF (`Markdown`)
-- httpx: 用于发送HTTP请求 (`core.FuncerClient`)
-- pyyaml: 用于处理YAML文件 (`API & ConfigManager`)
-- prompt_toolkit: 用于启动脚本中的自动搜索补全功能 (`run.py`)
+### 依赖项:
+| Name              | Version   | License                              | License Text Link                                                                                     | Where it is used                   |
+|-------------------|-----------|--------------------------------------|-------------------------------------------------------------------------------------------------------|------------------------------------|
+| Markdown          | 3.8.2     | BSD 3-Clause License                 | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          | `Markdown`                         |
+| PyYAML            | 6.0.2     | MIT License                          | [MIT](https://opensource.org/license/mit/)                                                            | `API` & `ConfigManager`            |
+| aiofiles          | 24.1.0    | Apache Software License              | [Apache-2.0](https://opensource.org/license/apache-2-0/)                                              | `core.DataManager`                 |
+| environs          | 14.2.0    | MIT License                          | [MIT](https://opensource.org/license/mit/)                                                            | `run_fastapi.py` & `ConfigManager` |
+| fastapi           | 0.115.13  | MIT License                          | [MIT](https://opensource.org/license/mit/)                                                            | `API`                              |
+| httpx             | 0.28.1    | BSD License                          | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          | `core.FuncerClient`                |
+| imgkit            | 1.2.3     | MIT License                          | [MIT](https://opensource.org/license/mit/)                                                            | `Markdown`                         |
+| loguru            | 0.7.3     | MIT License                          | [MIT](https://opensource.org/license/mit/)                                                            | *Entire Project*                   |
+| openai            | 1.90.0    | Apache Software License              | [Apache-2.0](https://opensource.org/license/apache-2-0/)                                              | `core.CallAPI`                     |
+| orjson            | 3.10.18   | Apache Software License; MIT License | [Apache-2.0](https://opensource.org/license/apache-2-0/) / [MIT](https://opensource.org/license/mit/) | `run.py`                           |
+| prompt_toolkit    | 3.0.51    | BSD License                          | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          | `API(FastAPI)`                     |
+| pydantic          | 2.11.7    | MIT License                          | [MIT](https://opensource.org/license/mit/)                                                            | `core.ConfigManager` & `API`       |
+| python-multipart  | 0.0.20    | Apache Software License              | [Apache-2.0](https://opensource.org/license/apache-2-0/)                                              | `core.DataManager` & `API`         |
+| uvicorn           | 0.34.3    | BSD License                          | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          | `run_fastapi.py`                   |
+| deprecated        | 1.2.18    | MIT License                          | [MIT](https://opensource.org/license/mit/)                                                            | *Entire Project*                   |
 
 ---
 
@@ -278,6 +262,8 @@ PS: `原始昵称`到`模型看到的昵称`的映射关系，键可以是`昵�
 | `arabic` | 阿拉伯语 |
 | `spanish` | 西班牙语 |
 
+(求翻译，我只会中文一个语言)
+
 ---
 
 ## 模型
@@ -287,6 +273,11 @@ PS: `原始昵称`到`模型看到的昵称`的映射关系，键可以是`昵�
 | `chat` | 聊天 |
 | `reasoner` | 推理 |
 | `coder` | 编码 |
+| `deepseek-r1` | DeepSeek R1模型 |
+| `deepseek-v3` | DeepSeek V3模型 |
+| `kimi-k2` | Kimi K2模型 |
+
+PS: 使用`sdm`命令带着模型ID设置你需要的模型。
 
 ---
 

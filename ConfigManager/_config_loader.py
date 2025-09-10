@@ -4,14 +4,16 @@ import threading
 from ._config_object import ConfigObject
 from ._config_data_model import Config_Model
 from ._exceptions import *
-from typing import Any
+from typing import Any, TypeVar, Type
 from loguru import logger
 import platform
-from pydantic import ValidationError
 from pathlib import Path
 from environs import Env
+from pydantic import BaseModel, ValidationError as Pydantic_ValidationError
 
 env = Env()
+
+T_PYDANTIC_MODEL = TypeVar('T_PYDANTIC_MODEL', bound=BaseModel)
 
 class ConfigLoader:
     """
@@ -130,7 +132,7 @@ class ConfigLoader:
         for item in reversed(config_list):
             try:
                 config_model = Config_Model(**item)
-            except ValidationError as e:
+            except Pydantic_ValidationError as e:
                 raise ConfigSyntaxError("Invalid config syntax.", e.errors())
             if self._strictly_case_sensitive:
                 name = config_model.name
@@ -243,3 +245,26 @@ class ConfigLoader:
     
     def __contains__(self, name: str) -> bool:
         return name in self._get_config
+    
+    def pack_config(self, template: Type[T_PYDANTIC_MODEL]) -> T_PYDANTIC_MODEL:
+        """
+        Pack the config into a model.
+
+        :param template: The template to pack the config into.
+        """
+        fields = template.model_fields
+        fields_values: dict[str, Any] = {}
+        for field_name in fields.keys():
+            if field_name in self._get_config:
+                fields_values[field_name] = self._get_config[field_name].value
+        try:
+            return template(**fields_values)
+        except Pydantic_ValidationError as e:
+            errors = e.errors()
+            text = ""
+            for error in errors:
+                loc = ".".join([str(x) for x in error['loc']])
+                text += f"\n---\n{loc}:"
+                text += f"  - {error['msg']}\n"
+                text += f"  - {error['type']}\n"
+            raise ConfigPackingError(text) from e
