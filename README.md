@@ -34,23 +34,23 @@
 ---
 
 ### 依赖项:
-| Name              | Version   | License                              | License Text Link                                                                                     | Where it is used                   |
+| Name              | Version   | License                              | License Link                                                                                          | Where it is used                   |
 |-------------------|-----------|--------------------------------------|-------------------------------------------------------------------------------------------------------|------------------------------------|
-| Markdown          | 3.8.2     | BSD 3-Clause License                 | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          | `Markdown`                         |
-| pyyaml            | 6.0.2     | MIT License                          | [MIT](https://opensource.org/license/mit/)                                                            | `API` & `ConfigManager`            |
-| aiofiles          | 24.1.0    | Apache Software License              | [Apache-2.0](https://opensource.org/license/apache-2-0/)                                              | `core.DataManager`                 |
-| environs          | 14.2.0    | MIT License                          | [MIT](https://opensource.org/license/mit/)                                                            | `run_fastapi.py` & `ConfigManager` |
-| fastapi           | 0.115.13  | MIT License                          | [MIT](https://opensource.org/license/mit/)                                                            | `API`                              |
-| httpx             | 0.28.1    | BSD License                          | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          | `core.FuncerClient`                |
-| imgkit            | 1.2.3     | MIT License                          | [MIT](https://opensource.org/license/mit/)                                                            | `Markdown`                         |
-| loguru            | 0.7.3     | MIT License                          | [MIT](https://opensource.org/license/mit/)                                                            | *Entire Project*                   |
-| openai            | 1.90.0    | Apache Software License              | [Apache-2.0](https://opensource.org/license/apache-2-0/)                                              | `core.CallAPI`                     |
-| orjson            | 3.10.18   | Apache Software License; MIT License | [Apache-2.0](https://opensource.org/license/apache-2-0/) / [MIT](https://opensource.org/license/mit/) | `run.py`                           |
-| prompt_toolkit    | 3.0.51    | BSD License                          | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          | `API(FastAPI)`                     |
-| pydantic          | 2.11.7    | MIT License                          | [MIT](https://opensource.org/license/mit/)                                                            | `core.ConfigManager` & `API`       |
-| python-multipart  | 0.0.20    | Apache Software License              | [Apache-2.0](https://opensource.org/license/apache-2-0/)                                              | `core.DataManager` & `API`         |
-| uvicorn           | 0.34.3    | BSD License                          | [BSD-3-Clause](https://opensource.org/license/bsd-3-clause/)                                          | `run_fastapi.py`                   |
-| deprecated        | 1.2.18    | MIT License                          | [MIT](https://opensource.org/license/mit/)                                                            | *Entire Project*                   |
+| Markdown          | 3.8.2     | BSD 3-Clause License                 | [BSD-3-Clause](https://github.com/Python-Markdown/markdown/blob/master/LICENSE.md)                    | `Markdown`                         |
+| pyyaml            | 6.0.2     | MIT License                          | [MIT](https://github.com/yaml/pyyaml/blob/main/LICENSE)                                               | `API` & `ConfigManager`            |
+| aiofiles          | 24.1.0    | Apache Software License              | [Apache-2.0](https://github.com/Tinche/aiofiles/blob/main/LICENSE)                                    | `core.DataManager`                 |
+| environs          | 14.2.0    | MIT License                          | [MIT](https://github.com/sloria/environs/blob/main/LICENSE)                                           | `run_fastapi.py` & `ConfigManager` |
+| fastapi           | 0.115.13  | MIT License                          | [MIT](https://github.com/fastapi/fastapi/blob/master/LICENSE)                                         | `API`                              |
+| httpx             | 0.28.1    | BSD License                          | [BSD-3-Clause](https://github.com/encode/httpx/blob/master/LICENSE.md)                                | `core.FuncerClient`                |
+| imgkit            | 1.2.3     | MIT License                          | [MIT](https://github.com/jarrekk/imgkit/blob/master/LICENSE)                                          | `Markdown`                         |
+| loguru            | 0.7.3     | MIT License                          | [MIT](https://github.com/Delgan/loguru/blob/master/LICENSE)                                           | *Entire Project*                   |
+| openai            | 1.90.0    | Apache Software License              | [Apache-2.0](https://github.com/openai/openai-python/blob/main/LICENSE)                               | `core.CallAPI`                     |
+| orjson            | 3.10.18   | Apache Software License; MIT License | [Apache-2.0](https://github.com/ijl/orjson/blob/master/LICENSE-APACHE) / [MIT](https://github.com/ijl/orjson/blob/master/LICENSE-MIT) | `run.py` |
+| prompt-toolkit    | 3.0.51    | BSD License                          | [BSD-3-Clause](https://github.com/prompt-toolkit/python-prompt-toolkit/blob/main/LICENSE)             | `API(FastAPI)`                     |
+| pydantic          | 2.11.7    | MIT License                          | [MIT](https://github.com/pydantic/pydantic/blob/main/LICENSE)                                         | `core.ConfigManager` & `API`       |
+| python-multipart  | 0.0.20    | Apache Software License              | [Apache-2.0](https://github.com/Kludex/python-multipart/blob/master/LICENSE.txt)                      | `core.DataManager` & `API`         |
+| uvicorn           | 0.34.3    | BSD License                          | [BSD-3-Clause](https://github.com/Kludex/uvicorn/blob/main/LICENSE.md)                                | `run_fastapi.py`                   |
+| deprecated        | 1.2.18    | MIT License                          | [MIT](https://github.com/laurent-laporte-pro/deprecated/blob/master/README.md)                        | *Not in use yet*                   |
 
 ---
 
