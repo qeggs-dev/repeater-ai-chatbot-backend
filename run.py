@@ -21,8 +21,8 @@ except ImportError:
 BASE_VENV_PATH = Path(".venv")
 BASE_WINDOWS_PYTHON = Path("python.exe")
 BASE_LINUX_PYTHON = Path("python3")
-SYSTEM = platform.system() # 主打一个减少计算
-RUN_SCRIPT_PATH = "run_fastapi.py"
+SYSTEM = platform.system()
+RUN_SCRIPT_PATH = "main.py"
 
 T = TypeVar("T")
 
@@ -56,7 +56,7 @@ class ScriptStarter:
         else:
             self.python_path = BASE_LINUX_PYTHON
         
-        self.script_path = (RUN_SCRIPT_PATH)
+        self.script_path = Path(RUN_SCRIPT_PATH)
 
         self.last_process_return_code = None
 
@@ -157,7 +157,7 @@ class ScriptStarter:
         self.run_command([installer, "install"] + package, reason=f"Install package: {' '.join(package)}")
     
     @staticmethod
-    def choose_one(items: Iterable[T], prompt: str = "Choose one:", item_prefix: str = "> ", select_only_one: bool = True) -> T | None:
+    def choose_one(items: Iterable[T], prompt: str = "Choose one:", item_prefix: str = "> ", listname: str = "items", select_only_one: bool = True) -> T | None:
         """
         选择一个选项
         """
@@ -166,6 +166,7 @@ class ScriptStarter:
         if select_only_one and len(items) == 1:
             return items[0]
         lower_items: dict[T] = {}
+        print(f"{items}:")
         for i, item in enumerate(items):
             print(f"{item_prefix}[{i + 1}]: {item}")
             lower_items[str(item).lower()] = item
@@ -198,7 +199,7 @@ class ScriptStarter:
                 if path.is_dir() and (path / "pyvenv.cfg").exists():
                     find_venv.append(path)
             
-            choose = self.choose_one(find_venv, item_prefix="Find: ")
+            choose = self.choose_one(find_venv, item_prefix="Find: ", listname="Virtual environments")
             self.venv_path = choose
             
             if not find_venv:
@@ -220,11 +221,11 @@ class ScriptStarter:
             if not (Path.cwd() / self.script_path).exists():
                 print(f"Script {self.script_path} not found in current directory.")
                 find_script: list[Path] = []
-                for path in Path.cwd().iterdir():
-                    if path.is_file() and path.name.endswith(".py"):
+                for path in Path.cwd().rglob("*.py"):
+                    if path != Path(sys.argv[0]):
                         find_script.append(path)
 
-                choose = self.choose_one(find_script, item_prefix="Find: ")
+                choose = self.choose_one(find_script, item_prefix="Find: ", listname="Scripts")
                 self.script_path = choose
 
                 if not find_script:
