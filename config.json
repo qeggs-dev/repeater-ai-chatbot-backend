@@ -1,0 +1,21 @@
+{
+    "title": "Repeater LLM Chat Backend Starter",
+    "process_title": "Repeater LLM Chat Backend",
+    "exit_title": "Repeater LLM Chat Backend Starter",
+    "python_name": {
+        "windows": "python",
+        "linux": "python3",
+        "default": "python3"
+    },
+    "pip_name": {
+        "windows": "pip",
+        "linux": "pip3",
+        "default": "pip3"
+    },
+    "venv_prompt": ".venv",
+    "script_name": ["run_fastapi.py"],
+    "argument": null,
+    "restart": true,
+    "run_cmd_need_to_ask": false,
+    "run_cmd_ask_default_values": {}
+}
