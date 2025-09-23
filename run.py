@@ -196,7 +196,7 @@ class SlovesStarter:
         self.venv_prompt: str = "venv"
         self.script_name: str | list[str] | None = None
         self.argument: list[str] | None = None
-        self.title: str = "Python Script Starter"
+        self.title: str = "Sloves Python Script Starter"
         self.process_title: str = "Python Script"
         self.exit_title: str = self.title
         self.use_venv: bool = True
