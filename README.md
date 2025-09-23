@@ -394,10 +394,3 @@ randchoice a b c d e
 ## 命令表：
 
 \*已被移动至[NoneBot插件仓库](https://github.com/qeggs-dev/repeater-qq-ai-chatbot-nonebot-plugins)
-
----
-
-## 联系我们
-
- - **QQ群**：`870063670`
- - **Bot账号**: `3843736490`

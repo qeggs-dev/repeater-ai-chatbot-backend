@@ -225,6 +225,12 @@ class SlovesStarter:
                     suffix += 1
             print("Continuing to run the program will operate with the default configuration...")
             self.pause_program(ExitCode.ONLY_PAUSE)
+    
+    @staticmethod
+    def is_venv():
+        return hasattr(sys, 'real_prefix') or (
+            hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix
+        )
 
     @classmethod
     def load_config(cls):
@@ -530,6 +536,8 @@ class SlovesStarter:
 
     def main(self):
         print(self.title.center(os.get_terminal_size().columns))
+        if self.is_venv():
+            print("Starter Run in Virtual Environment")
         self.set_title(self.title)
         if self.use_venv:
             self.init_venv()
