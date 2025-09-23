@@ -8,6 +8,7 @@ from fastapi.responses import (
     JSONResponse,
     PlainTextResponse
 )
+from pydantic import BaseModel
 from fastapi import HTTPException
 from loguru import logger
 
@@ -57,7 +58,7 @@ async def get_context_userlist():
     return JSONResponse(userid_list)
 
 @app.post("/userdata/context/withdraw/{user_id}")
-async def withdraw_context(user_id: str, index: int = Form(...)):
+async def withdraw_context(user_id: str, length: int | None = Form(None, ge=0)):
     """
     Endpoint for withdrawing context
     """
@@ -65,20 +66,61 @@ async def withdraw_context(user_id: str, index: int = Form(...)):
     context_loader = await chat.get_context_loader()
     context = await context_loader.get_context_object(user_id)
 
-    # 检查索引是否在上下文范围内
-    if 0 <= index < len(context.context_list):
-        context.context_list.pop(index)
-        await context_loader.save(user_id, context)
+    if length is None:
+        pop_items: list[core.Context.ContentUnit] = []
+        
+        # 安全检查
+        if not context.context_list:
+            return JSONResponse(
+                {
+                    "status": "success",
+                    "deleted": 0,
+                    "context": context.context
+                }
+            )
+        
+        # 第一步：pop直到找到助手消息
+        while (context.context_list and 
+            context.last_content.role != core.Context.ContextRole.ASSISTANT):
+            pop_items.append(context.pop())
+        
+        # 第二步：pop助手消息
+        while (context.context_list and 
+            context.last_content.role == core.Context.ContextRole.ASSISTANT):
+            pop_items.append(context.pop())
+        
+        # 第三步：pop相关联的用户消息
+        while (context.context_list and 
+            context.last_content.role != core.Context.ContextRole.ASSISTANT):
+            pop_items.append(context.pop())
+        logger.info(f"Withdraw a Last {len(pop_items)} Contexts")
+        
     else:
-        raise HTTPException(400, "Index out of range")
-    
-    logger.info(f"Withdraw a Last Context", user_id = user_id)
+        # 检查索引是否在上下文范围内
+        if 0 <= length < len(context.context_list):
+            pop_items = context.pop_last_n(length)
+        else:
+            raise HTTPException(400, "Index out of range")
+        
+        logger.info(f"Withdraw a Last {length} Context", user_id = user_id)
     
     # 返回JSONResponse，新的上下文内容
-    return JSONResponse(context)
+    await context_loader.save(user_id, context)
+    return JSONResponse(
+        {
+            "status": "success",
+            "deleted": len(pop_items),
+            "context": context.context
+        }
+    )
+
+class RewriteContext(BaseModel):
+    index: int
+    content: str | None = None
+    reasoning_content: str | None = None
 
 @app.post("/userdata/context/rewrite/{user_id}")
-async def rewrite_context(user_id: str, index: int = Form(...), content: str = Form(""), reasoning_content: str = Form("")):
+async def rewrite_context(user_id: str, rewrite_context: RewriteContext):
     """
     Endpoint for rewriting context
     """
@@ -87,19 +129,19 @@ async def rewrite_context(user_id: str, index: int = Form(...), content: str = F
     context = await context_loader.get_context_object(user_id)
 
     # 检查索引是否在上下文范围内
-    if 0 <= index < len(context.context_list):
-        if content:
-            context.context_list[index].content = content
-        if reasoning_content:
-            if context.context_list[index].role == "assistant":
-                context.context_list[index].reasoning_content = reasoning_content
+    if 0 <= rewrite_context.index < len(context.context_list):
+        if rewrite_context.content:
+            context.context_list[rewrite_context.index].content = rewrite_context.content
+        if rewrite_context.reasoning_content:
+            if context.context_list[rewrite_context.index].role == "assistant":
+                context.context_list[rewrite_context.index].reasoning_content = rewrite_context.reasoning_content
             else:
                 raise HTTPException(400, "Only assistant can have reasoning_content")
         await context_loader.save(user_id, context)
     else:
         raise HTTPException(400, "Index out of range")
     
-    logger.info(f"Rewrite {index} Context", user_id = user_id)
+    logger.info(f"Rewrite {rewrite_context.index} Context", user_id = user_id)
     
     # 返回JSONResponse，新的上下文内容
     return JSONResponse(context)

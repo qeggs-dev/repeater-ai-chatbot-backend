@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import overload
 from enum import Enum
 from ._exceptions import *
 from ._func_calling_obj import CallingFunctionResponse
@@ -154,6 +155,25 @@ class ContextObject:
     prompt: ContentUnit | None = None
     context_list: list[ContentUnit] = field(default_factory=list)
 
+    @overload
+    def __getitem__(self, index: int) -> ContentUnit:
+        ...
+
+    @overload
+    def __getitem__(self, index: slice) -> "ContextObject":
+        ...
+    
+    def __getitem__(self, index: int | slice):
+        if isinstance(index, int):
+            return self.context_list[index]
+        elif isinstance(index, slice):
+            return ContextObject(prompt=self.prompt, context_list=self.context_list[index])
+        else:
+            raise TypeError("index must be int or slice")
+    
+    def __setitem__(self, index: int, value: ContentUnit):
+        self.context_list[index] = value
+
     def __len__(self):
         return len(self.context_list)
     
@@ -243,6 +263,21 @@ class ContextObject:
             funcResponse=funcResponse,
             tool_call_id=tool_call_id,
         ))
+    
+    def pop(self, index: int = -1) -> ContentUnit:
+        """
+        弹出最后一个上下文单元
+        """
+        return self.context_list.pop(index)
+    
+    def pop_last_n(self, n: int) -> "ContextObject":
+        """
+        弹出最后n个上下文单元
+        """
+        pop_list:list[ContentUnit] = []
+        for _ in range(n):
+            pop_list.append(self.pop())
+        return ContextObject(prompt=self.prompt, context_list=pop_list)
     
     @property
     def is_empty(self) -> bool:

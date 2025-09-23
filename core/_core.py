@@ -590,6 +590,7 @@ class Core:
                             """
                             包装后处理函数，以传递更多数据
                             """
+                            nonlocal output
                             output = await self._post_treatment(
                                 user_id = user_id,
                                 response = response,

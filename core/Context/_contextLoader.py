@@ -95,7 +95,7 @@ class ContextLoader:
     
     async def get_context_object(
             self,
-            user_id: str,
+            user_id: str
         ) -> ContextObject:
         try:
             context_list = await self.context.load(user_id=user_id, default=[])
@@ -104,6 +104,7 @@ class ContextLoader:
         # 构建上下文对象
         contextObj = ContextObject()
         contextObj.update_from_context(context_list)
+
         logger.info(f"Load Context: {len(contextObj.context_list)}", user_id = user_id)
         return contextObj
 
