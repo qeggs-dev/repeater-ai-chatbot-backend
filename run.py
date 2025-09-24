@@ -537,27 +537,36 @@ class SlovesStarter:
         else:
             sys.stdout.write(f"\033]2;{title}\007")
             sys.stdout.flush()
+    
+    @staticmethod
+    def print_divider_line(char: str = "="):
+        print(char * os.get_terminal_size().columns)
+    
+    @staticmethod
+    def center_print(text: str):
+        print(text.center(os.get_terminal_size().columns))
 
     def main(self):
-        print(self.title.center(os.get_terminal_size().columns))
+        self.center_print(self.title)
         if self.is_venv():
             print("Starter Run in Virtual Environment")
         self.set_title(self.title)
         if self.use_venv:
+            self.print_divider_line()
             self.init_venv()
         return_code = ExitCode.SUCCESS
         while True:
             try:
                 start = self.get_start_cmd()
-                print("=" * os.get_terminal_size().columns)
+                self.print_divider_line()
                 result = self.run_cmd(start, reason="Running the program", cwd=self.work_directory)
-                print("=" * os.get_terminal_size().columns)
+                self.print_divider_line()
                 if result is not None:
                     if result.returncode != 0:
                         print("An error occurred while running the program.")
                         return_code = result.returncode
             except KeyboardInterrupt:
-                print("=" * os.get_terminal_size().columns)
+                self.print_divider_line()
                 print("Program terminated by user.")
             finally:
                 # Reset Title
