@@ -1,5 +1,5 @@
 from ConfigManager import ConfigLoader
-from .UserDataManager import MainManager as UserDataManager
+from ._main_user_data_manager import MainManager as UserDataManager
 from typing import Any
 
 configs = ConfigLoader()

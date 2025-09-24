@@ -9,7 +9,7 @@ from loguru import logger
 from .SubManager import SubManager
 from PathProcessors import validate_path, sanitize_filename, sanitize_filename_async
 from ConfigManager import ConfigLoader
-from .._user_mainmanager_interface import UserMainManagerInterface
+from ._user_mainmanager_interface import UserMainManagerInterface
 
 configs = ConfigLoader()
 
