@@ -398,7 +398,7 @@ class SlovesStarter:
             else:
                 return
     
-    def run_cmd(self, cmd: list[str], reason: str, cwd: Path | None = None, default: bool = True):
+    def run_cmd(self, cmd: list[str], reason: str, cwd: Path | None = None, default: bool = True, print_return_code: bool = True):
         print(f"Running command: {shlex.join(cmd)}")
         run = default
         if self.run_cmd_need_to_ask:
@@ -428,7 +428,10 @@ class SlovesStarter:
                         run = False
         
         if run:
-            return subprocess.run(cmd, cwd=cwd)
+            result = subprocess.run(cmd, cwd=cwd)
+            if print_return_code:
+                print(f"Command returned with code {result.returncode}")
+            return result
         else:
             return None
 
@@ -559,7 +562,12 @@ class SlovesStarter:
             try:
                 start = self.get_start_cmd()
                 self.print_divider_line()
-                result = self.run_cmd(start, reason="Running the program", cwd=self.work_directory)
+                result = self.run_cmd(
+                    start,
+                    reason="Running the program",
+                    cwd=self.work_directory,
+                    print_return_code=False
+                )
                 self.print_divider_line()
                 if result is not None:
                     if result.returncode != 0:
