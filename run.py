@@ -198,6 +198,7 @@ class SlovesStarter:
         self.argument: list[str] | None = None
         self.title: str = "Sloves Python Script Starter"
         self.process_title: str = "Python Script"
+        self.process_exit_title: str = self.title
         self.exit_title: str = self.title
         self.use_venv: bool = True
         self.cwd = Path.cwd()
@@ -205,6 +206,7 @@ class SlovesStarter:
         self.restart:bool = False
         self.run_cmd_need_to_ask: bool = True
         self.run_cmd_ask_default_values: dict[str, bool] = {}
+        self.divider_line_char: str = "="
 
         self.set_title(self.title)
 
@@ -294,13 +296,17 @@ class SlovesStarter:
         
         if exists_and_is_designated_type("title", str):
             self.title = config["title"]
+            self.process_exit_title = self.title
             self.exit_title = self.title
-        
-        if exists_and_is_designated_type("exit_title", str):
-            self.exit_title = config["exit_title"]
         
         if exists_and_is_designated_type("process_title", str):
             self.process_title = config["process_title"]
+        
+        if exists_and_is_designated_type("process_exit_title", str):
+            self.process_exit_title = config["process_exit_title"]
+        
+        if exists_and_is_designated_type("exit_title", str):
+            self.exit_title = config["exit_title"]
         
         if exists_and_is_designated_type("python_name", dict):
             try:
@@ -356,11 +362,16 @@ class SlovesStarter:
                     break
             if type_correct:
                 self.run_cmd_ask_default_values = config["run_cmd_ask_default_values"]
+        
+        if exists_and_is_designated_type("divider_line_char", str):
+            if len(config["divider_line_char"]) == 1:
+                self.divider_line_char = config["divider_line_char"]
     
     def create_configuration(self, output: str | Path | None = None):
         config = {
             "title": self.title,
             "process_title": self.process_title,
+            "process_exit_title": self.process_exit_title,
             "exit_title": self.exit_title,
             "python_name": self.python_name.dump(),
             "pip_name": self.pip_name.dump(),
@@ -374,6 +385,7 @@ class SlovesStarter:
             "restart": self.restart,
             "run_cmd_need_to_ask": self.run_cmd_need_to_ask,
             "run_cmd_ask_default_values": self.run_cmd_ask_default_values,
+            "divider_line_char": self.divider_line_char,
         }
         if output is None:
             return config
@@ -546,9 +558,8 @@ class SlovesStarter:
             sys.stdout.write(f"\033]2;{title}\007")
             sys.stdout.flush()
     
-    @staticmethod
-    def print_divider_line(char: str = "="):
-        print(char * os.get_terminal_size().columns)
+    def print_divider_line(self, char: str | None = None):
+        print((char or self.divider_line_char) * os.get_terminal_size().columns)
     
     @staticmethod
     def center_print(text: str):
