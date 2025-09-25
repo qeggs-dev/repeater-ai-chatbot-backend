@@ -56,31 +56,61 @@
 
 ## 安装部署
 
-**至少需要确保安装了Python3.10以上版本**
+**至少需要确保安装了Python3.11以上版本**
 
-### 1. 初始化环境
-> 将项目克隆到本地后，进入项目目录，执行以下操作：
-> ###### Windows:
-> 执行setup.bat
-> 
-> ###### Linux:
-> 执行下列命令
-> ```shell
-> bash setup.sh
-> ```
+### 自动安装
 
-### 2. 配置环境变量
-> 在项目目录下创建.env文件，参照[环境变量表](#环境变量表)填写相关配置
+1. 将项目克隆到本地
+2. 进入项目目录
+5. 运行`run.py`启动器（不用担心，这个启动器可以在全局环境运行，它只有标准库依赖）
 
-### 3. 启动服务
-> ###### Windows:
-> 执行run.bat
-> 
-> ###### Linux:
-> 执行下列命令
-> ```shell
-> bash run.sh
-> ```
+### 手动安装
+
+1. 将项目克隆到本地
+2. 进入项目目录
+3. 执行`python3 -m venv .venv`创建虚拟环境
+4. 执行`.venv/bin/activate`激活虚拟环境(Windows下则是`.venv\Scripts\activate`)
+5. 执行`pip install -r requirements.txt`安装依赖
+6. 执行`python3 run_fastapi.py`启动服务
+
+---
+
+## 启动器配置格式
+
+```json
+{
+    "title": "Repeater LLM Chat Backend Starter",
+    "process_title": "Repeater LLM Chat Backend",
+    "process_exit_title": "Repeater LLM Chat Backend Starter",
+    "exit_title": "Repeater LLM Chat Backend Starter",
+    "python_name": {
+      "windows": "python.exe",
+      "linux": "python3",
+      "default": "python3"
+    },
+    "pip_name": {
+      "windows": "pip.exe",
+      "linux": "pip3",
+      "default": "pip3"
+    },
+    "requirements_file": {
+      "default": "requirements.txt"
+    },
+    "cwd": "./",
+    "work_directory": "./",
+    "use_venv": true,
+    "venv_prompt": "Repeater LLM Chat Backend",
+    "script_name": "run_fastapi.py",
+    "argument": [],
+    "restart": true,
+    "run_cmd_need_to_ask": false,
+    "run_cmd_ask_default_values": {},
+    "divider_line_char": "=",
+    "inject_environment_variables": {},
+}
+```
+
+注：所有选项均为选填，按照需求填写内容即可
 
 ---
 
