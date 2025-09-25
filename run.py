@@ -609,7 +609,7 @@ class SlovesStarter:
                 print("Program terminated by user.")
             finally:
                 # Reset Title
-                self.set_title(self.title)
+                self.set_title(self.process_exit_title)
                 if self.restart:
                     user_input = input("Re-select? (y/N): ").lower()
                     if user_input in ["y", "yes"]:
