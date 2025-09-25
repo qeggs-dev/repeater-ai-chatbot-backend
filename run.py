@@ -207,6 +207,7 @@ class SlovesStarter:
         self.run_cmd_need_to_ask: bool = True
         self.run_cmd_ask_default_values: dict[str, bool] = {}
         self.divider_line_char: str = "="
+        self.inject_environment_variables: dict[str, str] = {}
 
         self.set_title(self.title)
 
@@ -366,6 +367,18 @@ class SlovesStarter:
         if exists_and_is_designated_type("divider_line_char", str):
             if len(config["divider_line_char"]) == 1:
                 self.divider_line_char = config["divider_line_char"]
+        
+        if exists_and_is_designated_type("inject_environment_variables", dict):
+            type_correct: bool = True
+            for key, value in config["inject_environment_variables"].items():
+                if not isinstance(key, str):
+                    type_correct = False
+                    break
+                if not isinstance(value, str):
+                    type_correct = False
+                    break
+            if type_correct:
+                self.inject_environment_variables = config["inject_environment_variables"]
     
     def create_configuration(self, output: str | Path | None = None):
         config = {
@@ -386,6 +399,7 @@ class SlovesStarter:
             "run_cmd_need_to_ask": self.run_cmd_need_to_ask,
             "run_cmd_ask_default_values": self.run_cmd_ask_default_values,
             "divider_line_char": self.divider_line_char,
+            "inject_environment_variables": self.inject_environment_variables,
         }
         if output is None:
             return config
@@ -410,7 +424,7 @@ class SlovesStarter:
             else:
                 return
     
-    def run_cmd(self, cmd: list[str], reason: str, cwd: Path | None = None, default: bool = True, print_return_code: bool = True):
+    def run_cmd(self, cmd: list[str], reason: str, cwd: Path | None = None, default: bool = True, print_return_code: bool = True, env: dict[str, str] | None = None):
         print(f"Running command: {shlex.join(cmd)}")
         run = default
         if self.run_cmd_need_to_ask:
@@ -440,7 +454,7 @@ class SlovesStarter:
                         run = False
         
         if run:
-            result = subprocess.run(cmd, cwd=cwd)
+            result = subprocess.run(cmd, cwd=cwd, env=env)
             if print_return_code:
                 print(f"Command returned with code {result.returncode}")
             return result
@@ -580,9 +594,10 @@ class SlovesStarter:
                 self.print_divider_line()
                 result = self.run_cmd(
                     start,
-                    reason="Running the program",
-                    cwd=self.work_directory,
-                    print_return_code=False
+                    reason = "Running the program",
+                    cwd = self.work_directory,
+                    print_return_code = False,
+                    env = self.inject_environment_variables
                 )
                 self.print_divider_line()
                 if result is not None:
