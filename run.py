@@ -197,6 +197,7 @@ class SlovesStarter:
         self.script_name: str | list[str] | None = None
         self.argument: list[str] | None = None
         self.title: str = "Sloves Python Script Starter"
+        self.console_title: str = self.title
         self.process_title: str = "Python Script"
         self.process_exit_title: str = self.title
         self.exit_title: str = self.title
@@ -225,7 +226,7 @@ class SlovesStarter:
                     if self.ask(
                             option_description = "Configuration file not found.\nDo you want to create a new one?",
                             ask_prompt = "Create new configuration file",
-                            default_value = True
+                            default = True
                         ):
                         self.create_configuration(config_file)
                     break
@@ -318,8 +319,12 @@ class SlovesStarter:
         
         if exists_and_is_designated_type("title", str):
             self.title = config["title"]
+            self.console_title = self.title
             self.process_exit_title = self.title
             self.exit_title = self.title
+        
+        if exists_and_is_designated_type("console_title", str):
+            self.console_title = config["console_title"]
         
         if exists_and_is_designated_type("process_title", str):
             self.process_title = config["process_title"]
@@ -406,6 +411,7 @@ class SlovesStarter:
         """
         config = {
             "title": self.title,
+            "console_title": self.console_title,
             "process_title": self.process_title,
             "process_exit_title": self.process_exit_title,
             "exit_title": self.exit_title,
@@ -674,7 +680,7 @@ class SlovesStarter:
         """
         Main function
         """
-        self.center_print(self.title)
+        self.center_print(self.console_title)
         if self.is_venv():
             print("Starter Run in Virtual Environment")
         self.set_title(self.title)
