@@ -73,6 +73,9 @@
 5. 执行`pip install -r requirements.txt`安装依赖
 6. 执行`python3 run_fastapi.py`启动服务
 
+PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需要你保证你的配置正确
+并且每一次你都可以通过启动器来启动程序
+
 ---
 
 ## 启动器配置格式
@@ -367,41 +370,45 @@ randchoice a b c d e
 
 ## 接口表
 
-| 请求 | URL | 参数类型 | 参数(*可选*) | 描述 |
-| :---: | :---: | :---: | :---: | :---: |
-| `POST` | `/chat/completion/{user_id:str}` | JSON请求体 | *`message(str)`*<br/>*`user_name(str)`*<br/>*`role(str) = 'user'`*<br/>*`role_name(str)`*<br/>*`model_type(str)`*<br/>*`load_prompt(bool) = true`*<br/>*`save_context(bool) = true`*<br/>*`reference_context_id(str)`*<br/>*`continue_completion(bool)`*  | AI聊天 |
-| `POST` | `/render/{user_id:str}`| JSON请求体 | **`text(str)`**<br/>*`style(str)`*<br/>*`timeout(float)`* | 文本渲染 |
-| `POST` | `/userdata/variable/expand/{user_id:str}` | JSON请求体 | *`username(str)`*<br/>`text(str)` | 变量解析 |
-| `GET` | `/userdata/context/get/{user_id:str}` | | | 获取上下文 |
-| `GET` | `/userdata/context/length/{user_id:str}` | | | 获取上下文长度 |
-| `GET` | `/userdata/context/userlist` | | | 获取用户列表 |
-| `POST` | `/userdata/context/withdraw/{user_id:str}` | 表单 | `index(int)` | 撤回上下文 |
-| `POST` | `/userdata/context/rewrite/{user_id:str}` | 表单 | `index(int)`<br/>`content(str)`<br/>*`reasoning_content(str)`* | 重写上下文 |
-| `GET` | `/userdata/context/branch/{user_id:str}` | | | 获取用户分支ID列表 |
-| `GET` | `/userdata/context/now_branch/{user_id:str}` | | | 获取用户当前分支ID |
-| `POST` | `/userdata/context/change/{user_id:str}` | 表单 | `new_branch_id(str)` | 切换上下文 |
-| `DELETE` | `/userdata/context/delete/{user_id:str}` | | | 删除上下文 |
-| `GET` | `/userdata/prompt/get/{user_id:str}` | | | 获取提示词 |
-| `POST` | `/userdata/prompt/set/{user_id:str}` | 表单 | `prompt(str)` | 设置提示词 |
-| `GET` | `/userdata/prompt/userlist` | | | 获取用户列表 |
-| `GET` | `/userdata/prompt/branch/{user_id:str}` | | | 获取用户分支ID列表 |
-| `GET` | `/userdata/prompt/now_branch/{user_id:str}` | | | 获取用户当前分支ID |
-| `POST` | `/userdata/prompt/change/{user_id:str}` | 表单 | `new_branch_id(str)` | 切换提示词 |
-| `DELETE` | `/userdata/prompt/delete/{user_id:str}` | | | 删除提示词 |
-| `GET` | `/userdata/config/get/{user_id:str}` | | | 获取配置 |
-| `POST` | `/userdata/config/set/{user_id:str}/{value_type:str}` | 表单 | `config(str)` | 设置配置 |
-| `POST` | `/userdata/config/delkey/{user_id:str}` | 表单 | `key(str)` | 删除配置 |
-| `GET` | `/userdata/config/userlist` | | | 获取用户列表 |
-| `GET` | `/userdata/config/branch/{user_id:str}` | | | 获取用户分支ID列表 |
-| `GET` | `/userdata/config/now_branch/{user_id:str}` | | | 获取用户当前分支ID |
-| `POST` | `/userdata/config/change/{user_id:str}` | 表单 | `new_branch_id(str)` | 切换分支数据 |
-| `DELETE` | `/userdata/config/delete/{user_id:str}` | | | 删除用户配置文件 |
-| `GET` | `/userdata/file/{user_id:str}.zip` | | | 获取用户数据 |
-| `GET` | `/calllog` | | | 获取调用日志(不推荐) |
-| `GET` | `/calllog/stream` | | | 流式获取调用日志(推荐) |
-| `GET` | `/file/render/{file_uuid:str}.png` | | | 获取图片渲染输出文件 |
-| `POST` | `/admin/reload/apiinfo` | 请求头 | `X-Admin-API-Key(str)` | 刷新API信息 |
-| `POST` | `/admin/regenerate/admin_key` | 请求头 | `X-Admin-API-Key(str)` | 重新生成管理密钥 |
+| 请求 | URL | 参数类型 | 参数(*可选*) | 描述 | 响应类型 |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| `GET` | `/docs` | 无 | 无 | 获取接口文档 | Web页面 |
+| `POST` | `/chat/completion/{user_id:str}` | JSON请求体 | *`message(str)`*<br/>*`user_name(str)`*<br/>*`role(str) = 'user'`*<br/>*`role_name(str)`*<br/>*`model_type(str)`*<br/>*`load_prompt(bool) = true`*<br/>*`save_context(bool) = true`*<br/>*`reference_context_id(str)`*<br/>*`continue_completion(bool)`*  | AI聊天 | `JSON响应对象` 或 `流式Delta对象` |
+| `POST` | `/render/{user_id:str}`| JSON请求体 | **`text(str)`**<br/>*`style(str)`*<br/>*`timeout(float)`* | 文本渲染 | `JSON对象` |
+| `POST` | `/userdata/variable/expand/{user_id:str}` | JSON请求体 | *`username(str)`*<br/>`text(str)` | 变量解析 | `JSON对象` |
+| `GET` | `/userdata/context/get/{user_id:str}` | | | 获取上下文 | `JSON列表` |
+| `GET` | `/userdata/context/length/{user_id:str}` | | | 获取上下文长度 | `JSON对象` |
+| `GET` | `/userdata/context/userlist` | | | 获取用户列表 | `JSON列表` |
+| `POST` | `/userdata/context/withdraw/{user_id:str}` | 表单 | `index(int)` | 撤回上下文 | `JSON对象` |
+| `POST` | `/userdata/context/rewrite/{user_id:str}` | 表单 | `index(int)`<br/>`content(str)`<br/>*`reasoning_content(str)`* | 重写上下文 | `JSON列表` |
+| `GET` | `/userdata/context/branch/{user_id:str}` | | | 获取用户分支ID列表 | `JSON列表` |
+| `GET` | `/userdata/context/now_branch/{user_id:str}` | | | 获取用户当前分支ID | `纯文本` |
+| `POST` | `/userdata/context/change/{user_id:str}` | 表单 | `new_branch_id(str)` | 切换上下文 | `纯文本` |
+| `DELETE` | `/userdata/context/delete/{user_id:str}` | | | 删除上下文 | `纯文本` |
+| `GET` | `/userdata/prompt/get/{user_id:str}` | | | 获取提示词 | `纯文本` |
+| `POST` | `/userdata/prompt/set/{user_id:str}` | 表单 | `prompt(str)` | 设置提示词 | `纯文本` |
+| `GET` | `/userdata/prompt/userlist` | | | 获取用户列表 | `JSON列表` |
+| `GET` | `/userdata/prompt/branch/{user_id:str}` | | | 获取用户分支ID列表 | `JSON列表` |
+| `GET` | `/userdata/prompt/now_branch/{user_id:str}` | | | 获取用户当前分支ID | `纯文本` |
+| `POST` | `/userdata/prompt/change/{user_id:str}` | 表单 | `new_branch_id(str)` | 切换提示词 | `纯文本` |
+| `DELETE` | `/userdata/prompt/delete/{user_id:str}` | | | 删除提示词 | `纯文本` |
+| `GET` | `/userdata/config/get/{user_id:str}` | | | 获取配置 | `JSON对象` |
+| `POST` | `/userdata/config/set/{user_id:str}/{value_type:str}` | 表单 | `config(str)` | 设置配置 | `JSON对象` |
+| `POST` | `/userdata/config/delkey/{user_id:str}` | 表单 | `key(str)` | 删除配置 | `JSON对象` |
+| `GET` | `/userdata/config/userlist` | | | 获取用户列表 | `JSON列表` |
+| `GET` | `/userdata/config/branch/{user_id:str}` | | | 获取用户分支ID列表 | `JSON列表` |
+| `GET` | `/userdata/config/now_branch/{user_id:str}` | | | 获取用户当前分支ID | `纯文本` |
+| `POST` | `/userdata/config/change/{user_id:str}` | 表单 | `new_branch_id(str)` | 切换分支数据 | `纯文本` |
+| `DELETE` | `/userdata/config/delete/{user_id:str}` | | | 删除用户配置文件 | `纯文本` |
+| `GET` | `/userdata/file/{user_id:str}.zip` | | | 获取用户数据 | `ZIP文件` |
+| `GET` | `/calllog` | | | 获取调用日志(不推荐) | `JSON列表` |
+| `GET` | `/calllog/stream` | | | 流式获取调用日志(推荐) | `JSONL流` |
+| `GET` | `/file/render/{file_uuid:str}.png` | | | 获取图片渲染输出文件 | `PNG图片` |
+| `POST` | `/admin/reload/apiinfo` | 请求头 | `X-Admin-API-Key(str)` | 刷新API信息 | `JSON对象` |
+| `POST` | `/admin/regenerate/admin_key` | 请求头 | `X-Admin-API-Key(str)` | 重新生成管理密钥 | `JSON对象` |
+| `POST` | `/admin/configs/reload` | 请求头 | `X-Admin-API-Key(str)` | 重新加载配置 (警告：某些模块可能缓存配置结果，这可能导致模块之间的配置差异！) | `JSON对象` |
+| `POST` | `/admin/configs/{name:str}/seek/{index:int}` | 请求头 | `X-Admin-API-Key(str)` | 移动指针在指定配置栈中的位置 | `JSON对象` |
+| `POST` | `/admin/regenerate/admin_key` | 请求头 | `X-Admin-API-Key(str)` | 重新生成管理密钥 | `JSON对象` |
 
 ---
 
