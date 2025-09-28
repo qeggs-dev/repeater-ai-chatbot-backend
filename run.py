@@ -202,7 +202,6 @@ class SlovesStarter:
         self.process_exit_title: str = self.title
         self.exit_title: str = self.title
         self.use_venv: bool = True
-        self.cwd = Path.cwd()
         self.work_directory: Path = self.cwd
         self.restart:bool = False
         self.run_cmd_need_to_ask: bool = True
@@ -235,6 +234,16 @@ class SlovesStarter:
             print("Continuing to run the program will operate with the default configuration...")
             self.pause_program(ExitCode.ONLY_PAUSE)
     
+    @property
+    def cwd(self) -> Path:
+        """Get the current working directory."""
+        return Path.cwd()
+
+    @cwd.setter
+    def cwd(self, path: Path):
+        """Set the current working directory."""
+        os.chdir(path)
+
     @staticmethod
     def is_venv():
         return hasattr(sys, 'real_prefix') or (
