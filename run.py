@@ -240,6 +240,60 @@ class SlovesStarter:
         return hasattr(sys, 'real_prefix') or (
             hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix
         )
+    
+    @staticmethod
+    def path_searcher(path: Path | list[Path], glob: str = "*", recursive_search: bool = False) -> list[Path]:
+        """
+        Search for a path
+
+        :param path: the path to search for
+        :return: the path
+        """
+        suspected_file: set[Path] = set()
+        
+        if isinstance(path, Path):
+            if recursive_search:
+                for file in path.rglob(glob):
+                    suspected_file.add(file)
+            else:
+                for file in path.glob(glob):
+                    suspected_file.add(file)
+        elif isinstance(path, list):
+            if recursive_search:
+                for p in path:
+                    for file in p.rglob(glob):
+                        suspected_file.add(file)
+            else:
+                for p in path:
+                    for file in p.glob(glob):
+                        suspected_file.add(file)
+        
+        if len(suspected_file) == 1:
+            return suspected_file.pop()
+        elif len(suspected_file) > 1:
+            suspected_file_list = list(suspected_file)
+            print("Multiple files found. Please choose one:")
+            for index, file in enumerate(suspected_file_list, start=1):
+                print(f"  - [{index}] {file.name}")
+            
+            while True:
+                user_choice = input("Choose one: ")
+                try:
+                    user_choice_index = int(user_choice)
+                    if user_choice_index not in range(1, len(suspected_file_list) + 1):  # noqa: E501
+                        print("Invalid choice. Please choose a number from the list.")
+                        continue
+                    return suspected_file_list[user_choice_index - 1]
+                except ValueError:
+                    path = Path(user_choice)
+                    if path in suspected_file_list:
+                        return path
+                    else:
+                        print("Invalid choice. Please try again.")
+                        continue
+        else:
+            raise FileNotFoundError("No files were found.")
+            
 
     @classmethod
     def load_config(cls):
@@ -248,36 +302,7 @@ class SlovesStarter:
 
         :return: the configuration file
         """
-        suspected_configuration_file: list[Path] = []
-        for file in Path.cwd().glob("*.json"):
-            suspected_configuration_file.append(file)
-        
-        if len(suspected_configuration_file) == 1:
-            config_file = suspected_configuration_file[0]
-        elif len(suspected_configuration_file) > 1:
-            print("Multiple configuration files found. Please choose one:")
-            for index, file in enumerate(suspected_configuration_file, start=1):
-                print(f"  - [{index}] {file.name}")
-            
-            while True:
-                user_choice = input("Choose one: ")
-                try:
-                    user_choice_index = int(user_choice)
-                    if user_choice_index not in range(1, len(suspected_configuration_file) + 1):  # noqa: E501
-                        print("Invalid choice. Please choose a number from the list.")
-                        continue
-                    config_file = suspected_configuration_file[user_choice_index - 1]
-                    break
-                except ValueError:
-                    path = Path(user_choice)
-                    if path in suspected_configuration_file:
-                        config_file = path
-                        break
-                    else:
-                        print("Invalid choice. Please try again.")
-                        continue
-        else:
-            raise FileNotFoundError("No configuration file found.")
+        config_file = cls.path_searcher([Path.cwd(), Path(__file__).parent], "*.json")
         
         if config_file.exists():
             try:
@@ -539,13 +564,13 @@ class SlovesStarter:
 
         :param ignore_existing: Ignore existing virtual environment
         """
-        if not (ignore_existing and (Path.cwd() / ".venv" / "pyvenv.cfg").exists()):
+        if not (ignore_existing and (self.cwd / ".venv" / "pyvenv.cfg").exists()):
             if self.run_cmd([self.python_name.value, "-m", "venv", ".venv", "--prompt", self.venv_prompt], reason="Initializing virtual environment", cwd=self.cwd) is not None:
                 if SYSTEM == "Windows":
-                    venv_bin_path = Path.cwd() / ".venv" / "Scripts"
+                    venv_bin_path = self.cwd / ".venv" / "Scripts"
                 else:
-                    venv_bin_path = Path.cwd() / ".venv" / "bin"
-                if (Path.cwd() / self.requirements_file.value).exists():
+                    venv_bin_path = self.cwd / ".venv" / "bin"
+                if (self.cwd / self.requirements_file.value).exists():
                     if self.run_cmd([str(venv_bin_path / self.pip_name.value), "install", "-r", self.requirements_file.value], reason="Installing requirements", cwd=self.cwd) is None:
                         print("Failed to install requirements.")
             else:
@@ -592,7 +617,7 @@ class SlovesStarter:
         if self.script_name is None:
             suspected_script_file:list[Path] = []
             self_path = Path(sys.argv[0])
-            for file in Path.cwd().glob("*.py"):
+            for file in self.cwd.glob("*.py"):
                 if file != self_path:
                     suspected_script_file.append(file)
             if len(suspected_script_file) == 0:
@@ -623,9 +648,9 @@ class SlovesStarter:
         
         if self.use_venv:
             if SYSTEM == "Windows":
-                start = [str(Path.cwd() / ".venv" / "Scripts" / self.python_name.value), str(script_name)]
+                start = [str(self.work_directory / ".venv" / "Scripts" / self.python_name.value), str(script_name)]
             else:
-                start = [str(Path.cwd() / ".venv" / "bin" / self.python_name.value), str(script_name)]
+                start = [str(self.work_directory / ".venv" / "bin" / self.python_name.value), str(script_name)]
         else:
             start = [self.python_name.value, str(script_name)]
 
