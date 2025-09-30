@@ -85,4 +85,4 @@ async def chat_endpoint(
 
             return StreamingResponse(generator_wrapper(context), media_type="application/x-ndjson")
     except core.ApiInfo.APIGroupNotFoundError as e:
-        raise HTTPException(detail=str(e), status_code=400)
+        raise HTTPException(detail=str(e), status_code=404)

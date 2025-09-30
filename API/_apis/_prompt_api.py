@@ -48,7 +48,7 @@ async def get_prompt_userlist():
     # 返回用户ID列表
     return JSONResponse(userid_list)
 
-@app.get("/userdata/prompt/branch/{user_id}")
+@app.get("/userdata/prompt/branchs/{user_id}")
 async def get_prompt_branch_id(user_id: str):
     """
     Endpoint for getting prompt branch ID

@@ -105,7 +105,7 @@ async def get_config_userlist():
     # 返回用户ID列表
     return JSONResponse(userid_list)
 
-@app.get("/userdata/config/branch/{user_id}")
+@app.get("/userdata/config/branchs/{user_id}")
 async def get_config_branch_id(user_id: str):
     """
     Endpoint for get config branch id

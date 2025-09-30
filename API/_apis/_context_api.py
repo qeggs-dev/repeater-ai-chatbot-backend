@@ -147,7 +147,7 @@ async def rewrite_context(user_id: str, rewrite_context: RewriteContext):
     # 返回JSONResponse，新的上下文内容
     return JSONResponse(context)
 
-@app.get("/userdata/context/branch/{user_id}")
+@app.get("/userdata/context/branchs/{user_id}")
 async def get_context_branch_id(user_id: str):
     """
     Endpoint for getting context branch id list
@@ -174,7 +174,7 @@ async def get_context_now_branch_id(user_id: str):
     return PlainTextResponse(branch_id)
 
 @app.post("/userdata/context/change/{user_id}")
-async def change_context(user_id: str, new_branch_id: str):
+async def change_context(user_id: str, new_branch_id: str = Form(...)):
     """
     Endpoint for changing context
     """
