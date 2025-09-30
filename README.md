@@ -138,11 +138,21 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 | `RENDER.OUTPUT_IMAGE_DIR` | 渲染图片的缓存位置 | **必填** | *`./temp/render`* | str | |
 | `RENDER.MARKDOWN.WKHTMLTOIMAGE_PATH` | 渲染图片依赖的[`Wkhtmltopdf`](https://wkhtmltopdf.org/downloads.html)中`wkhtmltoimage`的路径 | **必填** | `/usr/local/bin/wkhtmltoimage` | str | |
 | `STATIC.BASE_PATH` | 静态资源位置 | **必填** | *`./static`* | str | |
-| `CALLLOG.AUTO_SAVE` | 是否将记录到主API的调用日志自动保存到文件 | *选填* | `True` | bool | |
+| `API_INFO.API_FILE_PATH` | API信息文件路径 | *选填* | `./config/apiconfig.json` | str | |
+| `API_INFO.DEFAULT_MODEL_UID` | 调用时默认使用的模型UID | *选填* | `deepseek-chat` | str | |
+| `BLACKLIST.FILE_PATH` | 黑名单文件位置 | *选填* | `./config/blacklist.regex` | str | |
+| `BLACKLIST.MATCH_TIMEOUT` | 黑名单匹配超时时间 | *选填* | `10` | int | 秒 |
 | `BOT_INFO.NAME` | 机器人名字 | *选填* | `Bot` | str | |
 | `BOT_INFO.BIRTHDAY.YEAR` | 机器人出生年份 | *选填* | *`2024`* | int | 年 |
 | `BOT_INFO.BIRTHDAY_MONTH` | 机器人出生月份 | *选填* | *`01`* | int | 月 |
 | `BOT_INFO.BIRTHDAY_DAY` | 机器人出生日期 | *选填* | *`01`* | int | 日 |
+| `CALLAPI.MAX_CONCURRENCY` | 最大并发数(仅适用于主请求API，也就是Chat API) | *选填* | `1000` | int | 请求数 |
+| `CALLLOG.AUTO_SAVE` | 是否将记录到主API的调用日志自动保存到文件 | *选填* | `True` | bool | |
+| `CALLLOG.DEBONCE.SAVE_WAIT_TIME` | 日志持久化存储的防抖时间 | *选填* | `1200.0` | float | 秒 |
+| `CALLLOG.MAX_CACHE_SIZE` | 日志缓存的最大数量 | *选填* | `1000` | int | 日志数量 |
+| `CONFIG_CACHE.DOWNGRADE_WAIT_TIME` | 配置管理器缓存降级等待时间 | *选填* | `600.0` | float | 秒 |
+| `CONFIG_CACHE.DEBONCE_SAVE_WAIT_TIME` | 配置管理器缓存延迟保存时间 | *选填* | `600.0` | float | 秒 |
+| `CORE.VERSION` | 版本号(用于替换Core中的版本号数据，以及提示词变量中的版本号) | *选填* | \*由代码自动生成 | str | |
 | `SERVER.HOST` | 服务监听的IP(此选项会覆盖环境变量中的配置) | *选填* | 环境变量`HOST` | str | |
 | `SERVER.PORT` | 服务监听端口(此选项会覆盖环境变量中的配置) | *选填* | 环境变量`PORT` | int | |
 | `SERVER.WORKERS` | 服务工作进程数(此选项会覆盖环境变量中的配置) | *选填* | 环境变量`WORKERS` | int | |
@@ -151,6 +161,7 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 | `LOGGER.LOG_FILE_DIR` | 日志文件位置 | *选填* | `./log` | str | |
 | `LOGGER.MAX_LOG_FILE_SIZE` | 日志文件最大大小 | *选填* | `10 MB` | str | 日志大小 |
 | `LOGGER.LOG_RETENTION` | 日志文件保留时间 | *选填* | `14 days` | str | 时间 |
+| `README.FILE_PATH` | README文件位置 | *选填* | `./README.md` | str | |
 | `RENDER.DEFAULT_IMAGE_TIMEOUT` | 渲染图片的默认保留时间(单位：秒，图片生成后给予客户端的图片链接有效时间) | *选填* | 60 | int | |
 | `RENDER.MARKDOWN.TO_IMAGE.STYLES` | Markdown渲染图片的样式文件夹 | *选填* | `./styles` | str | |
 | `RENDER.MARKDOWN.TO_IMAGE.PREPROCESS_MAP.BEFORE` | Markdown渲染预处理映射（键会被替换为值的内容） | *选填* | *`{"\n": "<br/>"}`* | str | |
@@ -158,6 +169,7 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 | `PROMPT.DEFAULT_DIR` | 默认提示词文件夹 | *选填* | `./Prompt/Presets` | str | |
 | `PROMPT.PARSET_NAME` | 默认提示词文件名(不包括文件后缀) | *选填* | `default` | str | |
 | `PROMPT.DEFAULT_SUFFIX` | 默认提示词文件后缀 | *选填* | `.md` | str | |
+| `TIME.TIMEZONE` | 时区 | *选填* | `8` | int | 偏移小时数 |
 | `USER_DATA.SUB_DIR_NAME` | 用户子数据文件夹名称 | *选填* | `ParallelData` | str | |
 | `USER_DATA.DIR` | 用户数据存放位置 | *选填* | `./data/userdata` | str | |
 | `USER_DATA.METADATA_FILENAME` | 用户数据元数据文件名 | *选填* | `metadata.json` | str | |
@@ -169,6 +181,7 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 | `USER_DATA.CONTEXT_USERDATA.CACHE_DATA` | 控制用户数据缓存是否开启 | *选填* | \*`USER_DATA.CACHE_DATA`的值 | bool | |
 | `USER_DATA.PROMPT_USERDATA.CACHE_DATA` | 控制提示词数据缓存是否开启 | *选填* | \*`USER_DATA.CACHE_DATA`的值 | bool | |
 | `USER_DATA.USERCONFIG_USERDATA.CACHE_DATA` | 配置用户数据缓存是否开启 | *选填* | \*`USER_DATA._CACHE_DATA`的值 | bool | |
+| `USER_NICKNAME_MAPPING.FILE_PATH` | 用户昵称映射表文件位置 | *选填* | `./config/UserNicknameMapping.json` | str | |
 | `MODEL.DEFAULT_TEMPERATURE` | 默认模型温度 | *选填* | `1.0` | float | |
 | `MODEL.DEFAULT_TOP_P` | 默认模型`Top_P` | *选填* | `1.0` | float | |
 | `MODEL.DEFAULT_FREQUENCY_PENALTY` | 默认模型频率惩罚 | *选填* | `0.0` | float | |
@@ -177,19 +190,7 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 | `MODEL.DEFAULT_MAX_COMPLETION_TOKENS` | 默认模型最大生成token | *选填* | `1024` | int | Token |
 | `MODEL.DEFAULT_STOP` | 默认模型停止词 | *选填* | [] | list[str] | |
 | `MODEL.STREAM` | 是否内部启用流式输出(此选项仅告知框架是否启用流式生成，但框架内部存在缓冲区，开启此选项后如果请求时没有设置`stream`参数，会等待生成完毕) | *选填* | `true` | bool |
-| `CALLLOG.DEBONCE.SAVE_WAIT_TIME` | 日志持久化存储的防抖时间 | *选填* | `1200.0` | float | 秒 |
-| `CALLLOG.MAX_CACHE_SIZE` | 日志缓存的最大数量 | *选填* | `1000` | int | 日志数量 |
-| `CONFIG_CACHE.DOWNGRADE_WAIT_TIME` | 配置管理器缓存降级等待时间 | *选填* | `600.0` | float | 秒 |
-| `CONFIG_CACHE.DEBONCE_SAVE_WAIT_TIME` | 配置管理器缓存延迟保存时间 | *选填* | `600.0` | float | 秒 |
-| `BLACKLIST.FILE_PATH` | 黑名单文件位置 | *选填* | `./config/blacklist.regex` | str | |
-| `BLACKLIST.MATCH_TIMEOUT` | 黑名单匹配超时时间 | *选填* | `10` | int | 秒 |
-| `API_INFO.API_FILE_PATH` | API信息文件路径 | *选填* | `./config/apiconfig.json` | str | |
-| `API_INFO.DEFAULT_MODEL_UID` | 调用时默认使用的模型UID | *选填* | `deepseek-chat` | str | |
-| `TIME.TIMEZONE` | 时区 | *选填* | `8` | int | 偏移小时数 |
-| `README.FILE_PATH` | README文件位置 | *选填* | `./README.md` | str | |
-| `CORE.VERSION` | 版本号(用于替换Core中的版本号数据，以及提示词变量中的版本号) | *选填* | \*由代码自动生成 | str | |
-| `CALLAPI.MAX_CONCURRENCY` | 最大并发数(仅适用于主请求API，也就是Chat API) | *选填* | `1000` | int | 请求数 |
-| `USER_NICKNAME_MAPPING.FILE_PATH` | 用户昵称映射表文件位置 | *选填* | `./config/UserNicknameMapping.json` | str | |
+| `MODEL.AUTO_SHRINK_LENGTH` | 默认的自动Shrink阈值上下文长度 | *选填* | 1000 | int | 上下文条数 |
 
 PS: 配置读取时默认不区分大小写
 
@@ -381,14 +382,14 @@ randchoice a b c d e
 | `GET` | `/userdata/context/userlist` | | | 获取用户列表 | `JSON列表` |
 | `POST` | `/userdata/context/withdraw/{user_id:str}` | 表单 | `index(int)` | 撤回上下文 | `JSON对象` |
 | `POST` | `/userdata/context/rewrite/{user_id:str}` | 表单 | `index(int)`<br/>`content(str)`<br/>*`reasoning_content(str)`* | 重写上下文 | `JSON列表` |
-| `GET` | `/userdata/context/branch/{user_id:str}` | | | 获取用户分支ID列表 | `JSON列表` |
+| `GET` | `/userdata/context/branchs/{user_id:str}` | | | 获取用户分支ID列表 | `JSON列表` |
 | `GET` | `/userdata/context/now_branch/{user_id:str}` | | | 获取用户当前分支ID | `纯文本` |
 | `POST` | `/userdata/context/change/{user_id:str}` | 表单 | `new_branch_id(str)` | 切换上下文 | `纯文本` |
 | `DELETE` | `/userdata/context/delete/{user_id:str}` | | | 删除上下文 | `纯文本` |
 | `GET` | `/userdata/prompt/get/{user_id:str}` | | | 获取提示词 | `纯文本` |
 | `POST` | `/userdata/prompt/set/{user_id:str}` | 表单 | `prompt(str)` | 设置提示词 | `纯文本` |
 | `GET` | `/userdata/prompt/userlist` | | | 获取用户列表 | `JSON列表` |
-| `GET` | `/userdata/prompt/branch/{user_id:str}` | | | 获取用户分支ID列表 | `JSON列表` |
+| `GET` | `/userdata/prompt/branchs/{user_id:str}` | | | 获取用户分支ID列表 | `JSON列表` |
 | `GET` | `/userdata/prompt/now_branch/{user_id:str}` | | | 获取用户当前分支ID | `纯文本` |
 | `POST` | `/userdata/prompt/change/{user_id:str}` | 表单 | `new_branch_id(str)` | 切换提示词 | `纯文本` |
 | `DELETE` | `/userdata/prompt/delete/{user_id:str}` | | | 删除提示词 | `纯文本` |
@@ -396,7 +397,7 @@ randchoice a b c d e
 | `POST` | `/userdata/config/set/{user_id:str}/{value_type:str}` | 表单 | `config(str)` | 设置配置 | `JSON对象` |
 | `POST` | `/userdata/config/delkey/{user_id:str}` | 表单 | `key(str)` | 删除配置 | `JSON对象` |
 | `GET` | `/userdata/config/userlist` | | | 获取用户列表 | `JSON列表` |
-| `GET` | `/userdata/config/branch/{user_id:str}` | | | 获取用户分支ID列表 | `JSON列表` |
+| `GET` | `/userdata/config/branchs/{user_id:str}` | | | 获取用户分支ID列表 | `JSON列表` |
 | `GET` | `/userdata/config/now_branch/{user_id:str}` | | | 获取用户当前分支ID | `纯文本` |
 | `POST` | `/userdata/config/change/{user_id:str}` | 表单 | `new_branch_id(str)` | 切换分支数据 | `纯文本` |
 | `DELETE` | `/userdata/config/delete/{user_id:str}` | | | 删除用户配置文件 | `纯文本` |
@@ -417,14 +418,15 @@ randchoice a b c d e
 | 配置项 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `parset_prompt_name` | `str` | 项目配置中`PROMPT.PARSET_NAME`的值 | 在启动时如果没有检查到自定义提示词，默认选择的预设提示词文件名(此处没有文件后缀，如`default`，实际文件名中会与`PROMPT.DEFAULT_SUFFIX`拼接) |
-| `model_uid` | `str` | 项目配置中`DEFAULT_MODEL_UID`的值 | 模型UID |
-| `temperature` | `float` | 项目配置中`DEFAULT_TEMPERATURE`的值 | 模型温度 |
-| `top_p` | `float` | 项目配置中`DEFAULT_TOP_P`的值 | 模型top_p |
-| `max_tokens` | `int` | 项目配置中`DEFAULT_MAX_TOKENS`的值 | 模型最大生成长度(OpenAI计划丢弃此参数，但为了兼容性，此处仍然保留) |
-| `max_completion_tokens` | `int` | 项目配置中`DEFAULT_MAX_COMPLETION_TOKENS`的值 | 模型最大补全长度 |
-| `stop` | `list[str]` | 项目配置中`DEFAULT_STOP`的值 | 模型停止词 |
-| `frequency_penalty` | `float` | 项目配置中`DEFAULT_FREQUENCY_PENALTY`的值 | 模型频率惩罚 |
-| `presence_penalty` | `float` | 项目配置中`DEFAULT_PRESENCE_PENALTY`的值 | 模型存在性惩罚 |
+| `model_uid` | `str` | 项目配置中`MODEL.DEFAULT_MODEL_UID`的值 | 模型UID |
+| `temperature` | `float` | 项目配置中`MODEL.DEFAULT_TEMPERATURE`的值 | 模型温度 |
+| `top_p` | `float` | 项目配置中`MODEL.DEFAULT_TOP_P`的值 | 模型top_p |
+| `max_tokens` | `int` | 项目配置中`MODEL.DEFAULT_MAX_TOKENS`的值 | 模型最大生成长度(OpenAI计划丢弃此参数，但为了兼容性，此处仍然保留) |
+| `max_completion_tokens` | `int` | 项目配置中`MODEL.DEFAULT_MAX_COMPLETION_TOKENS`的值 | 模型最大补全长度 |
+| `stop` | `list[str]` | 项目配置中`MODEL.DEFAULT_STOP`的值 | 模型停止词 |
+| `frequency_penalty` | `float` | 项目配置中`MODEL.DEFAULT_FREQUENCY_PENALTY`的值 | 模型频率惩罚 |
+| `presence_penalty` | `float` | 项目配置中`MODEL.DEFAULT_PRESENCE_PENALTY`的值 | 模型存在性惩罚 |
+| `auto_shrink_length` | `int` | 项目配置中`MODEL.AUTO_SHRINK_LENGTH`的值 | 自动上下文长度限制的最大值 |
 
 ---
 
