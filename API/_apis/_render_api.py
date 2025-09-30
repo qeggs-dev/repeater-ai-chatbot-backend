@@ -11,6 +11,7 @@ from fastapi import (
     Request
 )
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 import asyncio
 import os
 import time
@@ -18,20 +19,23 @@ from loguru import logger
 from uuid import uuid4
 from pathlib import Path
 
+class RenderRequest(BaseModel):
+    text: str
+    style: str | None = None
+    timeout: float | None = None
+
 @app.post("/render/{user_id}")
 async def render(
     request: Request,
     background_tasks: BackgroundTasks,
     user_id: str,
-    text: str = Form(...),
-    style: str | None = Form(None),
-    timeout: float | None = Form(None),
+    render_request:RenderRequest
 ):
     """
     Endpoint for rendering markdown text to image
     """
 
-    if text == None:
+    if render_request.text == None:
         raise HTTPException(status_code=400, detail="text is required")
     
     # 生成图片ID
@@ -58,8 +62,10 @@ async def render(
             logger.info("Image delete task cancelled", user_id = user_id)
             await _delete(filename)
         
-    if style:
-        if style not in get_style_names():
+    if render_request.style:
+        if render_request.style in get_style_names():
+            style = render_request.style
+        else:
             raise HTTPException(status_code=400, detail="Invalid style")
     else:
         # 获取用户配置
@@ -69,15 +75,15 @@ async def render(
         # 获取图片渲染风格
         style = config.get('render_style', default_style)
     
-    if not timeout:
-        timeout = configs.get_config("render.default_image_timeout", 60.0).get_value(float)
+    if not render_request.timeout:
+        render_request.timeout = configs.get_config("render.default_image_timeout", 60.0).get_value(float)
     
     # 日志打印文件名和渲染风格
     logger.info(f'Rendering image {filename} for "{style}" style', user_id=user_id)
 
     # 调用markdown_to_image函数生成图片
     await markdown_to_image(
-        markdown_text = text,
+        markdown_text = render_request.text,
         output_path = render_output_image_dir / filename,
         style = style,
         preprocess_map_before = configs.get_config("render.markdown.to_image.preprocess_map.before", {}).get_value(dict),
@@ -88,7 +94,7 @@ async def render(
     logger.info(f'Created image {filename}', user_id = user_id)
 
     # 添加一个后台任务，时间到后删除图片
-    background_tasks.add_task(_wait_delete, timeout, filename)
+    background_tasks.add_task(_wait_delete, render_request.timeout, filename)
 
     # 生成图片的URL
     fileurl = request.url_for("render_file", file_uuid=fuuid)
@@ -98,8 +104,8 @@ async def render(
             "image_url": str(fileurl),
             "file_uuid": str(fuuid),
             "style": style,
-            "timeout": timeout,
-            "text": text,
+            "timeout": render_request.timeout,
+            "text": render_request.text,
             "created": create,
             "created_ms": create_ms
         }

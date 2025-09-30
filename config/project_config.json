@@ -37,17 +37,6 @@
         ]
     },
     {
-        "name": "RENDER.MARKDOWN.TO_IMAGE.PREPROCESS_MAP.BEFORE",
-        "values": [
-            {
-                "type": "dict",
-                "value": {
-                    "\n": "<br/>"
-                }
-            }
-        ]
-    },
-    {
         "name": "RENDER.MARKDOWN.TO_IMAGE.PREPROCESS_MAP.AFTER",
         "values": [
             {
