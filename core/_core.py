@@ -515,7 +515,7 @@ class Core:
                 )
 
                 # 如果上下文需要收缩，则进行收缩
-                max_context_length = config.get('auto_shrink_length', configs.get_config("model.auto_shrink_length", 1000))
+                max_context_length = config.get('auto_shrink_length', configs.get_config("model.auto_shrink_length", 1000).get_value(int))
                 if len(context) > max_context_length:
                     logger.info(f"Context length exceeds {max_context_length}, auto shrink", user_id = user_id)
                     context.shrink(max_context_length)
