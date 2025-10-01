@@ -175,7 +175,7 @@ class ContextObject:
         self.context_list[index] = value
 
     def __len__(self):
-        return len(self.context_list)
+        return self.context_item_length
     
     def __iter__(self):
         # 先 yield 提示词
@@ -195,6 +195,10 @@ class ContextObject:
         other = self.from_context(context)
         self.context_list = other.context_list
         self.prompt = other.prompt
+    
+    @property
+    def context_item_length(self):
+        return len(self.context_list)
 
     @property
     def total_length(self) -> int:
@@ -281,7 +285,7 @@ class ContextObject:
         :return: 弹出的上下文单元
         :raises IndexOutOfRangeError: 如果index超出范围，则抛出该异常
         """
-        if index not in range(len(self.context_list)):
+        if index not in range(-len(self.context_list), len(self.context_list)):
             raise IndexOutOfRangeError("index out of range")
         return self.context_list.pop(index)
     
@@ -328,21 +332,18 @@ class ContextObject:
         """
         return self.last_content.funcResponse is not None
     
-    def shrink(self, length: int):
+    def shrink(self, length: int, ensure_role_at_top: ContextRole = ContextRole.USER):
         """
         缩小上下文长度
         
         :param length: 正数保留最后length个元素，负数保留前|length|个元素
+        :param ensure_role_at_top: 确保指定角色在顶部
         :raise IndexOutOfRangeError: 数量超出范围
         """
         current_len = len(self.context_list)
         
-        # 验证范围
-        if abs(length) > current_len:
-            raise IndexOutOfRangeError(f"length {length} out of range [{-current_len}, {current_len}]")
-        
         # 当length大于等于实际长度时，不做任何事
-        if length >= len(self.context_list):
+        if abs(length) >= len(self.context_list):
             return
         
         if length > 0:
@@ -355,6 +356,15 @@ class ContextObject:
         else:
             # length == 0，清空列表
             self.context_list = []
+        
+        # 检查头部角色信息
+        if self.context_list and self.context_list[0].role != ensure_role_at_top:
+            # 从头部寻找第一个为ensure_role_at_top的ContextUnit
+            for i in range(len(self.context_list)):
+                if self.context_list[i].role == ensure_role_at_top:
+                    # pop掉前面的内容
+                    self.pop_left_n(i)
+                    break
     
     @classmethod
     def from_context(cls, context: list[dict]) -> "ContextObject":
