@@ -2,21 +2,35 @@
 # Python Simple Launcher For Virtual Environment Scripts
 # Sloves Starter !!!
 
-__version__ = "0.4.0"
+__version__ = "0.4.2"
 
-import platform
-import subprocess
-from pathlib import Path
-import json
-import shlex
+# region Imports
+from __future__ import annotations
 import os
-from typing import Any, Generic, TypeVar, Union, Optional, overload
-import platform
 import sys
 import time
-from enum import Enum
+import json
+import shlex
 import atexit
+import platform
+import subprocess
+from enum import Enum
+from pathlib import Path
+from abc import ABC, abstractmethod
+from typing import (
+    Any,
+    Union,
+    TextIO,
+    TypeVar,
+    Generic,
+    overload,
+    Optional,
+    Iterable,
+    Generator,
+)
+# endregion
 
+# region Constants
 SYSTEM: str = platform.system()
 
 T_CPV = TypeVar('T_CPV')
@@ -37,7 +51,47 @@ class ExitCode(Enum):
     USER_TERMINATED = 11
 
     UNKNOWN_ERROR = 255
+# endregion
 
+# region SetTitle
+def set_title(title: str):
+    """
+    Set console title
+
+    :param title: Title
+    """
+    if SYSTEM == "Windows":
+        try:
+            import ctypes
+            # Win API
+            ctypes.windll.kernel32.SetConsoleTitleW(title)
+        except Exception:
+            os.system(f'title "{title}"')
+    else:
+        sys.stdout.write(f"\033]2;{title}\007")
+        sys.stdout.flush()
+# endregion
+
+# center_print
+def center_print(text: str, file: TextIO = sys.stdout):
+    """
+    Center print text
+
+    :param text: Text to print
+    """
+    file.write(text.center(os.get_terminal_size().columns))
+    file.flush()
+# endregion
+
+# region IsVenv
+def is_venv():
+    return hasattr(sys, 'real_prefix') or (
+        hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix
+    )
+# endregion
+
+
+# region CrossPlatformValue
 class CrossPlatformValue(Generic[T_CPV]):
     """Cross-platform value container that returns the corresponding value based on the current operating system."""
     
@@ -174,7 +228,9 @@ class CrossPlatformValue(Generic[T_CPV]):
                 self._macos_value == other._macos_value and
                 self._jvm_value == other._jvm_value and
                 self._default_value == other._default_value)
+# endregion
 
+# region absolute_path
 def absolute_path(path: str | Path, cwd: str | Path = None) -> Path:
     path = Path(path)
     if cwd is None:
@@ -184,7 +240,309 @@ def absolute_path(path: str | Path, cwd: str | Path = None) -> Path:
     if path.is_absolute():
         return path
     return cwd.absolute() / path
+# endregion
 
+# region VersionChar
+class VersionChar(Enum):
+    eq = "=="
+    ne = "!="
+    gt = ">"
+    ge = ">="
+    lt = "<"
+    le = "<="
+# endregion
+
+# region PipPackage
+class PipPackage:
+    def __init__(self, name: str, version_mode: VersionChar | str | None = None, version: str | None = None):
+        self._name: str = name
+        if isinstance(version_mode, str):
+            self._version_mode = VersionChar(version_mode)
+        else:
+            self._version_mode: VersionChar | None = version_mode
+        self._version: str | None = version
+    
+    @property
+    def as_dict(self) -> dict:
+        return {
+            "name": self._name,
+            "version_mode": self._version_mode,
+            "version": self._version
+        }
+    
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def version_mode(self) -> VersionChar | None:
+        return self._version_mode
+
+    @property
+    def version(self) -> str | None:
+        return self._version
+    
+    def create_requirement(self, delimiter: str = "") -> str:
+        text = [
+            f"{self._name}"
+        ]
+        if self._version_mode is not None and self._version is not None:
+            text.append(f"{self._version_mode.value}")
+            text.append(f"{self._version}")
+        return delimiter.join(text)
+    
+    def __str__(self) -> str:
+        return self.create_requirement()
+    
+    def __hash__(self) -> int:
+        return hash((self._name, self._version_mode, self._version))
+    
+    def __eq__(self, other: PipPackage) -> bool:
+        return (
+            self._name == other._name and
+            self._version_mode == other._version_mode and
+            self._version == other._version
+        )
+# endregion
+
+# region PipInstaller
+class PipInstaller:
+    def __init__(self, requirements: list[PipPackage | list[str] | tuple[str, str, str] | dict[str, str]] | None = None):
+        self._requirements: list[PipPackage] = []
+        for requirement in requirements or []:
+            if isinstance(requirement, PipPackage):
+                self._requirements.append(requirement)
+            elif isinstance(requirement, list | tuple):
+                self._requirements.append(PipPackage(*requirement))
+            elif isinstance(requirement, dict):
+                self._requirements.append(PipPackage(**requirement))
+    
+    @property
+    def as_dict(self) -> list[dict[str, str]]:
+        return [requirement.as_dict for requirement in self._requirements]
+
+    def create_requirements(self, delimiter: str = " ") -> str:
+        return delimiter.join([str(requirement) for requirement in self._requirements])
+    
+    def create_requirements_file(self, path: str | Path, encoding: str = "utf-8", delimiter: str = "\n") -> None:
+        Path(path).parent.mkdir(parents = True, exist_ok = True)
+        with open(path, "w", encoding = encoding) as f:
+            f.write(self.create_requirements(delimiter))
+    
+    def add_requirement(self, requirement: PipPackage) -> None:
+        self._requirements.append(requirement)
+    
+    def add_requirements(self, requirements: list[PipPackage]) -> None:
+        self._requirements.extend(requirements)
+    
+    def install(self, pip_path: str | Path = "pip"):
+        subprocess.run([str(pip_path), "install", self.create_requirements()])
+# endregion
+
+# region  Ask
+# region > BaseAsk
+class BaseAsk(ABC):
+    """
+    Interface for asking questions
+    """
+
+    @abstractmethod
+    def ask(self) -> Any:
+        """
+        Asks the user a question and returns the answer
+        """
+        pass
+# endregion
+
+# region >> Ask
+T_FILE = TypeVar('T', bound=TextIO)
+
+class Ask(BaseAsk, Generic[T_FILE]):
+    """Ask for user"""
+    YES_CHARSET: set[str] = {"y", "yes", "true", "t", "1"}
+    NO_CHARSET: set[str] = {"n", "no", "false", "f", "0"}
+    def __init__(
+            self,
+            prompt = "Do you agree?",
+            yes_charset: set[str] = YES_CHARSET,
+            no_charset: set[str] = NO_CHARSET,
+            show_yn_prompt: bool = True,
+            default: bool = True,
+            file: T_FILE = sys.stdout
+        ):
+        """
+        :param prompt: The prompt to show
+        :param yes_charset: The charset of yes answers (must lower case)
+        :param no_charset: The charset of no answers (must lower case)
+        :param show_yn_prompt: If default is True, show "Y/n" prompt, else "y/N" prompt
+        :param default: Default answer  (True = yes, False = no)
+        """
+        self._prompt = prompt
+        self._yes_charset = yes_charset
+        self._no_charset = no_charset
+        self._show_yn_prompt = show_yn_prompt
+        self._default = default
+        self._file = file
+    
+    def ask(self) -> bool:
+        self._file.write(self._prompt)
+        self._file.write(" ")
+        if self._show_yn_prompt:
+            self._file.write("[Y/n]" if self._default else "[y/N]")
+        self._file.write(": ")
+        self._file.flush()
+        answer = input().lower()
+        if self._default:
+            if answer in self._no_charset:
+                return False
+            else:
+                return True
+        else:
+            if answer in self._yes_charset:
+                return True
+            else:
+                return False
+
+    def __repr__(self):
+        return f"Ask[{self._file.__class__.__name__}](\n\t{repr(self._prompt)},\n\tdefault={repr(self._default)},\n\tshow_yn_prompt={repr(self._show_yn_prompt)}\n)"
+# endregion
+
+# region > Choose 
+T = TypeVar('T')
+
+class Choose(BaseAsk, Generic[T, T_FILE]):
+    """Ask the user to choose from a list of values"""
+    def __init__(
+            self,
+            list_name: str,
+            list_values: Iterable[T],
+            choose_prompt: str = "Choose: ",
+            skip_only_one: bool = False,
+            file: T_FILE = sys.stdout
+        ):
+        """
+        :param list_name: Name of the list
+        :param list_values: List of values
+        :param choose_prompt: Prompt for choosing
+        """
+        self._list_name = list_name
+        self._list_values = list(list_values)
+        self._choose_prompt = choose_prompt
+        self._skip_only_one = skip_only_one
+        self._file: T_FILE = file
+    
+    def ask(self) -> T:
+        if not self._list_values:
+            raise ValueError("List is empty")
+        
+        if self._skip_only_one and len(self._list_values) == 1:
+            return self._list_values[0]
+        
+        self._file.write(self._list_name + "\n")
+        for index, value in enumerate(self._list_values, start = 1):
+            self._file.write(f"[{index}] {value}\n")
+        
+        self._file.flush()
+
+        while True:
+            choice = input(self._choose_prompt)
+            if choice in self._list_values:
+                return choice
+            else:
+                try:
+                    choice = int(choice)
+                    if choice in range(1, len(self._list_values) + 1):
+                        return self._list_values[choice - 1]
+                    else:
+                        self._file.write("Invalid choice. Please try again.\n")
+                        self._file.flush()
+                except ValueError:
+                    self._file.write("Invalid choice. Please try again.\n")
+                    self._file.flush()
+
+    def __str__(self):
+        return f"Choose {self._list_name} from {self._list_values}"
+    
+    def __repr__(self):
+        return f"Choose(\n\tlist_name = {repr(self._list_name)},\n\tlist_values = {repr(self._list_values)},\n\tchoose_prompt = {repr(self._choose_prompt)}\n)"
+# endregion
+
+# region > FindFile
+
+class FindFile(BaseAsk, Generic[T_FILE]):
+    def __init__(
+            self,
+            base_path: str | Path | list[str | Path],
+            glob: str = "*",
+            recursive_search: bool = False,
+            skip_only_one: bool = False,
+            file: T_FILE = sys.stdout
+        ):
+        self._base_path: Path | list[Path] = []
+        if isinstance(base_path, str | Path):
+            self._base_path = Path(base_path)
+        else:
+            self._base_path = []
+            for path in base_path:
+                if isinstance(path, str):
+                    path = Path(path)
+                self._base_path.append(path)
+        self._glob = glob
+        self._recursive_search = recursive_search
+        self._skip_only_one = skip_only_one
+        self._file = file
+    
+    @property
+    def _file_list(self) -> Generator[Path, None, None]:
+        """Get the list of files"""
+        path_set: set[Path] = set()
+        if isinstance(self._base_path, Path):
+            if self._recursive_search:
+                generator = self._base_path.rglob(self._glob)
+            else:
+                generator = self._base_path.glob(self._glob)
+            for path in generator:
+                if str(path.absolute()) in path_set:
+                    continue
+                path_set.add(str(path.absolute()))
+                yield path
+        else:
+            path_set:set[Path] = set()
+            for path in self._base_path:
+                if self._recursive_search:
+                    generator = path.rglob(self._glob)
+                else:
+                    generator = path.glob(self._glob)
+                for path in generator:
+                    if str(path.absolute()) in path_set:
+                        continue
+                    path_set.add(str(path.absolute()))
+                    yield path
+    
+    def ask(self) -> Path | None:
+        """Ask the user to choose a file from the list of files"""
+        file_set: set[Path] = set(self._file_list)
+        
+        if len(file_set) == 0:
+            self._file.write(f"No files found in {self._base_path}")
+            return None
+        
+        choose = Choose(
+            list_name = "Find: ",
+            list_values = self._file_list,
+            choose_prompt = "Choose a file: ",
+            skip_only_one=self._skip_only_one,
+            file = self._file
+        )
+
+        return choose.ask()
+    
+    def __repr__(self):
+        return f"FindFile[{self._file.__class__.__name__}](\n\tbase_path = {repr(self._base_path)},\n\tglob = {repr(self._glob)},\n\trecursive_search = {repr(self._recursive_search)}\n\tskip_only_one = {repr(self._skip_only_one)}\n)"
+# endregion
+# endregion
+
+# region MainClass
 class SlovesStarter:
     YES_CHARSET: list[str] = ["y", "yes", "true", "t", "1"]
     NO_CHARSET: list[str] = ["n", "no", "false", "f", "0"]
@@ -199,9 +557,6 @@ class SlovesStarter:
             linux = "pip3",
             default = "pip3"
         )
-        self.requirements_file: CrossPlatformValue[str] = CrossPlatformValue(
-            default = "requirements.txt"
-        )
         self.venv_prompt: str = "venv"
         self.script_name: str | list[str] | None = None
         self.argument: list[str] | None = None
@@ -211,14 +566,20 @@ class SlovesStarter:
         self.process_exit_title: str = self.title
         self.exit_title: str = self.title
         self.use_venv: bool = True
+        self.requirements: PipInstaller = PipInstaller()
+        self.requirements_file: CrossPlatformValue[str] = CrossPlatformValue(
+            default="requirements.txt"
+        )
         self.work_directory: Path = self.cwd
         self.restart:bool = False
+        self.reselect: bool = False
         self.run_cmd_need_to_ask: bool = True
         self.run_cmd_ask_default_values: dict[str, bool] = {}
         self.divider_line_char: str = "="
         self.inject_environment_variables: dict[str, str] = os.environ.copy()
+        self.text_file_encoding:str = "utf-8"
 
-        self.set_title(self.title)
+        set_title(self.title)
 
         try:
             self.parse_config(self.load_config())
@@ -232,8 +593,8 @@ class SlovesStarter:
                 
                 if not config_file.exists():
                     if self.ask(
-                            option_description = "Configuration file not found.\nDo you want to create a new one?",
-                            ask_prompt = "Create new configuration file",
+                            id = "Create New Configuration File",
+                            prompt = "Configuration file not found.\nDo you want to create a new one?",
                             default = True
                         ):
                         self.create_configuration(config_file)
@@ -252,94 +613,39 @@ class SlovesStarter:
     def cwd(self, path: Path):
         """Set the current working directory."""
         os.chdir(path)
-
-    @staticmethod
-    def is_venv():
-        return hasattr(sys, 'real_prefix') or (
-            hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix
-        )
     
-    @staticmethod
-    def path_searcher(path: Path | list[Path], glob: str = "*", recursive_search: bool = False) -> list[Path]:
-        """
-        Search for a path
-
-        :param path: the path to search for
-        :return: the path
-        """
-        suspected_file: set[Path] = set()
-        
-        if isinstance(path, Path):
-            if recursive_search:
-                for file in path.rglob(glob):
-                    suspected_file.add(absolute_path(file))
-            else:
-                for file in path.glob(glob):
-                    suspected_file.add(absolute_path(file))
-        elif isinstance(path, list):
-            if recursive_search:
-                for p in path:
-                    for file in p.rglob(glob):
-                        suspected_file.add(absolute_path(file))
-            else:
-                for p in path:
-                    for file in p.glob(glob):
-                        suspected_file.add(absolute_path(file))
-        
-        if len(suspected_file) == 1:
-            return suspected_file.pop()
-        elif len(suspected_file) > 1:
-            suspected_file_list = list(suspected_file)
-            print("Multiple files found. Please choose one:")
-            for index, file in enumerate(suspected_file_list, start=1):
-                print(f"  - [{index}] {file.name}")
-            
-            while True:
-                user_choice = input("Choose one: ")
-                try:
-                    user_choice_index = int(user_choice)
-                    if user_choice_index not in range(1, len(suspected_file_list) + 1):  # noqa: E501
-                        print("Invalid choice. Please choose a number from the list.")
-                        continue
-                    return suspected_file_list[user_choice_index - 1]
-                except ValueError:
-                    path = Path(user_choice)
-                    if path in suspected_file_list:
-                        return path
-                    else:
-                        print("Invalid choice. Please try again.")
-                        continue
-        else:
-            raise FileNotFoundError("No files were found.")
-            
-
-    @classmethod
-    def load_config(cls):
+    def load_config(self):
         """
         Load the configuration file
 
         :return: the configuration file
         """
-        config_file = cls.path_searcher([Path.cwd(), Path(__file__).parent], "*.json")
+        find_file = FindFile(
+            base_path = [Path.cwd(), Path(__file__).parent],
+            glob = "*.json",
+            recursive_search = True,
+            skip_only_one = True
+        )
+        config_file = find_file.ask()
         
         if config_file.exists():
             try:
-                with open(config_file, "r", encoding="utf-8") as file:
+                with open(config_file, "r", encoding=self.text_file_encoding) as file:
                     config = json.load(file)
                     return config
             except json.JSONDecodeError:
                 print("Invalid configuration file. Please check the file and try again.")
-                cls.pause_program(ExitCode.CONFIG_DECODE_ERROR)
+                self.pause_program(ExitCode.CONFIG_DECODE_ERROR)
             except FileNotFoundError:
                 print("Configuration file not found.")
-                cls.pause_program(ExitCode.CONFIG_NOT_FOUND)
+                self.pause_program(ExitCode.CONFIG_NOT_FOUND)
             except PermissionError:
                 print("Permission denied. Please check the file permissions and try again.")
-                cls.pause_program(ExitCode.CONFIG_PERMISSION_ERROR)
+                self.pause_program(ExitCode.CONFIG_PERMISSION_ERROR)
             except IOError as e:
                 print("An error occurred while reading the configuration file.")
                 print(e)
-                cls.pause_program(ExitCode.UNKNOWN_ERROR)
+                self.pause_program(ExitCode.UNKNOWN_ERROR)
         else:
             raise FileNotFoundError("Configuration file not found.")
         
@@ -394,6 +700,13 @@ class SlovesStarter:
                 except Exception:
                     pass
         
+        if exists_and_is_designated_type("requirements", list):
+            data = config["requirements"]
+            try:
+                self.requirements = PipInstaller(requirements=data)
+            except Exception:
+                pass
+        
         if exists_and_is_designated_type("requirements_file", dict):
             data = config["requirements_file"]
             if check_all_dict_types(data, str, str):
@@ -430,6 +743,9 @@ class SlovesStarter:
         if exists_and_is_designated_type("restart", bool):
             self.restart = config["restart"]
         
+        if exists_and_is_designated_type("reselect", bool):
+            self.reselect = config["reselect"]
+        
         if exists_and_is_designated_type("run_cmd_need_to_ask", bool):
             self.run_cmd_need_to_ask = config["run_cmd_need_to_ask"]
         
@@ -444,6 +760,9 @@ class SlovesStarter:
         if exists_and_is_designated_type("inject_environment_variables", dict):
             if check_all_dict_types(config["inject_environment_variables"], str, str):
                 self.inject_environment_variables = config["inject_environment_variables"]
+        
+        if exists_and_is_designated_type("text_file_encoding", str):
+            self.text_file_encoding = config["text_file_encoding"]
     
     def create_configuration(self, output: str | Path | None = None):
         """
@@ -460,7 +779,8 @@ class SlovesStarter:
             "exit_title": self.exit_title,
             "python_name": self.python_name.dump(),
             "pip_name": self.pip_name.dump(),
-            "requirements_file": self.requirements_file.dump(),
+            "requirements": self.requirements.as_dict,
+            "requirements_file": self.requirements_file.value,
             "cwd": str(self.cwd),
             "work_directory": str(self.work_directory),
             "use_venv": self.use_venv,
@@ -468,15 +788,17 @@ class SlovesStarter:
             "script_name": self.script_name,
             "argument": self.argument,
             "restart": self.restart,
+            "reselect": self.reselect,
             "run_cmd_need_to_ask": self.run_cmd_need_to_ask,
             "run_cmd_ask_default_values": self.run_cmd_ask_default_values,
             "divider_line_char": self.divider_line_char,
             "inject_environment_variables": self.inject_environment_variables,
+            "text_file_encoding": self.text_file_encoding,
         }
         if output is None:
             return config
         else:
-            with open(output, "w", encoding="utf-8") as f:
+            with open(output, "w", encoding=self.text_file_encoding) as f:
                 f.write(json.dumps(config, indent=4, ensure_ascii=False))
 
     @staticmethod
@@ -503,7 +825,7 @@ class SlovesStarter:
             else:
                 return
     
-    def run_cmd(self, cmd: list[str], reason: str, cwd: Path | None = None, default: bool = True, print_return_code: bool = True, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[bytes] | None:
+    def run_cmd(self, cmd: list[str], reason: str, cwd: Path | None = None, default: bool = True, print_return_code: bool = True, env: dict[str, str] | None = None, askfile: TextIO = sys.stdout) -> subprocess.CompletedProcess[bytes] | None:
         """
         Run a command with an interactive prompt to ask the user if they want to continue.
 
@@ -517,9 +839,10 @@ class SlovesStarter:
         """
         cwd = absolute_path(cwd)
         run = self.ask(
-            option_description = f"Running:\n{shlex.join(cmd)}\nwith cwd: \"{cwd}\"",
-            ask_prompt = reason,
-            default = default
+            id = "run_cmd",
+            prompt = f"Running:\n{shlex.join(cmd)}\nwith cwd: \"{cwd}\"\nRun this command?",
+            default = default,
+            askfile = askfile
         )
         
         if run:
@@ -540,54 +863,27 @@ class SlovesStarter:
         else:
             return None
     
-    def ask(self, option_description: str, ask_prompt: str, default: bool = True) -> bool:
+    def ask(self, id: str, prompt: str, default: bool = True, askfile: TextIO = sys.stdout) -> bool:
         """
-        Ask the user if they want to continue with an option.
+        Ask the user a question
 
-        :param option_description: The description of the option.
-        :param reason: The reason for asking the user.
-        :param default: The default value for the prompt.
-        :return: Whether the user wants to continue with the option.
+        :param prompt: The question to ask
+        :param default: The default answer
+        :param askfile: The file to ask the question to
+        :return: The user's answer
         """
-        print(option_description)
-        approved = default
         if self.run_cmd_need_to_ask:
-            if default:
-                y_n_str = "[Y/n]"
+            if id in self.run_cmd_ask_default_values:
+                return self.run_cmd_ask_default_values[id]
+            elif prompt in self.run_cmd_ask_default_values:
+                return self.run_cmd_ask_default_values[prompt]
             else:
-                y_n_str = "[y/N]"
-            if option_description in self.run_cmd_ask_default_values:
-                value = self.run_cmd_ask_default_values[option_description]
-                if isinstance(value, bool):
-                    print(f"{ask_prompt} {y_n_str}: ", end=f"{value}\n")
-                    approved = value
-                else:
-                    print(f"{ask_prompt} {y_n_str}: ", end=f"{value}\n")
-                    return value
-            elif ask_prompt in self.run_cmd_ask_default_values:
-                value = self.run_cmd_ask_default_values[ask_prompt]
-                if isinstance(value, bool):
-                    print(f"{ask_prompt} {y_n_str}: ", end=f"{value}\n")
-                    approved = value
-                else:
-                    print(f"{ask_prompt} {y_n_str}: ", end=f"{value}\n")
-                    return value
-            else:
-                user_input = input(f"{ask_prompt} {y_n_str}:")
-                if default:
-                    if user_input.lower() in self.NO_CHARSET:
-                        approved = False
-                    else:
-                        approved = True
-                else:
-                    if user_input.lower() in self.YES_CHARSET:
-                        approved = True
-                    else:
-                        approved = False
-        return approved
+                return Ask(prompt, default, askfile).ask()
+        else:
+            return default
 
     # Initialize virtual environment
-    def init_venv(self, ignore_existing: bool = True):
+    def init_venv(self, ignore_existing: bool = True, askfile: TextIO = sys.stdout):
         """
         Initialize virtual environment
 
@@ -599,48 +895,25 @@ class SlovesStarter:
                     venv_bin_path = self.work_directory / ".venv" / "Scripts"
                 else:
                     venv_bin_path = self.work_directory / ".venv" / "bin"
-                if (self.work_directory / self.requirements_file.value).exists():
-                    if self.run_cmd([str(venv_bin_path / self.pip_name.value), "install", "-r", self.requirements_file.value], reason="Installing requirements", cwd=self.work_directory) is None:
-                        print("Failed to install requirements.")
+                if self.ask(id = "Add venv to PATH", prompt="Create a requirements.txt file", default=True, askfile=askfile):
+                    self.requirements.create_requirements_file(
+                        path = self.work_directory / self.requirements_file.value,
+                        encoding=self.text_file_encoding
+                    )
+                    if (self.work_directory / self.requirements_file.value).exists():
+                        if self.run_cmd([str(venv_bin_path / self.pip_name.value), "install", "-r", self.requirements_file.value], reason="Installing requirements", cwd=self.work_directory) is None:
+                            print("Failed to install requirements.")
+                
             else:
                 print("Failed to initialize virtual environment.")
     
     # Run the program
-    def get_start_cmd(self):
+    def get_start_cmd(self, askfile: TextIO = sys.stdout):
         """
         Get the command to start the program
 
         :return: The command to start the program
         """
-        def choose_script_file(script_list: list[Path]) -> Path | None:
-            if len(script_list) == 0:
-                return None
-            elif len(script_list) == 1:
-                return script_list[0]
-            else:
-                print("Choose one of the following scripts:")
-                for index, script in enumerate(script_list, start=1):
-                    print(f"  - [{index}] {script.name}")
-                while True:
-                    choice = input("Enter the name of the script you want to run: ")
-                    try:
-                        choice_index = int(choice)
-                        if choice_index in range(1, len(script_list) + 1):
-                            script_name = script_list[choice_index - 1]
-                            break
-                        else:
-                            print("Index out of range. Please try again.")
-                    except ValueError:
-                        paths = {str(i.name).lower(): i for i in script_list}
-                        if choice.lower() in paths:
-                            if paths[choice.lower()].exists():
-                                script_name = paths[choice.lower()]
-                                break
-                            else:
-                                print("Script not found. Please try again.")
-                        else:
-                            print("Invalid choice. Please try again.")
-                return script_name
         script_name = self.script_name
         
         if self.script_name is None:
@@ -652,15 +925,22 @@ class SlovesStarter:
             if len(suspected_script_file) == 0:
                 print("No Python script files found in the current directory.")
                 sys.exit(1)
-            script_name = absolute_path(choose_script_file(suspected_script_file), self.work_directory)
+            find_file = FindFile(
+                self.work_directory,
+                "*.py",
+                skip_only_one=True,
+                file = askfile,
+            )
+            script_name = absolute_path(find_file.ask(), self.work_directory)
         elif isinstance(self.script_name, list):
-            if len(self.script_name) == 1:
-                script_name = absolute_path(self.script_name[0], self.work_directory)
-            elif len(self.script_name) == 0:
-                print("`script_name` is empty")
-                self.pause_program(ExitCode.SCRIPT_NAME_IS_EMPTY)
-            else:
-                script_name = absolute_path(choose_script_file(self.script_name))
+            choose = Choose(
+                "Python script file",
+                self.script_name,
+                choose_prompt="Choose a Python script file",
+                skip_only_one=True,
+                file = askfile,
+            )
+            script_name = absolute_path(choose.ask(), self.work_directory)
         elif isinstance(self.script_name, str | Path):
             if absolute_path(self.script_name, self.work_directory).exists():
                 script_name = absolute_path(self.script_name, self.work_directory)
@@ -674,6 +954,9 @@ class SlovesStarter:
         if script_name is None:
             print("Error: No script name provided")
             self.pause_program(ExitCode.SCRIPT_NAME_NOT_PROVIDED)
+        
+        if not Path(script_name).exists():
+            print(f"Error: Script '{script_name}' is not existing")
         
         if self.use_venv:
             if SYSTEM == "Windows":
@@ -694,25 +977,7 @@ class SlovesStarter:
                 print(shlex.join(argument))
                 start.extend(argument)
         return start
-    
-    @staticmethod
-    def set_title(title: str):
-        """
-        Set console title
 
-        :param title: Title
-        """
-        if SYSTEM == "Windows":
-            try:
-                import ctypes
-                # Win API
-                ctypes.windll.kernel32.SetConsoleTitleW(title)
-            except Exception:
-                os.system(f'title "{title}"')
-        else:
-            sys.stdout.write(f"\033]2;{title}\007")
-            sys.stdout.flush()
-    
     def print_divider_line(self, char: str | None = None):
         """
         Print divider line
@@ -720,31 +985,25 @@ class SlovesStarter:
         :param char: Divider Char
         """
         print((char or self.divider_line_char) * os.get_terminal_size().columns)
-    
-    @staticmethod
-    def center_print(text: str):
-        """
-        Center print text
-
-        :param text: Text to print
-        """
-        print(text.center(os.get_terminal_size().columns))
 
     def main(self):
         """
         Main function
         """
-        self.center_print(self.console_title)
-        if self.is_venv():
+        center_print(self.console_title)
+        if is_venv():
             print("Starter Run in Virtual Environment")
-        self.set_title(self.title)
+        set_title(self.title)
         if self.use_venv:
             self.print_divider_line()
             self.init_venv()
         return_code = ExitCode.SUCCESS
+        first_run = True
+        reselect = self.reselect
         while True:
             try:
-                start = self.get_start_cmd()
+                if reselect or first_run:
+                    start = self.get_start_cmd()
                 self.print_divider_line()
                 result = self.run_cmd(
                     start,
@@ -765,10 +1024,12 @@ class SlovesStarter:
                 print(f"An error occurred while running the program.")
             finally:
                 # Reset Title
-                self.set_title(self.process_exit_title)
+                first_run = False
+                set_title(self.process_exit_title)
                 if self.restart:
                     user_input = input("Re-select? (y/N): ").lower()
                     if user_input in ["y", "yes"]:
+                        reselect = False
                         continue
                     else:
                         break
@@ -782,8 +1043,10 @@ class SlovesStarter:
         """
         This function is called when the program exits.
         """
-        self.set_title(self.exit_title)
+        set_title(self.exit_title)
+# endregion
 
+# region Start
 if __name__ == "__main__":
     try:
         starter = SlovesStarter()
@@ -795,3 +1058,4 @@ if __name__ == "__main__":
         import traceback
         traceback.print_exc()
         SlovesStarter.pause_program(ExitCode.UNKNOWN_ERROR)
+# endregion
