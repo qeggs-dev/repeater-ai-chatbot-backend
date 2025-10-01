@@ -1,3 +1,4 @@
+from __future__ import annotations
 # A lightly dependent Python script launcher!
 # Python Simple Launcher For Virtual Environment Scripts
 # Sloves Starter !!!
@@ -5,7 +6,6 @@
 __version__ = "0.4.2"
 
 # region Imports
-from __future__ import annotations
 import os
 import sys
 import time
@@ -355,7 +355,7 @@ class BaseAsk(ABC):
 # endregion
 
 # region >> Ask
-T_FILE = TypeVar('T', bound=TextIO)
+T_FILE = TypeVar('T_FILE', bound=TextIO)
 
 class Ask(BaseAsk, Generic[T_FILE]):
     """Ask for user"""
@@ -474,6 +474,7 @@ class FindFile(BaseAsk, Generic[T_FILE]):
             self,
             base_path: str | Path | list[str | Path],
             glob: str = "*",
+            exclude: set[str | Path] = set(),
             recursive_search: bool = False,
             skip_only_one: bool = False,
             file: T_FILE = sys.stdout
@@ -488,6 +489,7 @@ class FindFile(BaseAsk, Generic[T_FILE]):
                     path = Path(path)
                 self._base_path.append(path)
         self._glob = glob
+        self._exclude = {absolute_path(exclude, self._base_path) for exclude in exclude}
         self._recursive_search = recursive_search
         self._skip_only_one = skip_only_one
         self._file = file
@@ -529,9 +531,9 @@ class FindFile(BaseAsk, Generic[T_FILE]):
         
         choose = Choose(
             list_name = "Find: ",
-            list_values = self._file_list,
+            list_values = (file_set - self._exclude),
             choose_prompt = "Choose a file: ",
-            skip_only_one=self._skip_only_one,
+            skip_only_one = self._skip_only_one,
             file = self._file
         )
 
@@ -603,6 +605,13 @@ class SlovesStarter:
                     suffix += 1
             print("Continuing to run the program will operate with the default configuration...")
             self.pause_program(ExitCode.ONLY_PAUSE)
+        
+        @atexit.register
+        def exit_handler():
+            """
+            This function is called when the program exits.
+            """
+            set_title(self.exit_title)
     
     @property
     def cwd(self) -> Path:
@@ -623,7 +632,6 @@ class SlovesStarter:
         find_file = FindFile(
             base_path = [Path.cwd(), Path(__file__).parent],
             glob = "*.json",
-            recursive_search = True,
             skip_only_one = True
         )
         config_file = find_file.ask()
@@ -878,7 +886,7 @@ class SlovesStarter:
             elif prompt in self.run_cmd_ask_default_values:
                 return self.run_cmd_ask_default_values[prompt]
             else:
-                return Ask(prompt, default, askfile).ask()
+                return Ask(prompt, default=default, file=askfile).ask()
         else:
             return default
 
@@ -890,19 +898,21 @@ class SlovesStarter:
         :param ignore_existing: Ignore existing virtual environment
         """
         if not (ignore_existing and (self.work_directory / ".venv" / "pyvenv.cfg").exists()):
+            self.print_divider_line()
             if self.run_cmd([self.python_name.value, "-m", "venv", ".venv", "--prompt", self.venv_prompt], reason="Initializing virtual environment", cwd=self.work_directory) is not None:
                 if SYSTEM == "Windows":
                     venv_bin_path = self.work_directory / ".venv" / "Scripts"
                 else:
                     venv_bin_path = self.work_directory / ".venv" / "bin"
-                if self.ask(id = "Add venv to PATH", prompt="Create a requirements.txt file", default=True, askfile=askfile):
-                    self.requirements.create_requirements_file(
-                        path = self.work_directory / self.requirements_file.value,
-                        encoding=self.text_file_encoding
-                    )
-                    if (self.work_directory / self.requirements_file.value).exists():
-                        if self.run_cmd([str(venv_bin_path / self.pip_name.value), "install", "-r", self.requirements_file.value], reason="Installing requirements", cwd=self.work_directory) is None:
-                            print("Failed to install requirements.")
+                if not (self.work_directory / self.requirements_file.value).exists():
+                    if self.ask(id = "Add venv to PATH", prompt="Create a requirements.txt file", default=True, askfile=askfile):
+                        self.requirements.create_requirements_file(
+                            path = self.work_directory / self.requirements_file.value,
+                            encoding=self.text_file_encoding
+                        )
+                if (self.work_directory / self.requirements_file.value).exists():
+                    if self.run_cmd([str(venv_bin_path / self.pip_name.value), "install", "-r", self.requirements_file.value], reason="Installing requirements", cwd=self.work_directory) is None:
+                        print("Failed to install requirements.")
                 
             else:
                 print("Failed to initialize virtual environment.")
@@ -928,6 +938,7 @@ class SlovesStarter:
             find_file = FindFile(
                 self.work_directory,
                 "*.py",
+                exclude={sys.argv[0]},
                 skip_only_one=True,
                 file = askfile,
             )
@@ -995,7 +1006,6 @@ class SlovesStarter:
             print("Starter Run in Virtual Environment")
         set_title(self.title)
         if self.use_venv:
-            self.print_divider_line()
             self.init_venv()
         return_code = ExitCode.SUCCESS
         first_run = True
@@ -1021,7 +1031,7 @@ class SlovesStarter:
                 self.print_divider_line()
                 print("Program terminated by user.")
             except Exception as e:
-                print(f"An error occurred while running the program.")
+                print(f"An error occurred while running the program.\nError: {e}")
             finally:
                 # Reset Title
                 first_run = False
@@ -1037,13 +1047,6 @@ class SlovesStarter:
                     break
         
         self.pause_program(return_code)
-    
-    @atexit.register
-    def exit_handler(self):
-        """
-        This function is called when the program exits.
-        """
-        set_title(self.exit_title)
 # endregion
 
 # region Start
