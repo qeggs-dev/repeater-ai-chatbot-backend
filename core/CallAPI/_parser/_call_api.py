@@ -45,8 +45,29 @@ from .._exceptions import *
 class CallAPI(CallNstreamAPIBase):
     def __init__(self):
         self._last_response: Response | None = None
-
+    
     async def call(self, user_id:str, request: Request) -> Response:
+        """
+        调用API
+
+        :param user_id: 用户ID
+        :param request: 请求对象
+        :return: 响应对象
+        """
+        try:
+            return await self._call(user_id, request)
+        except openai.APITimeoutError as e:
+            raise APITimeoutError(e)
+        except openai.BadRequestError as e:
+            raise BadRequestError(e)
+        except openai.InternalServerError as e:
+            raise APIServerError(e)
+        except openai.APIConnectionError as e:
+            raise APIConnectionError(e)
+        except Exception as e:
+            raise CallApiException(e) from e
+
+    async def _call(self, user_id:str, request: Request) -> Response:
         """调用API"""
         # 创建模型响应对象
         model_response = Response()

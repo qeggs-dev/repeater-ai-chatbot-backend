@@ -25,6 +25,10 @@ class APIConnectionError(CallApiException):
     """Exception raised when the API connection fails."""
     pass
 
+class APITimeoutError(CallApiException):
+    """Exception raised when the API request times out."""
+    pass
+
 class StreamNotAvailable(CallApiException):
     """Exception raised when the stream is not available."""
     pass
