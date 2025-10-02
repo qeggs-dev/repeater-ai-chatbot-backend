@@ -37,6 +37,7 @@ from TextProcessors import (
     SafeFormatter,
 )
 from .RequestUserInfo import UserInfo
+from .LockPool import AsyncLockPool
 from TimeParser import (
     format_timestamp,
     get_birthday_countdown,
@@ -95,8 +96,8 @@ class Core:
         # 从指定文件加载API信息
         self.apiinfo.load(configs.get_config("api_info.api_file_path", "./config/api_info.json").get_value(Path))
 
-        # 初始化会话锁池
-        self.session_locks = {}
+        # 初始化锁池
+        self.namespace_locks = AsyncLockPool()
 
         # 初始化调用日志管理器
         self.calllog = CallLog.CallLogManager(
@@ -200,19 +201,16 @@ class Core:
             )
     # endregion
 
-    # region > get session lock
-    async def _get_session_lock(self, user_id: str) -> asyncio.Lock:
+    # region > get namespace lock
+    async def _get_namespace_lock(self, user_id: str) -> asyncio.Lock:
         """
-        获取指定用户的会话锁
+        获取指定用户的命名空间锁
 
         :param user_id: 用户ID
-        :return: 会话锁
+        :return:该命名空间的锁
         """
-        async with self.lock:
-            if user_id not in self.session_locks:
-                self.session_locks[user_id] = asyncio.Lock()
-            lock = self.session_locks[user_id]
-        return lock
+        
+        return self.namespace_locks.get_lock(user_id)
     # endregion
     
     # region > generate uuid4
@@ -273,6 +271,7 @@ class Core:
     async def nickname_mapping(self, user_id: str, user_info: UserInfo) -> UserInfo:
         """
         用户昵称映射
+
         :param user_id: 用户ID
         :param user_info: 用户信息
         :return: 昵称
@@ -307,6 +306,7 @@ class Core:
     async def get_config(self, user_id: str) -> UserConfigManager.Configs:
         """
         加载用户配置
+
         :param user_id: 用户ID
         :param default: 默认配置
         :return: 用户配置
@@ -321,6 +321,7 @@ class Core:
         ) -> Context.ContextLoader:
         """
         加载上下文
+
         :param user_id: 用户ID
         :param user_name: 用户名
         :param model_type: 模型类型
@@ -349,6 +350,7 @@ class Core:
         ) -> Context.ContextObject:
         """
         获取上下文
+
         :param context_loader: 上下文加载器
         :param user_id: 用户ID
         :param message: 消息
@@ -387,6 +389,7 @@ class Core:
     async def load_blacklist(self, path: str | Path | None = None, timeout: int | None = None) -> None:
         """
         加载黑名单
+
         :param path: 黑名单文件路径
         :param timeout: 超时时间
         """
@@ -408,6 +411,7 @@ class Core:
     async def in_blacklist(self, user_id: str) -> bool:
         """
         判断用户是否在黑名单中
+        
         :param user_id: 用户ID
         :return: 是否在黑名单中
         """
@@ -464,7 +468,7 @@ class Core:
             task_start_time = CallLog.TimeStamp()
 
             # 获取用户锁对象
-            lock = await self._get_session_lock(user_id)
+            lock = await self._get_namespace_lock(user_id)
             
             # 加锁执行
             async with lock:
