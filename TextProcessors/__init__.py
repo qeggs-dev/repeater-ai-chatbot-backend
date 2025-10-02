@@ -1,6 +1,6 @@
 from ._prompt_variable_processor import PromptVP
 from ._prompt_variable_processor import exception as PromptPV_Exception
-from ._limitBlankLines import limit_blank_lines
-from ._adjustIndentation import adjust_indentation
-from ._SafeFormatter import SafeFormatter
-from ._special_chars_remover import remover as special_chars_remover
+from ._limit_blankLines import limit_blank_lines
+from ._adjust_indentation import adjust_indentation
+from ._safe_formatter import SafeFormatter
+from ._special_chars_remover import create_special_chars_remover, create_chars_remover
