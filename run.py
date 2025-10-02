@@ -1037,8 +1037,7 @@ class SlovesStarter:
                 first_run = False
                 set_title(self.process_exit_title)
                 if self.restart:
-                    user_input = input("Re-select? (y/N): ").lower()
-                    if user_input in ["y", "yes"]:
+                    if Ask("Re-select?").ask():
                         reselect = False
                         continue
                     else:
