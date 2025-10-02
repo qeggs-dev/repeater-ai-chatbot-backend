@@ -3,7 +3,9 @@ import asyncio
 import hashlib
 import base64
 from ._charset import DEFAULT_INVALID_CHARS
-from TextProcessors import special_chars_remover
+from TextProcessors import create_special_chars_remover
+
+special_chars_remover = create_special_chars_remover("_")
 
 def sanitize_filename(
         text: str,
