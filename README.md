@@ -45,8 +45,7 @@
 | imgkit            | 1.2.3     | MIT License                          | [MIT](https://github.com/jarrekk/imgkit/blob/master/LICENSE)                                          | `Markdown`                         |
 | loguru            | 0.7.3     | MIT License                          | [MIT](https://github.com/Delgan/loguru/blob/master/LICENSE)                                           | *Entire Project*                   |
 | openai            | 1.90.0    | Apache Software License              | [Apache-2.0](https://github.com/openai/openai-python/blob/main/LICENSE)                               | `core.CallAPI`                     |
-| orjson            | 3.10.18   | Apache Software License; MIT License | [Apache-2.0](https://github.com/ijl/orjson/blob/master/LICENSE-APACHE) / [MIT](https://github.com/ijl/orjson/blob/master/LICENSE-MIT) | `run.py` |
-| prompt-toolkit    | 3.0.51    | BSD License                          | [BSD-3-Clause](https://github.com/prompt-toolkit/python-prompt-toolkit/blob/main/LICENSE)             | `API(FastAPI)`                     |
+| orjson            | 3.10.18   | Apache Software License; MIT License | [Apache-2.0](https://github.com/ijl/orjson/blob/master/LICENSE-APACHE) / [MIT](https://github.com/ijl/orjson/blob/master/LICENSE-MIT) | `core.DataManager` |
 | pydantic          | 2.11.7    | MIT License                          | [MIT](https://github.com/pydantic/pydantic/blob/main/LICENSE)                                         | `core.ConfigManager` & `API`       |
 | python-multipart  | 0.0.20    | Apache Software License              | [Apache-2.0](https://github.com/Kludex/python-multipart/blob/master/LICENSE.txt)                      | `core.DataManager` & `API`         |
 | uvicorn           | 0.34.3    | BSD License                          | [BSD-3-Clause](https://github.com/Kludex/uvicorn/blob/main/LICENSE.md)                                | `run_fastapi.py`                   |
@@ -190,7 +189,7 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 | `MODEL.DEFAULT_MAX_COMPLETION_TOKENS` | 默认模型最大生成token | *选填* | `1024` | int | Token |
 | `MODEL.DEFAULT_STOP` | 默认模型停止词 | *选填* | [] | list[str] | |
 | `MODEL.STREAM` | 是否内部启用流式输出(此选项仅告知框架是否启用流式生成，但框架内部存在缓冲区，开启此选项后如果请求时没有设置`stream`参数，会等待生成完毕) | *选填* | `true` | bool |
-| `MODEL.AUTO_SHRINK_LENGTH` | 默认的自动Shrink阈值上下文长度 | *选填* | 1000 | int | 上下文条数 |
+| `MODEL.AUTO_SHRINK_LENGTH` | 默认的自动Shrink阈值上下文长度 | *选填* | 0 | int | 上下文条数(为0时不自动限制长度) |
 
 PS: 配置读取时默认不区分大小写
 
@@ -426,7 +425,7 @@ randchoice a b c d e
 | `stop` | `list[str]` | 项目配置中`MODEL.DEFAULT_STOP`的值 | 模型停止词 |
 | `frequency_penalty` | `float` | 项目配置中`MODEL.DEFAULT_FREQUENCY_PENALTY`的值 | 模型频率惩罚 |
 | `presence_penalty` | `float` | 项目配置中`MODEL.DEFAULT_PRESENCE_PENALTY`的值 | 模型存在性惩罚 |
-| `auto_shrink_length` | `int` | 项目配置中`MODEL.AUTO_SHRINK_LENGTH`的值 | 自动上下文长度限制的最大值 |
+| `auto_shrink_length` | `int` | 项目配置中`MODEL.AUTO_SHRINK_LENGTH`的值 | 自动上下文长度限制的最大值(为0时不自动限制长度) |
 
 ---
 
