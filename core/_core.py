@@ -210,7 +210,7 @@ class Core:
         :return:该命名空间的锁
         """
         
-        return self.namespace_locks.get_lock(user_id)
+        return await self.namespace_locks.get_lock(user_id)
     # endregion
     
     # region > generate uuid4
@@ -411,7 +411,7 @@ class Core:
     async def in_blacklist(self, user_id: str) -> bool:
         """
         判断用户是否在黑名单中
-        
+
         :param user_id: 用户ID
         :return: 是否在黑名单中
         """
