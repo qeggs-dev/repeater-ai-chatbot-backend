@@ -3,9 +3,10 @@ from __future__ import annotations
 # Python Simple Launcher For Virtual Environment Scripts
 # Sloves Starter !!!
 
-__version__ = "0.4.2"
+__version__ = "0.4.4"
 
 # region Imports
+import re
 import os
 import sys
 import time
@@ -19,11 +20,10 @@ from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import (
     Any,
-    Union,
     TextIO,
     TypeVar,
     Generic,
-    overload,
+    Callable,
     Optional,
     Iterable,
     Generator,
@@ -89,7 +89,6 @@ def is_venv():
         hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix
     )
 # endregion
-
 
 # region CrossPlatformValue
 class CrossPlatformValue(Generic[T_CPV]):
@@ -254,13 +253,25 @@ class VersionChar(Enum):
 
 # region PipPackage
 class PipPackage:
+    PACKAGE_NAME_CHARSET = re.compile(r"^[a-zA-Z0-9\-_.]+$")
+    CONSECUTIVE_SPECIAL_CHARACTERS = re.compile(r"--|__|\.\.")
+    SPECIAL_CHARACTER_REPLACEMENT = re.compile(r"[.-]")
     def __init__(self, name: str, version_mode: VersionChar | str | None = None, version: str | None = None):
-        self._name: str = name
+        self._name: str = self.normalize_package_name(name)
         if isinstance(version_mode, str):
             self._version_mode = VersionChar(version_mode)
         else:
             self._version_mode: VersionChar | None = version_mode
         self._version: str | None = version
+    
+    def lock(self, version_mode: VersionChar | str, version: str) -> PipPackage:
+        if isinstance(version_mode, str):
+            self._version_mode = VersionChar(version_mode)
+        else:
+            self._version_mode = version_mode
+        
+        self._version = version
+        return self
     
     @property
     def as_dict(self) -> dict:
@@ -273,14 +284,26 @@ class PipPackage:
     @property
     def name(self) -> str:
         return self._name
+    @name.setter
+    def name(self, name: str):
+        self._name = self.normalize_package_name(name)
 
     @property
     def version_mode(self) -> VersionChar | None:
         return self._version_mode
+    @version_mode.setter
+    def version_mode(self, version_mode: VersionChar | str):
+        if isinstance(version_mode, str):
+            self._version_mode = VersionChar(version_mode)
+        else:
+            self._version_mode = version_mode
 
     @property
     def version(self) -> str | None:
         return self._version
+    @version.setter
+    def version(self, version: str | None):
+        self._version = version
     
     def create_requirement(self, delimiter: str = "") -> str:
         text = [
@@ -290,6 +313,25 @@ class PipPackage:
             text.append(f"{self._version_mode.value}")
             text.append(f"{self._version}")
         return delimiter.join(text)
+    
+    @classmethod
+    def normalize_package_name(cls, name: str) -> str:
+        if not name or not isinstance(name, str):
+            raise ValueError("Package name must be a non-empty string")
+    
+        if not cls.PACKAGE_NAME_CHARSET.match(name):
+            raise ValueError(f"Package name {name} contains invalid characters")
+        
+        if name[0] in ['-', '_', '.'] or name[-1] in ['-', '_', '.']:
+            raise ValueError(f"Package name {name} cannot start or end with a special character")
+        
+        if cls.CONSECUTIVE_SPECIAL_CHARACTERS.search(name):
+            raise ValueError(f"Package name {name} contains consecutive special characters")
+        
+        normalized = name.lower()
+        normalized = cls.SPECIAL_CHARACTER_REPLACEMENT.sub('_', normalized)
+        
+        return normalized
     
     def __str__(self) -> str:
         return self.create_requirement()
@@ -317,17 +359,32 @@ class PipInstaller:
             elif isinstance(requirement, dict):
                 self._requirements.append(PipPackage(**requirement))
     
+    def lock_requirement(self, requirement_name: str, version_mode: str, version: str) -> None:
+        for requirement in self._requirements:
+            if requirement.name == PipPackage.normalize_package_name(requirement_name):
+                requirement.lock(version_mode, version)
+                return
+        
+        raise ValueError(f"Requirement {requirement_name} not found")
+    
     @property
     def as_dict(self) -> list[dict[str, str]]:
         return [requirement.as_dict for requirement in self._requirements]
 
     def create_requirements(self, delimiter: str = " ") -> str:
-        return delimiter.join([str(requirement) for requirement in self._requirements])
+        return delimiter.join([requirement.create_requirement() for requirement in self._requirements])
     
     def create_requirements_file(self, path: str | Path, encoding: str = "utf-8", delimiter: str = "\n") -> None:
         Path(path).parent.mkdir(parents = True, exist_ok = True)
         with open(path, "w", encoding = encoding) as f:
             f.write(self.create_requirements(delimiter))
+
+    def __contains__(self, name: str) -> bool:
+        name = PipPackage.normalize_package_name(name)
+        for requirement in self._requirements:
+            if requirement.name == name:
+                return True
+        return False
     
     def add_requirement(self, requirement: PipPackage) -> None:
         self._requirements.append(requirement)
@@ -377,7 +434,7 @@ class Ask(BaseAsk, Generic[T_FILE]):
         :param show_yn_prompt: If default is True, show "Y/n" prompt, else "y/N" prompt
         :param default: Default answer  (True = yes, False = no)
         """
-        self._prompt = prompt
+        self._prompt = str(prompt)
         self._yes_charset = yes_charset
         self._no_charset = no_charset
         self._show_yn_prompt = show_yn_prompt
@@ -425,10 +482,10 @@ class Choose(BaseAsk, Generic[T, T_FILE]):
         :param list_values: List of values
         :param choose_prompt: Prompt for choosing
         """
-        self._list_name = list_name
+        self._list_name = str(list_name)
         self._list_values = list(list_values)
-        self._choose_prompt = choose_prompt
-        self._skip_only_one = skip_only_one
+        self._choose_prompt = str(choose_prompt)
+        self._skip_only_one = bool(skip_only_one)
         self._file: T_FILE = file
     
     def ask(self) -> T:
@@ -472,61 +529,52 @@ class Choose(BaseAsk, Generic[T, T_FILE]):
 class FindFile(BaseAsk, Generic[T_FILE]):
     def __init__(
             self,
-            base_path: str | Path | list[str | Path],
+            base_path: str | Path | Iterable[str | Path],
             glob: str = "*",
-            exclude: set[str | Path] = set(),
+            excludes: set[str | Path] = set(),
             recursive_search: bool = False,
             skip_only_one: bool = False,
             file: T_FILE = sys.stdout
         ):
-        self._base_path: Path | list[Path] = []
+        self._base_path: set[Path] = set()
         if isinstance(base_path, str | Path):
-            self._base_path = Path(base_path)
+            self._base_path.add(Path(base_path))
         else:
-            self._base_path = []
-            for path in base_path:
-                if isinstance(path, str):
-                    path = Path(path)
-                self._base_path.append(path)
-        self._glob = glob
-        self._exclude = {absolute_path(exclude, self._base_path) for exclude in exclude}
-        self._recursive_search = recursive_search
-        self._skip_only_one = skip_only_one
+            for base_path in base_path:
+                if isinstance(base_path, str):
+                    base_path = Path(base_path)
+                self._base_path.add(base_path)
+        self._glob = str(glob)
+        self._exclude: set = set()
+        for base_path in self._base_path:
+            for exclude in excludes:
+                self._exclude.add(absolute_path(exclude, base_path))
+        self._recursive_search = bool(recursive_search)
+        self._skip_only_one = bool(skip_only_one)
         self._file = file
     
     @property
     def _file_list(self) -> Generator[Path, None, None]:
         """Get the list of files"""
         path_set: set[Path] = set()
-        if isinstance(self._base_path, Path):
+        for path in self._base_path:
             if self._recursive_search:
-                generator = self._base_path.rglob(self._glob)
+                generator = path.rglob(self._glob)
             else:
-                generator = self._base_path.glob(self._glob)
+                generator = path.glob(self._glob)
             for path in generator:
                 if str(path.absolute()) in path_set:
                     continue
                 path_set.add(str(path.absolute()))
                 yield path
-        else:
-            path_set:set[Path] = set()
-            for path in self._base_path:
-                if self._recursive_search:
-                    generator = path.rglob(self._glob)
-                else:
-                    generator = path.glob(self._glob)
-                for path in generator:
-                    if str(path.absolute()) in path_set:
-                        continue
-                    path_set.add(str(path.absolute()))
-                    yield path
     
     def ask(self) -> Path | None:
         """Ask the user to choose a file from the list of files"""
         file_set: set[Path] = set(self._file_list)
         
         if len(file_set) == 0:
-            self._file.write(f"No files found in {self._base_path}")
+            for path in self._base_path:
+                self._file.write(f"\"{self._glob}\" No files found in {path}.\n")
             return None
         
         choose = Choose(
@@ -548,6 +596,9 @@ class FindFile(BaseAsk, Generic[T_FILE]):
 class SlovesStarter:
     YES_CHARSET: list[str] = ["y", "yes", "true", "t", "1"]
     NO_CHARSET: list[str] = ["n", "no", "false", "f", "0"]
+    PIP_FREEZE_REGEX: re.Pattern[str] = re.compile(r"^(?P<name>[\w\d\.\-]+)(==(?P<version>[\w\d\.]+))?$")
+
+    # region > init
     def __init__(self):
         self.python_name: CrossPlatformValue[str] = CrossPlatformValue(
             windows = "python",
@@ -579,7 +630,9 @@ class SlovesStarter:
         self.run_cmd_ask_default_values: dict[str, bool] = {}
         self.divider_line_char: str = "="
         self.inject_environment_variables: dict[str, str] = os.environ.copy()
-        self.text_file_encoding:str = "utf-8"
+        self.text_encoding:str = "utf-8"
+        self.print_return_code: bool = True
+        self.print_runtime: bool = True
 
         set_title(self.title)
 
@@ -612,7 +665,10 @@ class SlovesStarter:
             This function is called when the program exits.
             """
             set_title(self.exit_title)
+            print("Exiting...")
+    # endregion
     
+    # region > cwd
     @property
     def cwd(self) -> Path:
         """Get the current working directory."""
@@ -622,7 +678,9 @@ class SlovesStarter:
     def cwd(self, path: Path):
         """Set the current working directory."""
         os.chdir(path)
+    # endregion
     
+    # region > load config
     def load_config(self):
         """
         Load the configuration file
@@ -635,10 +693,11 @@ class SlovesStarter:
             skip_only_one = True
         )
         config_file = find_file.ask()
-        
-        if config_file.exists():
+        if config_file is None:
+            raise FileNotFoundError("No configuration file found")
+        elif config_file.exists():
             try:
-                with open(config_file, "r", encoding=self.text_file_encoding) as file:
+                with open(config_file, "r", encoding=self.text_encoding) as file:
                     config = json.load(file)
                     return config
             except json.JSONDecodeError:
@@ -656,7 +715,9 @@ class SlovesStarter:
                 self.pause_program(ExitCode.UNKNOWN_ERROR)
         else:
             raise FileNotFoundError("Configuration file not found.")
+    # endregion
         
+    # region > parse config
     def parse_config(self, config: dict) -> None:
         """
         Parses the configuration file and sets the corresponding attributes.
@@ -769,9 +830,17 @@ class SlovesStarter:
             if check_all_dict_types(config["inject_environment_variables"], str, str):
                 self.inject_environment_variables = config["inject_environment_variables"]
         
-        if exists_and_is_designated_type("text_file_encoding", str):
-            self.text_file_encoding = config["text_file_encoding"]
+        if exists_and_is_designated_type("text_encoding", str):
+            self.text_encoding = config["text_encoding"]
+        
+        if exists_and_is_designated_type("print_return_code", bool):
+            self.print_return_code = config["print_return_code"]
+        
+        if exists_and_is_designated_type("print_runtime", bool):
+            self.print_runtime = config["print_runtime"]
+    # endregion
     
+    # region > create configuration
     def create_configuration(self, output: str | Path | None = None):
         """
         Creates a configuration file from the current configuration.
@@ -801,14 +870,18 @@ class SlovesStarter:
             "run_cmd_ask_default_values": self.run_cmd_ask_default_values,
             "divider_line_char": self.divider_line_char,
             "inject_environment_variables": self.inject_environment_variables,
-            "text_file_encoding": self.text_file_encoding,
+            "text_encoding": self.text_encoding,
+            "print_return_code": self.print_return_code,
+            "print_runtime": self.print_runtime,
         }
         if output is None:
             return config
         else:
-            with open(output, "w", encoding=self.text_file_encoding) as f:
+            with open(output, "w", encoding=self.text_encoding) as f:
                 f.write(json.dumps(config, indent=4, ensure_ascii=False))
+    # endregion
 
+    # region > pause program
     @staticmethod
     def pause_program(code: ExitCode | int = ExitCode.SUCCESS, prompt: str | None = None):
         """
@@ -832,8 +905,22 @@ class SlovesStarter:
                 exit(code)
             else:
                 return
+    # endregion
     
-    def run_cmd(self, cmd: list[str], reason: str, cwd: Path | None = None, default: bool = True, print_return_code: bool = True, env: dict[str, str] | None = None, askfile: TextIO = sys.stdout) -> subprocess.CompletedProcess[bytes] | None:
+    # region > run cmd
+    def run_cmd(
+            self,
+            cmd: list[str],
+            reason: str,
+            cwd: Path | None = None,
+            default: bool = True,
+            print_return_code: bool = True,
+            print_runtime: bool = True,
+            runtime_handler: Callable[[int, int], str] = lambda s, e: f"Runtime: {(e - s) / 1e9:.4f}s",
+            env: dict[str, str] | None = None,
+            askfile: TextIO = sys.stdout,
+            capture_output: bool = False,
+            ) -> subprocess.CompletedProcess[bytes] | None:
         """
         Run a command with an interactive prompt to ask the user if they want to continue.
 
@@ -846,6 +933,8 @@ class SlovesStarter:
         :return: The result of the command. (Return None when the user has not approved.)
         """
         cwd = absolute_path(cwd)
+        askfile.write(reason + "\n")
+        askfile.flush()
         run = self.ask(
             id = "run_cmd",
             prompt = f"Running:\n{shlex.join(cmd)}\nwith cwd: \"{cwd}\"\nRun this command?",
@@ -855,23 +944,47 @@ class SlovesStarter:
         
         if run:
             if not cmd:
-                print("Warning: No command to run")
+                askfile.write("Warning: No command to run\n")
+                askfile.flush()
                 return None
             try:
-                result: subprocess.CompletedProcess[bytes] = subprocess.run(cmd, cwd=cwd, env=env)
+                start = time.monotonic_ns()
+                result: subprocess.CompletedProcess[bytes] = subprocess.run(
+                    cmd,
+                    cwd = cwd,
+                    env = env,
+                    capture_output = capture_output
+                )
                 if print_return_code:
-                    print(f"Command returned with code {result.returncode}")
+                    askfile.write(f"Command returned with code {result.returncode}\n")
+                    askfile.flush()
                 return result
             except FileNotFoundError as e:
-                print(f"Warning: Command not found: {e}")
+                askfile.write(f"Error: Command not found: {e}\n")
+                askfile.flush()
                 raise
             except Exception as e:
-                print(f"Error running command: {e}")
+                askfile.write(f"Error running command: {e}\n")
+                askfile.flush()
                 raise
+            finally:
+                end = time.monotonic_ns()
+                if print_runtime and callable(runtime_handler):
+                    askfile.write(runtime_handler(start, end))
+                    askfile.write("\n")
+                    askfile.flush()
         else:
             return None
+    # endregion
     
-    def ask(self, id: str, prompt: str, default: bool = True, askfile: TextIO = sys.stdout) -> bool:
+    # region > ask
+    def ask(
+            self,
+            id: str,
+            prompt: str,
+            default: bool = True,
+            askfile: TextIO = sys.stdout
+        ) -> bool:
         """
         Ask the user a question
 
@@ -880,17 +993,39 @@ class SlovesStarter:
         :param askfile: The file to ask the question to
         :return: The user's answer
         """
+        def automatic_skip_prompt_print():
+            askfile.write(str(prompt))
+            if default:
+                askfile.write(" [Y/n] ")
+                askfile.write("y")
+            else:
+                askfile.write(" [y/N] ")
+                askfile.write("n")
+            askfile.flush()
+        
         if self.run_cmd_need_to_ask:
             if id in self.run_cmd_ask_default_values:
+                automatic_skip_prompt_print()
                 return self.run_cmd_ask_default_values[id]
             elif prompt in self.run_cmd_ask_default_values:
+                automatic_skip_prompt_print()
                 return self.run_cmd_ask_default_values[prompt]
             else:
                 return Ask(prompt, default=default, file=askfile).ask()
         else:
             return default
+    # endregion
 
-    # Initialize virtual environment
+    # region > Virtual environment path
+    @property
+    def venv_bin_path(self):
+        if SYSTEM == "Windows":
+            return self.work_directory / ".venv" / "Scripts"
+        else:
+            return self.work_directory / ".venv" / "bin"
+    # endregion
+
+    # region > Initialize virtual environment
     def init_venv(self, ignore_existing: bool = True, askfile: TextIO = sys.stdout):
         """
         Initialize virtual environment
@@ -899,25 +1034,34 @@ class SlovesStarter:
         """
         if not (ignore_existing and (self.work_directory / ".venv" / "pyvenv.cfg").exists()):
             self.print_divider_line()
-            if self.run_cmd([self.python_name.value, "-m", "venv", ".venv", "--prompt", self.venv_prompt], reason="Initializing virtual environment", cwd=self.work_directory) is not None:
-                if SYSTEM == "Windows":
-                    venv_bin_path = self.work_directory / ".venv" / "Scripts"
-                else:
-                    venv_bin_path = self.work_directory / ".venv" / "bin"
+            if self.run_cmd(
+                    [self.python_name.value, "-m", "venv", ".venv", "--prompt", self.venv_prompt],
+                    reason = "Initializing virtual environment",
+                    cwd = self.work_directory,
+                    print_return_code = self.print_return_code,
+                    print_runtime = self.print_runtime,
+                ) is not None:
                 if not (self.work_directory / self.requirements_file.value).exists():
-                    if self.ask(id = "Add venv to PATH", prompt="Create a requirements.txt file", default=True, askfile=askfile):
+                    if self.ask(id = "Create requirements file", prompt="Create a requirements.txt file", default=True, askfile=askfile):
                         self.requirements.create_requirements_file(
                             path = self.work_directory / self.requirements_file.value,
-                            encoding=self.text_file_encoding
+                            encoding=self.text_encoding
                         )
                 if (self.work_directory / self.requirements_file.value).exists():
-                    if self.run_cmd([str(venv_bin_path / self.pip_name.value), "install", "-r", self.requirements_file.value], reason="Installing requirements", cwd=self.work_directory) is None:
+                    if self.run_cmd(
+                            [str(self.venv_bin_path / self.pip_name.value), "install", "-r", self.requirements_file.value],
+                            reason="Installing requirements",
+                            cwd=self.work_directory,
+                            print_return_code = self.print_return_code,
+                            print_runtime = self.print_runtime,
+                        ) is None:
                         print("Failed to install requirements.")
                 
             else:
                 print("Failed to initialize virtual environment.")
+    # endregion
     
-    # Run the program
+    # region > Run the program
     def get_start_cmd(self, askfile: TextIO = sys.stdout):
         """
         Get the command to start the program
@@ -938,7 +1082,7 @@ class SlovesStarter:
             find_file = FindFile(
                 self.work_directory,
                 "*.py",
-                exclude={sys.argv[0]},
+                excludes={sys.argv[0]},
                 skip_only_one=True,
                 file = askfile,
             )
@@ -988,7 +1132,9 @@ class SlovesStarter:
                 print(shlex.join(argument))
                 start.extend(argument)
         return start
+    # endregion
 
+    # region > print_divider_line
     def print_divider_line(self, char: str | None = None):
         """
         Print divider line
@@ -996,7 +1142,26 @@ class SlovesStarter:
         :param char: Divider Char
         """
         print((char or self.divider_line_char) * os.get_terminal_size().columns)
+    # endregion
 
+    @staticmethod
+    def _print_runtime_handler(start: int, end: int):
+        """
+        Print runtime handler
+
+        :param start: Start time (ns)
+        :param end: End time (ns)
+        """
+        difference = (end - start)
+        secends = difference // 10**9
+        day = secends // 86400
+        hour = secends // 3600
+        minute = secends // 60
+        second = secends
+        ms = (difference // 10**6) % 1000
+        return f"Runtime: {day}:{hour}:{minute}:{second}.{ms}"
+
+    # region > main
     def main(self):
         """
         Main function
@@ -1019,8 +1184,10 @@ class SlovesStarter:
                     start,
                     reason = "Running the program",
                     cwd = self.work_directory,
-                    print_return_code = False,
-                    env = self.inject_environment_variables
+                    env = self.inject_environment_variables,
+                    print_return_code = self.print_return_code,
+                    print_runtime = self.print_runtime,
+                    runtime_handler = self._print_runtime_handler
                 )
                 self.print_divider_line()
                 if result is not None:
@@ -1046,6 +1213,7 @@ class SlovesStarter:
                     break
         
         self.pause_program(return_code)
+    # endregion
 # endregion
 
 # region Start
