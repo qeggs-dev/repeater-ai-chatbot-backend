@@ -15,6 +15,7 @@ import random
 from pathlib import Path
 from dataclasses import dataclass, asdict
 import traceback
+from functools import wraps
 
 # ==== 第三方库 ==== #
 from loguru import logger
@@ -22,7 +23,9 @@ import aiofiles
 import orjson
 
 # ==== 自定义库 ==== #
-from . import CallAPI
+from .CallAPI import (
+    CompletionsAPI
+)
 from . import Context
 from . import DataManager
 from . import UserConfigManager
@@ -30,7 +33,6 @@ from .ApiInfo import (
     ApiInfo,
     ApiGroup,
 )
-from . import MetasoClient
 from . import CallLog
 from TextProcessors import (
     PromptVP,
@@ -88,8 +90,8 @@ class Core:
             version = __version__
         )
         # 初始化Client并设置并发大小
-        self.api_client = CallAPI.ClientNoStream(configs.get_config('callapi.max_concurrency', 1000).get_value(int) if max_concurrency is None else max_concurrency)
-        self.stream_api_client = CallAPI.ClientStream(configs.get_config('callapi.max_concurrency', 1000).get_value(int) if max_concurrency is None else max_concurrency)
+        self.api_client = CompletionsAPI.ClientNoStream(configs.get_config('callapi.max_concurrency', 1000).get_value(int) if max_concurrency is None else max_concurrency)
+        self.stream_api_client = CompletionsAPI.ClientStream(configs.get_config('callapi.max_concurrency', 1000).get_value(int) if max_concurrency is None else max_concurrency)
 
         # 初始化API信息管理器
         self.apiinfo = ApiInfo()
@@ -104,9 +106,6 @@ class Core:
             configs.get_config('CallLog.log_file_path').get_value(Path),
             auto_save = configs.get_config('CallLog.Auto_Save', True).get_value(bool)
         )
-
-        # MetasoClient
-        self.metaso_client = MetasoClient.Search.Client()
 
         # 黑名单
         self.blacklist: RegexChecker = RegexChecker()
@@ -432,7 +431,7 @@ class Core:
     # endregion
 
     # region > Chat
-    async def Chat(
+    async def chat(
             self,
             message: str,
             user_id: str,
@@ -528,7 +527,7 @@ class Core:
                 user_input = context.last_content
                 
                 # 创建请求对象
-                request = CallAPI.Request()
+                request = CompletionsAPI.Request()
                 # 设置上下文
                 request.context = context
                 
@@ -592,12 +591,12 @@ class Core:
 
                 # region >> 提交请求
                 try:
-                    response: CallAPI.Response = CallAPI.Response()
+                    response: CompletionsAPI.Response = CompletionsAPI.Response()
                     if stream:
-                        async def generator_wrapper(generator: CallAPI.StreamingResponseGenerationLayer) -> AsyncIterator[CallAPI.Delta]:
+                        async def generator_wrapper(generator: CompletionsAPI.StreamingResponseGenerationLayer) -> AsyncIterator[CompletionsAPI.Delta]:
                             async for chunk in generator:
                                 yield chunk
-                        async def post_treatment(response: CallAPI.Response):
+                        async def post_treatment(response: CompletionsAPI.Response):
                             """
                             包装后处理函数，以传递更多数据
                             """
@@ -641,19 +640,19 @@ class Core:
                         )
                         return output
                 
-                except CallAPI.Exceptions.APIServerError as e:
+                except CompletionsAPI.Exceptions.APIServerError as e:
                     logger.error(f"API Server Error: {e}")
                     output.content = f"Error:{e}"
                     output.status = 500
                     return output
                 
-                except CallAPI.Exceptions.BadRequestError as e:
+                except CompletionsAPI.Exceptions.BadRequestError as e:
                     logger.error(f"Bad Request Error: {e}")
                     output.content = f"Error:{e}"
                     output.status = 400
                     return output
 
-                except CallAPI.Exceptions.CallApiException as e:
+                except CompletionsAPI.Exceptions.CallApiException as e:
                     logger.error(f"CallAPI Error: {e}")
                     output.content = f"Error:{e}"
                     output.status = 500
@@ -671,7 +670,7 @@ class Core:
         self,
         user_id: str,
         prompt_vp: PromptVP,
-        response: CallAPI.Response,
+        response: CompletionsAPI.Response,
         user_input: Context.ContentUnit,
         context_loader:Context.ContextLoader,
         task_start_time: CallLog.TimeStamp,
@@ -724,56 +723,6 @@ class Core:
         output.finish_reason_cause = response.finish_reason_cause
 
         return output
-    # endregion
-    
-    # region > 网络搜索
-    async def _search_for_internet(
-            self, question: str,
-            scope:Literal["webpage", "document", "scholar", "image", "video", "podcast"] = "webpage",
-            includeSummary: bool = True,
-            includeRawContent: bool = False,
-            conciseSnippet: bool = False,
-            n: int = 10,
-            format_str: str = "{title}\n"
-        ) -> str:
-        request = MetasoClient.Search.Request()
-        api_group = self.apiinfo.find_uid("search")
-        if not api_group:
-            return ""
-        request.api_key = api_group[0].api_key
-        request.body.q = question
-        request.body.scope = scope
-        request.body.includeSummary = includeSummary
-        request.body.conciseSnippet = conciseSnippet
-        request.body.includeRawContent = includeRawContent
-        request.body.size = n
-        response = await self.metaso_client.request(request)
-        
-        output_str = ""
-        formatter = SafeFormatter("<Missing>")
-        def format_response(iterable: Iterable[MetasoClient.Search.ResponseContent]):
-            output = ""
-            for webpages in iterable:
-                output = formatter.format(
-                    format_str,
-                    title = webpages.title,
-                    link = webpages.link,
-                    score = webpages.score,
-                    snippet = webpages.snippet,
-                    position = webpages.position,
-                    authors = webpages.authors,
-                    date = webpages.date,
-                )
-            return output
-        
-
-        output_str += format_response(response.webpages)
-        output_str += format_response(response.documents)
-        output_str += format_response(response.scholars)
-        output_str += format_response(response.images)
-        output_str += format_response(response.videos)
-        output_str += format_response(response.podcasts)
-        return output_str
     # endregion
     # region > 重新加载API信息
     async def reload_apiinfo(self):
