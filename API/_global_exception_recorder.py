@@ -26,19 +26,17 @@ async def catch_exceptions_middleware(request: Request, call_next):
         background_tasks.add_task(shutdown_server, exception = e)
         return JSONResponse(
             status_code=500,
-            content={"error": "发生严重错误，服务即将关闭", "detail": e.message},
+            content={"error": "A serious error has occurred, the service is about to shut down.", "detail": e.message},
             background=background_tasks,
         )
     except Exception as e:
         # 记录异常日志
-        try:
-            logger.exception("An Exception occurred:", user_id = "[Global Exception Recorder]")
-        except KeyError:
-            logger.exception("[Global Exception Recorder] Exception: {exception}", exception = e)
+        traceback = traceback.format_exc()
+        logger.exception("An Exception occurred:\n{traceback}", user_id = "[Global Exception Recorder]", traceback = traceback)
         return JSONResponse(
             status_code=500,
             content={
-                "message": "服务器内部错误",
+                "message": "Internal server error",
                 "error": str(e),
                 "time": time.time_ns() // 10**6,
             },
