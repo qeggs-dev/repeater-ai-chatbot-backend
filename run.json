@@ -1,6 +1,7 @@
 {
     "title": "Repeater LLM Chat Backend Starter",
     "process_title": "Repeater LLM Chat Backend",
+    "console_title": "Repeater LLM Chat Backend",
     "exit_title": "Repeater LLM Chat Backend Starter",
     "python_name": {
         "windows": "python",
