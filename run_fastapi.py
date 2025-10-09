@@ -2,7 +2,7 @@ from environs import Env
 env = Env()
 env.read_env()
 
-import logging
+import sys
 from API import app, configs
 from loguru import logger
 
@@ -28,6 +28,8 @@ def main():
     
     if reload:
         logger.info("Server will reload on code change")
+    
+    logger.info(f"Run With {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
     
     logger.info("Server starting...")
 
