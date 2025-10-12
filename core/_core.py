@@ -53,7 +53,7 @@ from RegexChecker import RegexChecker
 # ==== 本模块代码 ==== #
 configs = ConfigLoader()
 
-__version__ = configs.get_config("Core.Version", "4.2.4.3").get_value(str)
+__version__ = configs.get_config("Core.Version", "4.2.4.4").get_value(str)
 
 @dataclass
 class Response:
@@ -157,7 +157,8 @@ class Core:
         log_retention = configs.get_config("logger.log_retention", "10 days").get_value(str)
         if not log_dir.exists():
             log_dir.mkdir(parents=True, exist_ok=True)
-        log_file = log_dir / "repeater_log_{time:YYYY-MM-DD_HH-mm-ss.SSS}.log"
+        log_prefix = configs.get_config("logger.log_file_prefix", "repeater_log_").get_value(str)
+        log_file = log_dir / (log_prefix + "{time:YYYY-MM-DD_HH-mm-ss.SSS}.log")
         logger.add(
             log_file,
             format = "{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {extra[user_id]} - {message}",
