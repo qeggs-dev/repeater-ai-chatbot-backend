@@ -1,4 +1,5 @@
-from typing import AsyncGenerator, Self
+import sys
+from typing import AsyncGenerator, Self, TextIO
 from ._object import Request, Delta, Response
 from ...CallLog import CallLog
 from ...Context import ContentUnit, ContextRole, FunctionResponseUnit
@@ -17,10 +18,11 @@ class StreamingResponseGenerationLayer:
     :param request: 请求对象
     :param response_iterator: 原始响应迭代器
     """
-    def __init__(self, user_id: str, request: Request, response_iterator: AsyncGenerator[Delta, None]) -> None:
+    def __init__(self, user_id: str, request: Request, response_iterator: AsyncGenerator[Delta, None], print_file: TextIO = sys.stdout) -> None:
         self.request: Request = request
         self._response_iterator: AsyncGenerator[Delta, None] = response_iterator
         self._finished: bool = False
+        self._print_file: TextIO = print_file
         # ==== Initialize the response object ==== #
         
         # 创建响应对象
@@ -59,7 +61,8 @@ class StreamingResponseGenerationLayer:
 
         # 开始处理流式响应
         logger.info(f"Start Streaming", user_id = self.user_id)
-        print("\n", end="", flush=True)
+        self._print_file.write("\n")
+        self._print_file.flush()
         # 记录流开始时间
         # 记录上次chunk时间
         self.last_chunk_time:TimeStamp = TimeStamp(0,0)
@@ -68,7 +71,8 @@ class StreamingResponseGenerationLayer:
         self.chunk_times:list[TimeStamp] = []
     
     def finally_stream(self):
-        print('\n\n', end="", flush=True)
+        self._print_file.write('\n\n')
+        self._print_file.flush()
 
         # 添加日志统计数据
         self.response.calling_log.id = self.response.id
@@ -141,8 +145,9 @@ class StreamingResponseGenerationLayer:
         if delta_data.reasoning_content:
             if self.request.print_chunk:
                 if not self.model_response_content_unit.reasoning_content:
-                    print('\n\n', end="", flush=True)
-                print(f"\033[7m{delta_data.reasoning_content}\033[0m", end="", flush=True)
+                    self._print_file.write('\n\n')
+                self._print_file.write(f"\033[7m{delta_data.reasoning_content}\033[0m")
+                self._print_file.flush()
                 logger.bind(donot_send_console=True).debug("Received Reasoning_Content chunk: {reasoning_content}", user_id = self.user_id, reasoning_content = repr(delta_data.reasoning_content))
             self.model_response_content_unit.reasoning_content += delta_data.reasoning_content
         
@@ -150,8 +155,9 @@ class StreamingResponseGenerationLayer:
         if delta_data.content:
             if self.request.print_chunk:
                 if not self.model_response_content_unit.content:
-                    print('\n\n', end="", flush=True)
-                print(delta_data.content, end="", flush=True)
+                    self._print_file.write('\n\n')
+                self._print_file.write(delta_data.content)
+                self._print_file.flush()
                 logger.bind(donot_send_console=True).debug("Received Content chunk: {content}", user_id = self.user_id, content = repr(delta_data.content))
             self.model_response_content_unit.content += delta_data.content
         
@@ -179,6 +185,9 @@ class StreamingResponseGenerationLayer:
             if self.request.continue_processing_callback_function(self.user_id, delta_data):
                 self._response_iterator.aclose()
                 raise StopIteration
+        
+        # 刷新打印缓冲区
+        self._print_file.flush()
     @property
     def is_finished(self) -> bool:
         """

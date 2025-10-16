@@ -1,4 +1,5 @@
-from typing import overload, Literal, AsyncIterator, Callable, Awaitable
+import sys
+from typing import overload, Literal, AsyncIterator, TextIO
 from abc import ABC, abstractmethod
 from .._object import Request, Response, Delta
 
@@ -6,6 +7,8 @@ class BaseCallAPI(ABC):
     """
     Abstract class for calling API
     """
+    def __init__(self, print_file: TextIO = sys.stdout):
+        self._print_file = print_file
     @abstractmethod
     async def call(self, user_id: str, request: Request) -> Response | AsyncIterator[Delta]:
         pass

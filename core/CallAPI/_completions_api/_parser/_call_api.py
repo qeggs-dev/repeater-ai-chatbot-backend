@@ -1,10 +1,12 @@
 # ==== 标准库 ==== #
+import sys
 import asyncio
 import inspect
 from typing import (
     Any,
     Awaitable,
-    Callable
+    Callable,
+    TextIO,
 )
 from datetime import datetime, timezone
 
@@ -43,9 +45,6 @@ from ._call_api_base import CallNstreamAPIBase
 from .._exceptions import *
 
 class CallAPI(CallNstreamAPIBase):
-    def __init__(self):
-        self._last_response: Response | None = None
-    
     async def call(self, user_id:str, request: Request) -> Response:
         """
         调用API
@@ -115,7 +114,8 @@ class CallAPI(CallNstreamAPIBase):
         chunk_count:int = 0
         # 空chunk计数
         empty_chunk_count:int = 0
-        print("\n", end="", flush=True)
+        self._print_file.write("\n")
+        self._print_file.flush()
 
         # 处理响应基础信息
         if hasattr(response, "id"):
@@ -144,12 +144,14 @@ class CallAPI(CallNstreamAPIBase):
                 # 处理输出内容
                 if hasattr(choices.message, "content"):
                     model_response_content_unit.content = choices.message.content
-                    print(f"\n\n{model_response_content_unit.content}\n\n", end="", flush=True)
+                    self._print_file.write(f"\n\n{model_response_content_unit.content}\n\n")
+                    self._print_file.flush()
                 
                 # 处理推理内容
                 if hasattr(choices.message, "reasoning_content"):
                     model_response_content_unit.reasoning_content = choices.message.reasoning_content
-                    print(f"\n\n\033[7m{model_response_content_unit.reasoning_content}\033[0m", end="", flush=True)
+                    self._print_file.write(f"\n\n\033[7m{model_response_content_unit.reasoning_content}\033[0m")
+                    self._print_file.flush()
                 
                 # 处理工具调用
                 if hasattr(choices.message, "tool_calls") and choices.message.tool_calls is not None:
@@ -220,7 +222,7 @@ class CallAPI(CallNstreamAPIBase):
             if hasattr(response.usage, 'prompt_cache_miss_tokens') and response.usage.prompt_cache_miss_tokens is not None:
                 model_response.token_usage.prompt_cache_miss_tokens = response.usage.prompt_cache_miss_tokens
 
-        print('\n\n', end="", flush=True)
+        self._print_file.write("\n\n")
 
         # 添加日志统计数据
         model_response.calling_log.id = model_response.id
@@ -238,10 +240,4 @@ class CallAPI(CallNstreamAPIBase):
         model_response.context = request.context
         model_response.context.context_list.append(model_response_content_unit)
 
-        # 输出响应
-        self._last_response = model_response
         return model_response
-    
-    @property
-    def last_response(self) -> Response | None:
-        return self._last_response
