@@ -2,7 +2,7 @@ import asyncio
 import aiofiles
 import threading
 from ._config_object import ConfigObject
-from ._config_data_model import Config_Field
+from ._config_data_model import Config_Field, ItemType
 from ._exceptions import *
 from typing import Any, TypeVar, Type
 from loguru import logger
@@ -157,29 +157,30 @@ class ConfigLoader:
                 ):
                     type = value_item.type
                     TYPES = {
-                        "int": int,
-                        "float": float,
-                        "str": str,
-                        "list": list,
-                        "dict": dict
+                        ItemType.INT: int,
+                        ItemType.FLOAT: float,
+                        ItemType.STR: str,
+                        ItemType.STRING: str,
+                        ItemType.LIST: list,
+                        ItemType.DICT: dict
                     }
                     try:
                         if value_item.value is None:
                             value = None
                         if type in TYPES:
                             value = TYPES[type](value_item.value)
-                        elif type == "bool":
+                        elif type == ItemType.BOOL:
                             if isinstance(value_item.value, str):
                                 value = value_item.value.lower() in {"true", "1", "yes"}
                             else:
                                 value = bool(value_item.value)
-                        elif type == "json":
+                        elif type == ItemType.JSON:
                             value = orjson.loads(value_item.value)
-                        elif type == "yaml":
+                        elif type == ItemType.YAML:
                             value = yaml.load(value_item.value)
-                        elif type == "path":
+                        elif type == ItemType.PATH:
                             value = Path(value_item.value)
-                        elif type in {"auto", "other"}:
+                        elif type in {ItemType.AUTO, ItemType.OTHER}:
                             value = value_item.value
                         config.value = value
                     except (ValueError, TypeError, orjson.JSONDecodeError, yaml.YAMLError):

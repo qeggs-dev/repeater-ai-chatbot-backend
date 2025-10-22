@@ -3,10 +3,25 @@ from pydantic import (
     field_validator,
     conint
 )
+from enum import StrEnum
 from typing import Literal, List, Dict, Any
 
+class ItemType(StrEnum):
+    INT = "int"
+    FLOAT = "float"
+    STR = "str"
+    STRING = "string"
+    BOOL = "bool"
+    LIST = "list"
+    DICT = "dict"
+    JSON = "json"
+    YAML = "yaml"
+    PATH = "path"
+    AUTO = "auto"
+    OTHER = "other"
+
 class Config_Item(BaseModel):
-    type: Literal["int", "float", "str", "bool", "list", "dict", "json", "yaml", "path", "auto", "other"] = "auto"
+    type: ItemType = ItemType.OTHER
     type_name: str | None = None
     system: str | None = None
     environment: str | None = None
@@ -17,7 +32,7 @@ class Config_Item(BaseModel):
     def validate_type_name(cls, v, values):
         if v is None:
             return v
-        if values["type"] in {"other", "auto"}:
+        if values["type"] in {ItemType.OTHER, ItemType.AUTO}:
             raise ValueError("type_name cannot be set if type is 'other' or 'auto'")
         return v
 
