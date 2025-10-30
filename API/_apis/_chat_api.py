@@ -76,7 +76,7 @@ async def chat_endpoint(
         if isinstance(context, core.Response):
             return JSONResponse(context.as_dict, status_code=200)
         else:
-            async def generator_wrapper(context: AsyncIterator[core.CompletionsAPI.Delta]) -> AsyncIterator[bytes]:
+            async def generator_wrapper(context: AsyncIterator[core.CallAPI.CompletionsAPI.Delta]) -> AsyncIterator[bytes]:
                 async for chunk in context:
                     yield orjson.dumps(chunk.as_dict) + b"\n"
 
