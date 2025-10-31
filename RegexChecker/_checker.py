@@ -9,13 +9,21 @@ from ._obj import (
 )
 
 class RegexChecker:
+    """
+    **RegexChecker**
+
+    A multi-pattern single data matching module
+    """
     def __init__(self, flags: int | re.RegexFlag = 0):
+        """
+        :param flags: The regex flags to use
+        """
         self._mode: CheckerMode = CheckerMode.SERIES
         self._regexs: list[tuple[re.Pattern, bool]] = []
         self._flags = flags
 
     def check(self, text: str) -> CheckDetailsData:
-        """
+        r"""
         Check the text with the regexs.
 
         example:
@@ -49,7 +57,7 @@ class RegexChecker:
             return CheckDetailsData(regex=None, matched=False)
     
     def full_check(self, text: str) -> CheckDetailsData:
-        """
+        r"""
         Check the text with the regexs.
 
         example:
@@ -83,7 +91,7 @@ class RegexChecker:
         
     
     def check_all(self, texts: list[str]) -> list[CheckDetailsData]:
-        """
+        r"""
         Check the texts with the regexs.
 
         example:
@@ -108,7 +116,7 @@ class RegexChecker:
         return [self.check(text) for text in texts]
     
     def load_strstream(self, stream: Iterator[str]) -> LoaderDetailsData:
-        """
+        r"""
         Load the regexs from the stream.
 
         example:
@@ -145,7 +153,7 @@ class RegexChecker:
         return LoaderDetailsData(successful, unusual)
     
     def load(self, file: str) -> LoaderDetailsData:
-        """
+        r"""
         Load the regexs from the file.
 
         example:
@@ -161,7 +169,7 @@ class RegexChecker:
         self.load_strstream(iter(file.splitlines()))
     
     def loads_from_iterator(self, stream: Iterator[tuple[str, bool]], mode:CheckerMode = CheckerMode.SERIES) -> LoaderDetailsData:
-        """
+        r"""
         Load the regexs from the iterator.
 
         example:
@@ -187,7 +195,7 @@ class RegexChecker:
         
 
     def loads(self, regexs:list[tuple[str, bool]], mode:CheckerMode = CheckerMode.SERIES) -> LoaderDetailsData:
-        """
+        r"""
         Load the regexs from the list.
 
         example:
@@ -366,7 +374,7 @@ class RegexChecker:
             self._regexs[index] = (regex, True)
     
     def __delitem__(self, index:int | slice) -> None:
-        """
+        r"""
         Delete the regex at the index.
 
         example:
@@ -385,7 +393,7 @@ class RegexChecker:
         del self._regexs[index]
     
     def __len__(self) -> int:
-        """
+        r"""
         Get the length of the regexs.
 
         example:
@@ -402,7 +410,7 @@ class RegexChecker:
         return len(self._regexs)
     
     def __iter__(self) -> Iterator[re.Pattern]:
-        """
+        r"""
         Iterate over the regexs.
 
         example:
@@ -422,7 +430,7 @@ class RegexChecker:
                 yield regex
     
     def __eq__(self, other: "RegexChecker") -> bool:
-        """
+        r"""
         Check if the regexs are equal.
 
         example:
@@ -444,7 +452,7 @@ class RegexChecker:
 
     
     def clear(self) -> None:
-        """
+        r"""
         Clear the regexs.
 
         example:
@@ -462,7 +470,7 @@ class RegexChecker:
     
     @property
     def mode(self) -> CheckerMode:
-        """
+        r"""
         Get the mode of the loader.
 
         example:
@@ -477,7 +485,7 @@ class RegexChecker:
     
     @mode.setter
     def mode(self, mode: CheckerMode) -> None:
-        """
+        r"""
         Set the mode of the loader.
 
         example:
@@ -491,7 +499,7 @@ class RegexChecker:
         self._mode = mode
     
     def enable(self, index:int) -> None:
-        """
+        r"""
         Enable the regex at the index.
 
         example:
@@ -507,7 +515,7 @@ class RegexChecker:
         self._regexs[index] = (self._regexs[index][0], True)
 
     def disable(self, index:int) -> None:
-        """
+        r"""
         Disable the regex at the index.
 
         example:
@@ -523,7 +531,7 @@ class RegexChecker:
         self._regexs[index] = (self._regexs[index][0], False)
     
     def find_regex(self, text:str) -> int | None:
-        """
+        r"""
         Find the regex index that matches the text.
 
         example:
@@ -544,7 +552,7 @@ class RegexChecker:
         return None
     
     def recompile(self) -> None:
-        """
+        r"""
         Recompile all regexs.
 
         example:
@@ -561,7 +569,7 @@ class RegexChecker:
         self._regexs = regexs
     
     def set_flags(self, flags: int | re.RegexFlag) -> None:
-        """
+        r"""
         Set the regex flags.
 
         example:
@@ -578,7 +586,7 @@ class RegexChecker:
         self.recompile()
     
     def get_all_enabled(self) -> list[str]:
-        """
+        r"""
         Get all enabled regexs.
 
         example:
@@ -595,7 +603,7 @@ class RegexChecker:
         return [regex.pattern for regex, enabled in self._regexs if enabled]
 
     def get_all_disabled(self) -> list[str]:
-        """
+        r"""
         Get all disabled regexs.
 
         example:

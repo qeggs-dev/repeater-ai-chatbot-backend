@@ -39,5 +39,5 @@ class LoaderDetailsData:
         return f"Details(loaded={self.loaded}, unusual={self.unusual})"
 
 class CheckerMode(Enum):
-    SERIES = "series" # Check all files in the directory
-    PARALLEL = "parallel" # Check each file in the directory in parallel
+    SERIES = "series" # All regular expression in the sequence are checked, but if one of the regular expression matches, False is printed immediately
+    PARALLEL = "parallel" # Of all the regular expression, if one of the regular expression matches, True is immediately printed
