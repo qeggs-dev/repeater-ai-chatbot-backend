@@ -56,15 +56,15 @@ class CallAPI(CallNstreamAPIBase):
         try:
             return await self._call(user_id, request)
         except openai.APITimeoutError as e:
-            raise APITimeoutError(e)
+            raise APITimeoutError(str(e)) from e
         except openai.BadRequestError as e:
-            raise BadRequestError(e)
+            raise BadRequestError(str(e)) from e
         except openai.InternalServerError as e:
-            raise APIServerError(e)
+            raise APIServerError(str(e)) from e
         except openai.APIConnectionError as e:
-            raise APIConnectionError(e)
+            raise APIConnectionError(str(e)) from e
         except Exception as e:
-            raise CallApiException(e) from e
+            raise CallApiException(str(e)) from e
 
     async def _call(self, user_id:str, request: Request) -> Response:
         """调用API"""
