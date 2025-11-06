@@ -815,6 +815,7 @@ class SlovesStarter:
         if exists_and_is_designated_type("title", str):
             self.title = config["title"]
             self.console_title = self.title
+            self.process_title = self.title
             self.process_exit_title = self.title
             self.exit_title = self.title
         
@@ -823,6 +824,7 @@ class SlovesStarter:
         
         if exists_and_is_designated_type("process_title", str):
             self.process_title = config["process_title"]
+            self.process_exit_title = self.process_title
         
         if exists_and_is_designated_type("process_exit_title", str):
             self.process_exit_title = config["process_exit_title"]
