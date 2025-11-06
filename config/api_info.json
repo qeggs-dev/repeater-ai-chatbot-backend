@@ -46,6 +46,36 @@
                 "Id": "kimi-k2-instruct",
                 "Uid": "kimi-k2",
                 "TaskType": "LLM Chat"
+            },
+            {
+                "Name": "ERNIE 4.5 Turbo",
+                "Id": "ernie-4.5-turbo-128k",
+                "Uid": "ernie-4.5-turbo",
+                "TaskType": "LLM Chat"
+            },
+            {
+                "Name": "ERNIE-X1.1",
+                "Id": "ernie-x1.1",
+                "Uid": "ernie-x1.1",
+                "TaskType": "LLM Chat"
+            },
+            {
+                "Name": "Qwen3-235B-A22B-Thinking-2507",
+                "Id": "qwen3-235b-a22b-thinking-2507",
+                "Uid": "qwen3-235b-thinking",
+                "TaskType": "LLM Chat"
+            },
+            {
+                "Name": "Qwen3-Next-80B-A3B-Thinking",
+                "Id": "qwen3-next-80b-a3b-thinking",
+                "Uid": "qwen3-next-thinking",
+                "TaskType": "LLM Chat"
+            },
+            {
+                "Name": "Qwen3-235B-A22B-Instruct-2507",
+                "Id": "qwen3-235b-a22b-instruct-2507",
+                "Uid": "qwen3-235b-instruct",
+                "TaskType": "LLM Chat"
             }
         ]
     }
