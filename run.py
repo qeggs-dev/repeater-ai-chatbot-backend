@@ -1019,7 +1019,7 @@ class SlovesStarter:
             default: bool = True,
             print_return_code: bool = True,
             print_runtime: bool = True,
-            runtime_handler: Callable[[int, int], str] = lambda s, e: f"Runtime: {(e - s) / 1e9:.4f}s",
+            runtime_handler: Callable[[int, int], str] = lambda start, end: format_time_duration(end - start, use_abbreviation=True),
             env: dict[str, str] | None = None,
             askfile: TextIO = sys.stdout,
             capture_output: bool = False,
@@ -1258,16 +1258,6 @@ class SlovesStarter:
         print((char or self.divider_line_char) * os.get_terminal_size().columns)
     # endregion
 
-    @staticmethod
-    def _print_runtime_handler(start: int, end: int):
-        """
-        Print runtime handler
-
-        :param start: Start time (ns)
-        :param end: End time (ns)
-        """
-        return format_time_duration(end - start, use_abbreviation=True)
-
     # region > main
     def main(self):
         """
@@ -1298,7 +1288,6 @@ class SlovesStarter:
                     env = self.inject_environment_variables,
                     print_return_code = self.print_return_code and self.allow_print,
                     print_runtime = self.print_runtime and self.allow_print,
-                    runtime_handler = self._print_runtime_handler
                 )
                 if result is not None:
                     if result.returncode != 0:
