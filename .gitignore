@@ -4,4 +4,4 @@ __pycache__/
 .vscode/
 userdata/
 temp/
-log/
+logs/
