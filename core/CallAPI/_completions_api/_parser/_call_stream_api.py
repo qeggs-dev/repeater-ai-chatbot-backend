@@ -55,6 +55,7 @@ class StreamAPI(CallStreamAPIBase):
                 messages = remove_keys_from_dicts(request.context.full_context, {"reasoning_content"}) if not request.context.last_content.prefix else request.context.full_context,
                 tools = request.function_calling.tools if request.function_calling else None,
             )
+            logger.info("Start Streaming", user_id = user_id)
             async for chunk in response:
                 # 翻译chunk
                 delta_data = await translation_chunk(chunk)
