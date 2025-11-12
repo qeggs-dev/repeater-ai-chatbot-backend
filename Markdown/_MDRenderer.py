@@ -12,7 +12,7 @@ configs = ConfigLoader()
 async def markdown_to_image(
     markdown_text: str,
     output_path: str,
-    width: int = None,
+    width: int = 800,
     css: str | None = None,
     style: str = "light",
     preprocess_map_before: dict[str, str] | None = None,
@@ -47,16 +47,7 @@ async def markdown_to_image(
         css = await get_style(style)
     
     # 添加自适应宽度
-    if width is not None:
-        css += f"\nbody {{ width: {max(width, 60) - 60}px; }}"
-    else:
-        width = max(
-            max(
-                len(line) for line in html_content.split('\n')
-            ),
-            60
-        )
-        css += f"\nbody {{ width: {width - 60}px; }}"
+    css += f"\nbody {{ width: {max(width, 60) - 60}px; }}"
     
     full_html = f"""
     <!DOCTYPE html>
