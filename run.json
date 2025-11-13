@@ -89,6 +89,11 @@
             "name": "deprecated",
             "version_mode": "==",
             "version": "1.2.18"
+        },
+        {
+            "name": "numpy",
+            "version_mode": "==",
+            "version": "2.3.4"
         }
     ],
     "run_cmd_need_to_ask": false,
