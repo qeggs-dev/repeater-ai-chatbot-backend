@@ -144,8 +144,8 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 
 | 选项 | 描述 | 是否必填 | **默认值**(*示例值*) | 类型 | 单位 |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| `RENDER.OUTPUT_IMAGE_DIR` | 渲染图片的缓存位置 | **必填** | *`./workspace/temp/render`* | str | |
 | `RENDER.MARKDOWN.WKHTMLTOIMAGE_PATH` | 渲染图片依赖的[`Wkhtmltopdf`](https://wkhtmltopdf.org/downloads.html)中`wkhtmltoimage`的路径 | **必填** | *`/usr/local/bin/wkhtmltoimage`* | str | |
+| `RENDER.OUTPUT_IMAGE_DIR` | 渲染图片的缓存位置 | **必填** | *`./workspace/temp/render`* | str | |
 | `STATIC.BASE_PATH` | 静态资源位置 | **必填** | *`./static`* | str | |
 | `API_INFO.API_FILE_PATH` | API信息文件路径 | *选填* | `./config/apiconfig.json` | str | |
 | `API_INFO.DEFAULT_MODEL_UID` | 调用时默认使用的模型UID | *选填* | `deepseek-chat` | str | |
