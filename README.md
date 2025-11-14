@@ -394,6 +394,7 @@ PS: 模型由`config/api_info.json`定义
 | 请求 | URL | 参数类型 | 参数(*可选*) | 描述 | 响应类型 |
 | :---: | :---: | :---: | :---: | :---: | :---: |
 | `GET` | `/` | 无 | 无 | 获取Index Web | `Web页面` |
+| `GET` | `/index.html` | 无 | 无 | (同上) 获取Index Web | `Web页面` |
 | `GET` | `/docs` | 无 | 无 | 获取接口文档 | `Web页面` |
 | `POST` | `/chat/completion/{user_id:str}` | JSON请求体 | *`message(str)`*<br/>*`user_name(str)`*<br/>*`role(str) = 'user'`*<br/>*`role_name(str)`*<br/>*`model_type(str)`*<br/>*`load_prompt(bool) = true`*<br/>*`save_context(bool) = true`*<br/>*`reference_context_id(str)`*<br/>*`continue_completion(bool)`*  | AI聊天 | `JSON响应对象` 或 `流式Delta对象` |
 | `POST` | `/render/{user_id:str}`| JSON请求体 | **`text(str)`**<br/>*`style(str)`*<br/>*`timeout(float)`* | 文本渲染 | `JSON对象` |
