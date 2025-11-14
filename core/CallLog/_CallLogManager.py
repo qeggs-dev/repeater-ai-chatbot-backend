@@ -58,7 +58,7 @@ class CallLogManager:
         日志文件路径
         """
         time = datetime.datetime.now()
-        return self.calllog_dir / f"{time.strftime('%Y-%m-%d')}.log"
+        return self.calllog_dir / f"{time.strftime('%Y-%m-%d')}.jsonl"
 
     async def add_call_log(self, call_log: CallLogObject | CallAPILogObject) -> None:
         """
@@ -77,13 +77,19 @@ class CallLogManager:
                 self._debonce_task.cancel()  # 如果已有任务，先取消
             if len(self._log_list) < self.max_cache_size:
                 logger.info("Call log debonce task created")
-                self._debonce_task = asyncio.create_task(self._wait_and_save_async(wait_time = self.debonce_save_wait_time))  # 重新创建
+                wait_time = self.debonce_save_wait_time
             else:
                 logger.info("Call log saved immediately")
-                self._debonce_task = asyncio.create_task(self._wait_and_save_async(wait_time = 0)) # 直接保存
+                wait_time = 0
+            self._debonce_task = asyncio.create_task(
+                self._wait_and_save_async(
+                    wait_time = wait_time
+                )
+            )
         
     # 将日志列表转换为字节流
-    def _write_log(log_list: Iterable[CallLogObject]) -> Generator[bytes, None, None]:
+    @staticmethod
+    def _log_bytestream(log_list: Iterable[CallLogObject]) -> Generator[bytes, None, None]:
         for log in log_list:
             yield orjson.dumps(log.as_dict) + b"\n"
 
@@ -99,13 +105,13 @@ class CallLogManager:
         
         if path.exists():
             # 如果文件存在，以追加模式打开
-            with open(self.calllog_dir, 'ab') as f:
-                for chunk in self._write_log(self._log_list):
+            with open(path, 'ab') as f:
+                for chunk in self._log_bytestream(self._log_list):
                     f.write(chunk)
         else:
             # 如果文件不存在，以写入模式打开
-            with open(self.calllog_dir, 'wb') as f:
-                for chunk in self._write_log(self._log_list):
+            with open(path, 'wb') as f:
+                for chunk in self._log_bytestream(self._log_list):
                     f.write(chunk)
         
         logger.info(f"Saved {len(self._log_list)} call logs to file")
@@ -125,13 +131,13 @@ class CallLogManager:
 
         if path.exists():
             # 如果文件存在，则以追加模式打开文件
-            async with aiofiles.open(self.calllog_dir, 'ab') as f:
-                for chunk in self._write_log(self._log_list):
+            async with aiofiles.open(path, 'ab') as f:
+                for chunk in self._log_bytestream(self._log_list):
                     await f.write(chunk)
         else:
             # 如果文件不存在，则以写入模式打开文件
-            async with aiofiles.open(self.calllog_dir, 'wb') as f:
-                for chunk in self._write_log(self._log_list):
+            async with aiofiles.open(path, 'wb') as f:
+                for chunk in self._log_bytestream(self._log_list):
                     await f.write(chunk)
         
         logger.info(f"Saved {len(self._log_list)} call logs to file")
@@ -210,6 +216,7 @@ class CallLogManager:
     async def _wait_and_save_async(self, wait_time: float = 5) -> None:
         """等待并保存日志到文件"""
         try:
+            logger.info(f"Wait {wait_time} seconds to save call log")
             # 等待指定时间
             await asyncio.sleep(wait_time)
             # 时间到后保存日志
