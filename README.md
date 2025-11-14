@@ -49,7 +49,7 @@
 | pydantic          | 2.11.7   | MIT License                          | [MIT](https://github.com/pydantic/pydantic/blob/main/LICENSE)                       | `core.ConfigManager` & `API`       | Simple and convenient data validation |
 | python-multipart  | 0.0.20   | Apache Software License              | [Apache-2.0](https://github.com/Kludex/python-multipart/blob/master/LICENSE.txt)    | `core.DataManager` & `API`         | Support for form data                 |
 | uvicorn           | 0.34.3   | BSD License                          | [BSD-3-Clause](https://github.com/Kludex/uvicorn/blob/main/LICENSE.md)              | `run_fastapi.py`                   | Run FastAPI                           |
-| numpy             | 2.3.4    | BSD License                          | [BSD-3-Clause](https://github.com/numpy/numpy/blob/main/LICENSE.txt)                | `core.CallAPI`                     | Do a quick count of the call data     |
+| numpy             | 2.3.4    | BSD License                          | [BSD-3-Clause](https://github.com/numpy/numpy/blob/main/LICENSE.txt)                | *Entire Project*                   | Speed up batch computing of data      |
 | deprecated        | 1.2.18   | MIT License                          | [MIT](https://github.com/laurent-laporte-pro/deprecated/blob/master/README.md)      | *Not in use yet*                   | Mark Obsolete Code                    |
 
 ---
@@ -78,38 +78,48 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 
 ---
 
-## 启动器配置格式
+## 启动器配置文件格式
 
 ```json
 {
     "title": "Repeater LLM Chat Backend Starter",
     "process_title": "Repeater LLM Chat Backend",
     "process_exit_title": "Repeater LLM Chat Backend Starter",
+    "console_title": "Repeater LLM Chat Backend",
     "exit_title": "Repeater LLM Chat Backend Starter",
     "python_name": {
-      "windows": "python.exe",
-      "linux": "python3",
-      "default": "python3"
+        "windows": "python",
+        "linux": "python3",
+        "macos": "python3",
+        "jvm": "python3",
+        "default": "python3"
     },
     "pip_name": {
-      "windows": "pip.exe",
-      "linux": "pip3",
-      "default": "pip3"
+        "windows": "pip",
+        "linux": "pip3",
+        "macos": "pip3",
+        "jvm": "pip3",
+        "default": "pip3"
     },
-    "requirements_file": {
-      "default": "requirements.txt"
-    },
+    "requirements": [],
+    "requirements_file": "requirements.txt",
     "cwd": "./",
     "work_directory": "./",
     "use_venv": true,
-    "venv_prompt": "Repeater LLM Chat Backend",
-    "script_name": "run_fastapi.py",
-    "argument": [],
-    "restart": true,
-    "run_cmd_need_to_ask": false,
+    "venv_prompt": "venv",
+    "script_name": null,
+    "argument": null,
+    "restart": false,
+    "reselect": false,
+    "run_cmd_need_to_ask": true,
     "run_cmd_ask_default_values": {},
     "divider_line_char": "=",
     "inject_environment_variables": {},
+    "text_encoding": "utf-8",
+    "print_return_code": true,
+    "print_runtime": true,
+    "automatic_exit": false,
+    "allow_print": false
 }
 ```
 
@@ -132,11 +142,10 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 
 ## 配置选项表
 
-| 选项 | 描述 | 是否必填 | 默认值(*示例值*) | 类型 | 单位 |
+| 选项 | 描述 | 是否必填 | **默认值**(*示例值*) | 类型 | 单位 |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| `CALLLOG.LOG_FILE_PATH` | 主API调用日志的持久化存储文件 | **必填** | *`./config/calllog.jsonl`* | str | |
-| `RENDER.OUTPUT_IMAGE_DIR` | 渲染图片的缓存位置 | **必填** | *`./temp/render`* | str | |
-| `RENDER.MARKDOWN.WKHTMLTOIMAGE_PATH` | 渲染图片依赖的[`Wkhtmltopdf`](https://wkhtmltopdf.org/downloads.html)中`wkhtmltoimage`的路径 | **必填** | `/usr/local/bin/wkhtmltoimage` | str | |
+| `RENDER.OUTPUT_IMAGE_DIR` | 渲染图片的缓存位置 | **必填** | *`./workspace/temp/render`* | str | |
+| `RENDER.MARKDOWN.WKHTMLTOIMAGE_PATH` | 渲染图片依赖的[`Wkhtmltopdf`](https://wkhtmltopdf.org/downloads.html)中`wkhtmltoimage`的路径 | **必填** | *`/usr/local/bin/wkhtmltoimage`* | str | |
 | `STATIC.BASE_PATH` | 静态资源位置 | **必填** | *`./static`* | str | |
 | `API_INFO.API_FILE_PATH` | API信息文件路径 | *选填* | `./config/apiconfig.json` | str | |
 | `API_INFO.DEFAULT_MODEL_UID` | 调用时默认使用的模型UID | *选填* | `deepseek-chat` | str | |
@@ -150,6 +159,7 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 | `CALLLOG.AUTO_SAVE` | 是否将记录到主API的调用日志自动保存到文件 | *选填* | `True` | bool | |
 | `CALLLOG.DEBONCE.SAVE_WAIT_TIME` | 日志持久化存储的防抖时间 | *选填* | `1200.0` | float | 秒 |
 | `CALLLOG.MAX_CACHE_SIZE` | 日志缓存的最大数量 | *选填* | `1000` | int | 日志数量 |
+| `CALLLOG.PATH` | 主API调用日志的持久化存储目录 | *选填* | *`./workspace/calllog`* | str | |
 | `CONFIG_CACHE.DOWNGRADE_WAIT_TIME` | 配置管理器缓存降级等待时间 | *选填* | `600.0` | float | 秒 |
 | `CONFIG_CACHE.DEBONCE_SAVE_WAIT_TIME` | 配置管理器缓存延迟保存时间 | *选填* | `600.0` | float | 秒 |
 | `CORE.VERSION` | 版本号(用于替换Core中的版本号数据，以及提示词变量中的版本号) | *选填* | \*由代码自动生成 | str | |
@@ -272,14 +282,16 @@ JSON同理，配置管理器同时支持JSON和YAML两种格式。
 ]
 ```
 YAML同理
-PS: 目前仅支持LLM Chat的任务类型，models中定义该模型的url时会覆盖上层的url
+PS: 目前仅支持LLM Chat的任务类型(其他类型会忽略)
+models中定义该模型的url时会覆盖上层的url
 
 3. blacklist.regex (或其他任何RegexChecker处理的文件格式)文件:
 ```re
 [REGEX PARALLEL FILE]
 .*example.*
 ```
-PS: 首行必须是`[REGEX PARALLEL FILE]`或`[REGEX SERIES FILE]`，表示该文件是`并行`还是`串行`匹配，之后每行都是`正则表达式`，匹配到的`昵称`或`user_id`的请求将会被**拒绝**
+PS: 首行必须是`[REGEX PARALLEL FILE]`或`[REGEX SERIES FILE]`，表示该文件是`并行`还是`串行`匹配
+之后每行都是`正则表达式`，匹配到的`昵称`或`user_id`的请求将会被**拒绝**
 
 4 UserNicknameMapping.json 文件格式：
 ```json
@@ -369,9 +381,9 @@ PS: 模型由`config/api_info.json`定义
 
 变量传参方式：
 使用空格分割
-```shell
-random 1 10
-randchoice a b c d e
+```Plaintext
+{random 1 10}
+{randchoice a b c d e}
 ```
 
 ---
@@ -388,6 +400,7 @@ randchoice a b c d e
 | `GET` | `/userdata/context/length/{user_id:str}` | | | 获取上下文长度 | `JSON对象` |
 | `GET` | `/userdata/context/userlist` | | | 获取用户列表 | `JSON列表` |
 | `POST` | `/userdata/context/withdraw/{user_id:str}` | 表单 | `index(int)` | 撤回上下文 | `JSON对象` |
+| `POST` | `/userdata/context/inject/{user_id:str}` | JSON请求体 | `user_content(str)`<br/>`assistant_content(str)` | 注入上下文 | `JSON对象` |
 | `POST` | `/userdata/context/rewrite/{user_id:str}` | 表单 | `index(int)`<br/>`content(str)`<br/>*`reasoning_content(str)`* | 重写上下文 | `JSON列表` |
 | `GET` | `/userdata/context/branchs/{user_id:str}` | | | 获取用户分支ID列表 | `JSON列表` |
 | `GET` | `/userdata/context/now_branch/{user_id:str}` | | | 获取用户当前分支ID | `纯文本` |
@@ -439,4 +452,4 @@ randchoice a b c d e
 
 ## 命令表：
 
-\*已被移动至[NoneBot插件仓库](https://github.com/qeggs-dev/repeater-qq-ai-chatbot-nonebot-plugins)
+\*已被移动至[Repeater NoneBot插件仓库](https://github.com/qeggs-dev/repeater-qq-ai-chatbot-nonebot-plugins)
