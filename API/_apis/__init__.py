@@ -10,7 +10,7 @@ from ._context_api import (
     get_context_branch_id,
     get_context_now_branch_id,
     change_context,
-    delete_context
+    delete_context,
 )
 from ._prompt_api import (
     get_prompt,
@@ -19,7 +19,7 @@ from ._prompt_api import (
     get_prompt_branch_id,
     get_prompt_now_branch_id,
     change_prompt,
-    delete_prompt
+    delete_prompt,
 )
 from ._config_api import (
     change_config,
@@ -29,22 +29,26 @@ from ._config_api import (
     get_config_branch_id,
     get_config_now_branch_id,
     change_config,
-    delete_config
+    delete_config,
 )
 from ._userfile_api import (
     get_userdata_file,
 )
 from ._request_log_api import (
     get_request_log,
-    stream_request_log
+    stream_request_log,
 )
 from ._tempfiles_api import (
-    get_render_file
+    get_render_file,
 )
 from ._admin_api import (
     reload_apiinfo,
-    regenerate_admin_key
+    regenerate_admin_key,
+)
+from ._root import (
+    root_route,
 )
 from ._static_api import (
-    favicon
+    favicon,
+    static,
 )
