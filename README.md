@@ -156,28 +156,37 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 | `BOT_INFO.BIRTHDAY_MONTH` | 机器人出生月份 | *选填* | *`01`* | int | 月 |
 | `BOT_INFO.BIRTHDAY_DAY` | 机器人出生日期 | *选填* | *`01`* | int | 日 |
 | `CALLAPI.MAX_CONCURRENCY` | 最大并发数(仅适用于主请求API，也就是Chat API) | *选填* | `1000` | int | 请求数 |
-| `REQUESTLOG.AUTO_SAVE` | 是否将记录到主API的请求日志自动保存到文件 | *选填* | `True` | bool | |
-| `REQUESTLOG.DEBONCE.SAVE_WAIT_TIME` | 请求日志持久化存储的防抖时间 | *选填* | `1200.0` | float | 秒 |
-| `REQUESTLOG.MAX_CACHE_SIZE` | 请求日志缓存的最大数量 | *选填* | `1000` | int | 日志数量 |
-| `REQUESTLOG.PATH` | 主API请求日志的持久化存储目录 | *选填* | *`./workspace/request_log`* | str | |
-| `CONFIG_CACHE.DOWNGRADE_WAIT_TIME` | 配置管理器缓存降级等待时间 | *选填* | `600.0` | float | 秒 |
 | `CONFIG_CACHE.DEBONCE_SAVE_WAIT_TIME` | 配置管理器缓存延迟保存时间 | *选填* | `600.0` | float | 秒 |
+| `CONFIG_CACHE.DOWNGRADE_WAIT_TIME` | 配置管理器缓存降级等待时间 | *选填* | `600.0` | float | 秒 |
 | `CORE.VERSION` | 版本号(用于替换Core中的版本号数据，以及提示词变量中的版本号) | *选填* | \*由代码自动生成 | str | |
-| `SERVER.HOST` | 服务监听的IP(此选项会覆盖环境变量中的配置) | *选填* | 环境变量`HOST` | str | |
-| `SERVER.PORT` | 服务监听端口(此选项会覆盖环境变量中的配置) | *选填* | 环境变量`PORT` | int | |
-| `SERVER.WORKERS` | 服务工作进程数(此选项会覆盖环境变量中的配置) | *选填* | 环境变量`WORKERS` | int | |
-| `SERVER.RELOAD` | 是否自动重启 | *选填* | 环境变量`RELOAD` | bool | |
 | `LOGGER.LOG_LEVEL` | 日志级别 | *选填* | `INFO` | str | |
 | `LOGGER.LOG_FILE_DIR` | 日志文件位置 | *选填* | `./logs` | str | |
 | `LOGGER.LOG_FILE_PREFIX` | 日志文件前缀 | *选填* | `repeater_log_` | str | |
 | `LOGGER.ROTATION` | 日志文件轮换配置 | *选填* | `10 MB` | str | 日志大小、时间长度等 |
 | `LOGGER.LOG_RETENTION` | 日志文件保留时间 | *选填* | `14 days` | str | 时间 |
+| `MODEL.DEFAULT_TEMPERATURE` | 默认模型温度 | *选填* | `1.0` | float | |
+| `MODEL.DEFAULT_TOP_P` | 默认模型`Top_P` | *选填* | `1.0` | float | |
+| `MODEL.DEFAULT_FREQUENCY_PENALTY` | 默认模型频率惩罚 | *选填* | `0.0` | float | |
+| `MODEL.DEFAULT_PRESENCE_PENALTY` | 默认模型存在惩罚 | *选填* | `0.0` | float | |
+| `MODEL.DEFAULT_MAX_TOKENS` | 默认模型最大输出token<br/>(部分API不支持 `DEFAULT_MAX_COMPLETION_TOKENS`设置 提供此项以兼容) | *选填* | `1024` | int | Token |
+| `MODEL.DEFAULT_MAX_COMPLETION_TOKENS` | 默认模型最大生成token | *选填* | `1024` | int | Token |
+| `MODEL.DEFAULT_STOP` | 默认模型停止词 | *选填* | [] | list[str] | |
+| `MODEL.STREAM` | 是否内部启用流式输出(此选项仅告知框架是否启用流式生成，但框架内部存在缓冲区，开启此选项后如果请求时没有设置`stream`参数，会等待生成完毕) | *选填* | `true` | bool |
+| `MODEL.AUTO_SHRINK_LENGTH` | 默认的自动Shrink阈值上下文长度 | *选填* | 0 | int | 上下文条数(为0时不自动限制长度) |
 | `README.FILE_PATH` | README文件位置 | *选填* | `./README.md` | str | |
 | `RENDER.DEFAULT_IMAGE_TIMEOUT` | 渲染图片的默认保留时间(图片生成后给予客户端的图片链接有效时间) | *选填* | 60 | float | 秒 |
 | `RENDER.MARKDOWN.TO_IMAGE.DEFAULT_STYLES` | Markdown默认渲染图片的样式 | *选填* | `light` | str | |
 | `RENDER.MARKDOWN.TO_IMAGE.STYLES_DIR` | Markdown渲染图片的样式文件夹 | *选填* | `./styles` | str | |
 | `RENDER.MARKDOWN.TO_IMAGE.PREPROCESS_MAP.BEFORE` | Markdown渲染预处理映射（键会被替换为值的内容） | *选填* | *`{"\n": "<br/>"}`* | str | |
 | `RENDER.MARKDOWN.TO_IMAGE.PREPROCESS_MAP.AFTER` | Markdown渲染后处理映射（键会被替换为值的内容） | *选填* | *`{"<code>": "<pre><code>", "</code>": "</code></pre>"}`* | str | |
+| `REQUESTLOG.AUTO_SAVE` | 是否将记录到主API的请求日志自动保存到文件 | *选填* | `True` | bool | |
+| `REQUESTLOG.DEBONCE.SAVE_WAIT_TIME` | 请求日志持久化存储的防抖时间 | *选填* | `1200.0` | float | 秒 |
+| `REQUESTLOG.MAX_CACHE_SIZE` | 请求日志缓存的最大数量 | *选填* | `1000` | int | 日志数量 |
+| `REQUESTLOG.PATH` | 主API请求日志的持久化存储目录 | *选填* | *`./workspace/request_log`* | str | |
+| `SERVER.HOST` | 服务监听的IP(此选项会覆盖环境变量中的配置) | *选填* | 环境变量`HOST` | str | |
+| `SERVER.PORT` | 服务监听端口(此选项会覆盖环境变量中的配置) | *选填* | 环境变量`PORT` | int | |
+| `SERVER.WORKERS` | 服务工作进程数(此选项会覆盖环境变量中的配置) | *选填* | 环境变量`WORKERS` | int | |
+| `SERVER.RELOAD` | 是否自动重启 | *选填* | 环境变量`RELOAD` | bool | |
 | `PROMPT.DEFAULT_DIR` | 默认提示词文件夹 | *选填* | `./Prompt/Presets` | str | |
 | `PROMPT.PARSET_NAME` | 默认提示词文件名(不包括文件后缀) | *选填* | `default` | str | |
 | `PROMPT.DEFAULT_SUFFIX` | 默认提示词文件后缀 | *选填* | `.md` | str | |
@@ -194,15 +203,7 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 | `USER_DATA.PROMPT_USERDATA.CACHE_DATA` | 控制提示词数据缓存是否开启 | *选填* | \*`USER_DATA.CACHE_DATA`的值 | bool | |
 | `USER_DATA.USERCONFIG_USERDATA.CACHE_DATA` | 配置用户数据缓存是否开启 | *选填* | \*`USER_DATA._CACHE_DATA`的值 | bool | |
 | `USER_NICKNAME_MAPPING.FILE_PATH` | 用户昵称映射表文件位置 | *选填* | `./config/UserNicknameMapping.json` | str | |
-| `MODEL.DEFAULT_TEMPERATURE` | 默认模型温度 | *选填* | `1.0` | float | |
-| `MODEL.DEFAULT_TOP_P` | 默认模型`Top_P` | *选填* | `1.0` | float | |
-| `MODEL.DEFAULT_FREQUENCY_PENALTY` | 默认模型频率惩罚 | *选填* | `0.0` | float | |
-| `MODEL.DEFAULT_PRESENCE_PENALTY` | 默认模型存在惩罚 | *选填* | `0.0` | float | |
-| `MODEL.DEFAULT_MAX_TOKENS` | 默认模型最大输出token<br/>(部分API不支持 `DEFAULT_MAX_COMPLETION_TOKENS`设置 提供此项以兼容) | *选填* | `1024` | int | Token |
-| `MODEL.DEFAULT_MAX_COMPLETION_TOKENS` | 默认模型最大生成token | *选填* | `1024` | int | Token |
-| `MODEL.DEFAULT_STOP` | 默认模型停止词 | *选填* | [] | list[str] | |
-| `MODEL.STREAM` | 是否内部启用流式输出(此选项仅告知框架是否启用流式生成，但框架内部存在缓冲区，开启此选项后如果请求时没有设置`stream`参数，会等待生成完毕) | *选填* | `true` | bool |
-| `MODEL.AUTO_SHRINK_LENGTH` | 默认的自动Shrink阈值上下文长度 | *选填* | 0 | int | 上下文条数(为0时不自动限制长度) |
+| `WEB.INDEX_WEB_FILE` | 首页文件位置 | *选填* | | str | |
 
 PS: 配置读取时默认不区分大小写
 
@@ -392,7 +393,8 @@ PS: 模型由`config/api_info.json`定义
 
 | 请求 | URL | 参数类型 | 参数(*可选*) | 描述 | 响应类型 |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| `GET` | `/docs` | 无 | 无 | 获取接口文档 | Web页面 |
+| `GET` | `/` | 无 | 无 | 获取Index Web | `Web页面` |
+| `GET` | `/docs` | 无 | 无 | 获取接口文档 | `Web页面` |
 | `POST` | `/chat/completion/{user_id:str}` | JSON请求体 | *`message(str)`*<br/>*`user_name(str)`*<br/>*`role(str) = 'user'`*<br/>*`role_name(str)`*<br/>*`model_type(str)`*<br/>*`load_prompt(bool) = true`*<br/>*`save_context(bool) = true`*<br/>*`reference_context_id(str)`*<br/>*`continue_completion(bool)`*  | AI聊天 | `JSON响应对象` 或 `流式Delta对象` |
 | `POST` | `/render/{user_id:str}`| JSON请求体 | **`text(str)`**<br/>*`style(str)`*<br/>*`timeout(float)`* | 文本渲染 | `JSON对象` |
 | `POST` | `/userdata/variable/expand/{user_id:str}` | JSON请求体 | *`username(str)`*<br/>`text(str)` | 变量解析 | `JSON对象` |
