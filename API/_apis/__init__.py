@@ -45,8 +45,8 @@ from ._admin_api import (
     reload_apiinfo,
     regenerate_admin_key,
 )
-from ._root import (
-    root_route,
+from ._index_web import (
+    index_web,
 )
 from ._static_api import (
     favicon,

@@ -8,7 +8,7 @@ configs = ConfigLoader()
 index_web_file = configs.get_config("Web.Index_Web_File", "").get_value(Path)
 
 @app.get("/")
-async def root_route():
+async def index_web():
     if index_web_file.exists() and index_web_file.is_file():
         return FileResponse(index_web_file)
     else:
