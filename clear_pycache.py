@@ -38,9 +38,9 @@ def find_and_remove_pycache(start_dir='.', exclude_pattern=None, ask_confirmatio
         if exclude_pattern:
             print(f"排除规则: {exclude_pattern}")
         
-        answer = input("是否要删除所有这些文件夹? [y/N]: ").strip().lower()
+        answer = input("是否要删除所有这些文件夹? [Y/n]: ")
         
-        if answer != 'y':
+        if answer.strip().lower() in ['n', 'no', 'false', '0']:
             print("取消删除操作。")
             return
     
