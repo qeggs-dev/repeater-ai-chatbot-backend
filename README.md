@@ -156,10 +156,10 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 | `BOT_INFO.BIRTHDAY_MONTH` | 机器人出生月份 | *选填* | *`01`* | int | 月 |
 | `BOT_INFO.BIRTHDAY_DAY` | 机器人出生日期 | *选填* | *`01`* | int | 日 |
 | `CALLAPI.MAX_CONCURRENCY` | 最大并发数(仅适用于主请求API，也就是Chat API) | *选填* | `1000` | int | 请求数 |
-| `CALLLOG.AUTO_SAVE` | 是否将记录到主API的调用日志自动保存到文件 | *选填* | `True` | bool | |
-| `CALLLOG.DEBONCE.SAVE_WAIT_TIME` | 日志持久化存储的防抖时间 | *选填* | `1200.0` | float | 秒 |
-| `CALLLOG.MAX_CACHE_SIZE` | 日志缓存的最大数量 | *选填* | `1000` | int | 日志数量 |
-| `CALLLOG.PATH` | 主API调用日志的持久化存储目录 | *选填* | *`./workspace/calllog`* | str | |
+| `REQUESTLOG.AUTO_SAVE` | 是否将记录到主API的请求日志自动保存到文件 | *选填* | `True` | bool | |
+| `REQUESTLOG.DEBONCE.SAVE_WAIT_TIME` | 请求日志持久化存储的防抖时间 | *选填* | `1200.0` | float | 秒 |
+| `REQUESTLOG.MAX_CACHE_SIZE` | 请求日志缓存的最大数量 | *选填* | `1000` | int | 日志数量 |
+| `REQUESTLOG.PATH` | 主API请求日志的持久化存储目录 | *选填* | *`./workspace/request_log`* | str | |
 | `CONFIG_CACHE.DOWNGRADE_WAIT_TIME` | 配置管理器缓存降级等待时间 | *选填* | `600.0` | float | 秒 |
 | `CONFIG_CACHE.DEBONCE_SAVE_WAIT_TIME` | 配置管理器缓存延迟保存时间 | *选填* | `600.0` | float | 秒 |
 | `CORE.VERSION` | 版本号(用于替换Core中的版本号数据，以及提示词变量中的版本号) | *选填* | \*由代码自动生成 | str | |
@@ -422,8 +422,9 @@ PS: 模型由`config/api_info.json`定义
 | `PUT` | `/userdata/config/change/{user_id:str}` | 表单 | `new_branch_id(str)` | 切换分支数据 | `纯文本` |
 | `DELETE` | `/userdata/config/delete/{user_id:str}` | | | 删除用户配置文件 | `纯文本` |
 | `GET` | `/userdata/file/{user_id:str}.zip` | | | 获取用户数据 | `ZIP文件` |
-| `GET` | `/calllog` | | | 获取调用日志(不推荐) | `JSON列表` |
-| `GET` | `/calllog/stream` | | | 流式获取调用日志(推荐) | `JSONL流` |
+| `GET` | `/request_log` | | | 获取调用日志(不推荐) | `JSON列表` |
+| `GET` | `/request_log/list` | | | 获取调用日志(同上) | `JSON列表` |
+| `GET` | `/request_log/stream` | | | 流式获取调用日志(推荐) | `JSONL流` |
 | `GET` | `/file/render/{file_uuid:str}.png` | | | 获取图片渲染输出文件 | `PNG图片` |
 | `POST` | `/admin/reload/apiinfo` | 请求头 | `X-Admin-API-Key(str)` | 刷新API信息 | `JSON对象` |
 | `POST` | `/admin/regenerate/admin_key` | 请求头 | `X-Admin-API-Key(str)` | 重新生成管理密钥 | `JSON对象` |
