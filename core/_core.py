@@ -53,7 +53,7 @@ from RegexChecker import RegexChecker
 # ==== 本模块代码 ==== #
 configs = ConfigLoader()
 
-__version__ = configs.get_config("Core.Version", "4.2.5.1").get_value(str)
+__version__ = configs.get_config("Core.Version", "4.2.6.0").get_value(str)
 
 @dataclass
 class Response:
@@ -90,20 +90,37 @@ class Core:
             version = __version__
         )
         # 初始化Client并设置并发大小
-        self.api_client = CompletionsAPI.ClientNoStream(configs.get_config('callapi.max_concurrency', 1000).get_value(int) if max_concurrency is None else max_concurrency)
-        self.stream_api_client = CompletionsAPI.ClientStream(configs.get_config('callapi.max_concurrency', 1000).get_value(int) if max_concurrency is None else max_concurrency)
+        self.api_client = CompletionsAPI.ClientNoStream(
+            configs.get_config(
+                "callapi.max_concurrenc",
+                1000
+            ).get_value(int)
+            if max_concurrency is None else max_concurrency
+        )
+        self.stream_api_client = CompletionsAPI.ClientStream(
+            configs.get_config(
+                "callapi.max_concurrency",
+                1000
+            ).get_value(int)
+            if max_concurrency is None else max_concurrency
+        )
 
         # 初始化API信息管理器
         self.apiinfo = ApiInfo()
         # 从指定文件加载API信息
-        self.apiinfo.load(configs.get_config("api_info.api_file_path", "./config/api_info.json").get_value(Path))
+        self.apiinfo.load(
+            configs.get_config(
+                "api_info.api_file_path",
+                "./config/api_info.json"
+            ).get_value(Path)
+        )
 
         # 初始化锁池
         self.namespace_locks = AsyncLockPool()
 
         # 初始化调用日志管理器
         self.calllog = CallLog.CallLogManager(
-            configs.get_config('CallLog.log_file_path').get_value(Path),
+            configs.get_config('CallLog.Path', "./workspace/calllog").get_value(Path),
             auto_save = configs.get_config('CallLog.Auto_Save', True).get_value(bool)
         )
 

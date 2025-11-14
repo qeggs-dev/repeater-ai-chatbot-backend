@@ -1,19 +1,22 @@
+import os
+import copy
+import orjson
 import asyncio
 import aiofiles
-import orjson
-import copy
-from loguru import logger
+import datetime
+import numpy as np
 from pathlib import Path
-from typing import List, AsyncIterator
-from ._CallLogObject import CallLogObject, CallAPILogObject
+from loguru import logger
 from ConfigManager import ConfigLoader
+from typing import List, AsyncIterator, Generator, Iterable
+from ._CallLogObject import CallLogObject, CallAPILogObject
 
 configs = ConfigLoader()
 
 class CallLogManager:
     def __init__(
             self,
-            log_file: Path,
+            calllog_dir: os.PathLike | str,
             debonce_save_wait_time: float | None = None,
             max_cache_size: int | None = None,
             auto_save: bool = True
@@ -32,9 +35,13 @@ class CallLogManager:
         self.max_cache_size = max_cache_size
 
         # 日志文件路径
-        self.log_file = log_file
-        # 确保日志目录存在
-        self.log_file.parent.mkdir(parents=True, exist_ok=True)
+        self.calllog_dir = Path(calllog_dir)
+        if self.calllog_dir.exists():
+            if not self.calllog_dir.is_dir():
+                raise ValueError(f"Invalid path \"{self.calllog_dir}\"")
+        else:
+            # 确保日志目录存在
+            self.calllog_dir.mkdir(parents=True, exist_ok=True)
 
         # 日志锁
         self.async_lock = asyncio.Lock()
@@ -44,6 +51,14 @@ class CallLogManager:
 
         # 自动保存
         self.auto_save: bool = auto_save
+    
+    @property
+    def log_file_path(self) -> Path:
+        """
+        日志文件路径
+        """
+        time = datetime.datetime.now()
+        return self.calllog_dir / f"{time.strftime('%Y-%m-%d')}.log"
 
     async def add_call_log(self, call_log: CallLogObject | CallAPILogObject) -> None:
         """
@@ -66,6 +81,11 @@ class CallLogManager:
             else:
                 logger.info("Call log saved immediately")
                 self._debonce_task = asyncio.create_task(self._wait_and_save_async(wait_time = 0)) # 直接保存
+        
+    # 将日志列表转换为字节流
+    def _write_log(log_list: Iterable[CallLogObject]) -> Generator[bytes, None, None]:
+        for log in log_list:
+            yield orjson.dumps(log.as_dict) + b"\n"
 
     def _save_call_log(self) -> None:
         """
@@ -75,18 +95,18 @@ class CallLogManager:
         if not self._log_list:
             return
         
-        # 将日志列表转换为字节流
-        def write_log(log_list: List[CallLogObject]) -> bytes:
-            return b'\n'.join(orjson.dumps(log.as_dict) for log in log_list) + b'\n'
+        path = self.log_file_path
         
-        try:
+        if path.exists():
             # 如果文件存在，以追加模式打开
-            with open(self.log_file, 'ab') as f:
-                f.write(write_log(self._log_list))
-        except FileNotFoundError:
+            with open(self.calllog_dir, 'ab') as f:
+                for chunk in self._write_log(self._log_list):
+                    f.write(chunk)
+        else:
             # 如果文件不存在，以写入模式打开
-            with open(self.log_file, 'wb') as f:
-                f.write(write_log(self._log_list))
+            with open(self.calllog_dir, 'wb') as f:
+                for chunk in self._write_log(self._log_list):
+                    f.write(chunk)
         
         logger.info(f"Saved {len(self._log_list)} call logs to file")
 
@@ -101,19 +121,19 @@ class CallLogManager:
         if not self._log_list:
             return
         
-        
-        # 定义一个函数，将日志列表转换为字节流
-        def write_log(log_list: List[CallLogObject]) -> bytes:
-            return b'\n'.join(orjson.dumps(log.as_dict) for log in log_list) + b'\n'
-        
-        try:
+        path = self.log_file_path
+
+        if path.exists():
             # 如果文件存在，则以追加模式打开文件
-            async with aiofiles.open(self.log_file, 'ab') as f:
-                await f.write(write_log(self._log_list))
-        except FileNotFoundError:
+            async with aiofiles.open(self.calllog_dir, 'ab') as f:
+                for chunk in self._write_log(self._log_list):
+                    await f.write(chunk)
+        else:
             # 如果文件不存在，则以写入模式打开文件
-            async with aiofiles.open(self.log_file, 'wb') as f:
-                await f.write(write_log(self._log_list)) 
+            async with aiofiles.open(self.calllog_dir, 'wb') as f:
+                for chunk in self._write_log(self._log_list):
+                    await f.write(chunk)
+        
         logger.info(f"Saved {len(self._log_list)} call logs to file")
 
         # 清空日志列表
@@ -126,14 +146,8 @@ class CallLogManager:
         :return: 所有调用日志
         """
         call_log_list = []
-        if self.log_file.exists():
-            async with aiofiles.open(self.log_file, 'rb') as f:
-                async for line in f:
-                    data = await asyncio.to_thread(orjson.loads, line)
-                    call_log_list.append(CallLogObject.from_dict(data))
-        async with self.async_lock:
-            call_log_list += copy.deepcopy(self._log_list)
-        logger.info(f"Read {len(call_log_list)} call logs from file")
+        async for calllog in self.read_stream_call_log():
+            call_log_list.append(calllog)
         return call_log_list
 
     async def read_stream_call_log(self) -> AsyncIterator[CallLogObject]:
@@ -146,23 +160,34 @@ class CallLogManager:
         async with self.async_lock:
             mem_logs = copy.deepcopy(self._log_list)
         mem_log_count = len(mem_logs)
+        logger.info(f"From {mem_log_count} memory logs")
+
+        calllog_files = np.array(
+            [str(file) for file in self.calllog_dir.glob("*.jsonl")]
+        )
+        sorted_calllog_files = np.sort(calllog_files)
         
         # 读取文件日志
-        file_log_count = 0
-        if self.log_file.exists():
-            async with aiofiles.open(self.log_file, 'rb') as f:
-                async for line in f:
-                    data = await asyncio.to_thread(orjson.loads, line)
-                    yield CallLogObject.from_dict(data)  # 生成文件日志
-                    file_log_count += 1  # 计数
+        readed_log_count = 0
+        log_file_count = 0
+        for file in sorted_calllog_files:
+            path = Path(file)
+            if path.exists():
+                async with aiofiles.open(path, 'rb') as f:
+                    async for line in f:
+                        data = await asyncio.to_thread(orjson.loads, line)
+                        yield CallLogObject.from_dict(data)  # 生成文件日志
+                        readed_log_count += 1  # 日志计数
+                log_file_count += 1  # 文件计数
+        logger.info(f"From {log_file_count} file read logs")
         
-        # 生成内存日志
+        # 输出内存日志
         for log in mem_logs:
             yield log
 
         # 记录总数（所有日志已生成）
-        total = file_log_count + mem_log_count
-        logger.info(f"Read {total} call logs from file")
+        total = readed_log_count + mem_log_count
+        logger.info(f"Read {total} call logs")
         
     
     def save_call_log(self) -> None:
