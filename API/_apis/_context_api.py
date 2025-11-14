@@ -88,44 +88,11 @@ async def withdraw_context(user_id: str, length: int | None = Form(None, ge=0)):
     # 从context_loader中加载用户ID为user_id的上下文
     context_loader = await chat.get_context_loader()
     context = await context_loader.get_context_object(user_id)
-
-    if length is None:
-        pop_items: list[core.Context.ContentUnit] = []
-        
-        # 安全检查
-        if not context.context_list:
-            return JSONResponse(
-                {
-                    "status": "success",
-                    "deleted": 0,
-                    "context": context.context
-                }
-            )
-        
-        # 第一步：pop直到找到助手消息
-        while (context.context_list and 
-            context.last_content.role != core.Context.ContextRole.ASSISTANT):
-            pop_items.append(context.pop())
-        
-        # 第二步：pop助手消息
-        while (context.context_list and 
-            context.last_content.role == core.Context.ContextRole.ASSISTANT):
-            pop_items.append(context.pop())
-        
-        # 第三步：pop相关联的用户消息
-        while (context.context_list and 
-            context.last_content.role != core.Context.ContextRole.ASSISTANT):
-            pop_items.append(context.pop())
-        logger.info(f"Withdraw a Last {len(pop_items)} Contexts")
-        
-    else:
-        # 检查索引是否在上下文范围内
-        if 0 <= length < len(context.context_list):
-            pop_items = context.pop_last_n(length)
-        else:
-            raise HTTPException(400, "Index out of range")
-        
-        logger.info(f"Withdraw a Last {length} Context", user_id = user_id)
+    
+    try:
+        pop_items = context.withdraw(length = length)
+    except (ValueError, IndexError) as e:
+        raise HTTPException(400, str(e)) from e
     
     # 返回JSONResponse，新的上下文内容
     await context_loader.save(user_id, context)
@@ -136,6 +103,34 @@ async def withdraw_context(user_id: str, length: int | None = Form(None, ge=0)):
             "context": context.context
         }
     )
+
+class InjectContext(BaseModel):
+    user_context: str
+    assistant_context: str
+
+@app.post("/userdata/context/inject/{user_id}")
+async def inject_context(user_id: str, request: InjectContext):
+    """
+    注入上下文
+    """
+    context_loader = await chat.get_context_loader()
+    context = await context_loader.get_context_object(user_id)
+
+    context.append(
+        core.Context.ContentUnit(
+            role = core.Context.ContextRole.USER,
+            content = request.user_context
+        )
+    )
+    context.append(
+        core.Context.ContentUnit(
+            role = core.Context.ContextRole.ASSISTANT,
+            content = request.assistant_context,
+        )
+    )
+    await context_loader.save(user_id, context)
+
+
 
 class RewriteContext(BaseModel):
     index: int
