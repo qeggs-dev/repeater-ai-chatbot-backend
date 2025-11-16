@@ -413,12 +413,11 @@ class Core:
     # endregion
 
     # region > load blacklist
-    async def load_blacklist(self, path: str | Path | None = None, timeout: int | None = None) -> None:
+    async def load_blacklist(self, path: str | Path | None = None) -> None:
         """
         加载黑名单
 
         :param path: 黑名单文件路径
-        :param timeout: 超时时间
         """
         if not path:
             blacklist_file_path = configs.get_config("blacklist_file_path", "./config/blacklist.regex").get_value(Path)
