@@ -381,6 +381,15 @@ class Core:
         :return: 上下文对象
         """
         if reference_context_id:
+            if reference_context_id.lower() == "[Random]":
+                reference_context_id = random.choice(
+                    await self.context_manager.get_all_user_id()
+                )
+                logger.info(
+                    "Use Random Context ID: {reference_context_id}",
+                    user_id = user_id,
+                    reference_context_id = reference_context_id
+                )
             context = await context_loader.load(
                 user_id = reference_context_id,
                 message = message,
