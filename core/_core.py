@@ -1,9 +1,7 @@
 # ==== 标准库 ==== #
 import asyncio
-import sys
 import time
 import atexit
-import logging
 from typing import (
     AsyncIterator,
     Any,
@@ -27,7 +25,6 @@ from . import DataManager
 from . import UserConfigManager
 from .ApiInfo import (
     ApiInfo,
-    ApiGroup,
 )
 from . import RequestLog
 from TextProcessors import (
@@ -48,7 +45,7 @@ from RegexChecker import RegexChecker
 # ==== 本模块代码 ==== #
 configs = ConfigLoader()
 
-__version__ = configs.get_config("Core.Version", "4.2.6.1").get_value(str)
+__version__ = configs.get_config("Core.Version", "4.2.6.2").get_value(str)
 
 @dataclass
 class Response:
