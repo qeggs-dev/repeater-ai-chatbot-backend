@@ -22,7 +22,7 @@ from fastapi.exceptions import (
 )
 from loguru import logger
 from .._resource import app, chat, core
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import orjson
 
 class UserInfo(BaseModel):
@@ -33,7 +33,7 @@ class UserInfo(BaseModel):
 
 class ChatRequest(BaseModel):
     message: str = ""
-    user_info: UserInfo | None = None
+    user_info: UserInfo = Field(default_factory=UserInfo)
     role: str = "user"
     role_name: str | None = None
     model_uid: str | None = None
@@ -57,11 +57,14 @@ async def chat_endpoint(
         context = await chat.chat(
             user_id = user_id,
             message = request.message,
-            user_info = core.RequestUserInfo.UserInfo(
-                username = request.user_info.username,
-                nickname = request.user_info.nickname,
-                age = request.user_info.age,
-                gender = request.user_info.gender
+            user_info = (
+                core.RequestUserInfo.UserInfo(
+                    username = request.user_info.username,
+                    nickname = request.user_info.nickname,
+                    age = request.user_info.age,
+                    gender = request.user_info.gender
+                )
+                if request.user_info else None
             ),
             role = request.role,
             role_name = request.role_name,
