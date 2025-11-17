@@ -6,16 +6,12 @@ import atexit
 import logging
 from typing import (
     AsyncIterator,
-    Literal,
-    Iterable,
     Any,
-    Coroutine
 )
 import random
 from pathlib import Path
 from dataclasses import dataclass, asdict
 import traceback
-from functools import wraps
 
 # ==== 第三方库 ==== #
 from loguru import logger
@@ -36,7 +32,6 @@ from .ApiInfo import (
 from . import RequestLog
 from TextProcessors import (
     PromptVP,
-    SafeFormatter,
 )
 from .RequestUserInfo import UserInfo
 from .LockPool import AsyncLockPool
@@ -74,9 +69,6 @@ class Response:
 class Core:
     # region > init
     def __init__(self, max_concurrency: int | None = None):
-
-        self.logger_init()
-
         # 全局锁(用于获取会话锁)
         self.lock = asyncio.Lock()
 
@@ -146,77 +138,6 @@ class Core:
         
         # 注册退出函数
         atexit.register(_exit)
-    # endregion
-    
-    # region > logger_init
-    def logger_init(self):
-        logging.root.handlers = [self._InterceptHandler()]
-        logging.root.setLevel(logging.INFO)
-
-        # 移除其他日志处理器
-        for name in logging.root.manager.loggerDict.keys():
-            logging.getLogger(name).handlers = []
-            logging.getLogger(name).propagate = True
-
-        # 移除默认处理器
-        logger.remove()
-        log_level = configs.get_config("logger.log_level", "INFO").get_value(str)
-        # 添加自定义处理器
-        logger.add(
-            sys.stderr,
-            format = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{extra[user_id]}</cyan> - <level>{message}</level>",
-            filter = lambda record: "donot_send_console" not in record["extra"],
-            level = log_level
-        )
-
-        log_dir = configs.get_config("logger.log_file_dir", "./logs").get_value(Path)
-        rotation = configs.get_config("logger.rotation", "1 MB").get_value(str)
-        log_retention = configs.get_config("logger.log_retention", "10 days").get_value(str)
-        log_compression = configs.get_config("logger.compression", "zip").get_value(str)
-        if not log_dir.exists():
-            log_dir.mkdir(parents=True, exist_ok=True)
-        log_prefix = configs.get_config("logger.log_file_prefix", "repeater_log_").get_value(str)
-        log_file = log_dir / (log_prefix + "{time:YYYY-MM-DD_HH-mm-ss.SSS}.log")
-        logger.add(
-            log_file,
-            format = "{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {extra[user_id]} - {message}",
-            level = log_level,
-            enqueue = True,
-            delay = True,
-            rotation = rotation,
-            retention = log_retention,
-            compression = log_compression,
-        )
-        logger.configure(
-            extra={
-                "user_id": "[System]"
-            }
-        )
-    # endregion
-
-    # region > get logger
-    class _InterceptHandler(logging.Handler):
-        def __init__(self, extra_fields:dict | None = None):
-            super().__init__()
-            self.extra_fields = extra_fields or {}
-
-        def emit(self, record):
-            try:
-                level = logger.level(record.levelname).name
-            except ValueError:
-                level = record.levelno
-            
-            # 找到调用者
-            frame, depth = logging.currentframe(), 2
-            while frame.f_code.co_filename == logging.__file__:
-                frame = frame.f_back
-                depth += 1
-            
-            # 创建带有额外字段的绑定logger
-            bound_logger = logger.bind(**self.extra_fields)
-            bound_logger.opt(depth=depth, exception=record.exc_info).log(
-                level, record.getMessage()
-            )
     # endregion
 
     # region > get namespace lock
@@ -381,15 +302,6 @@ class Core:
         :return: 上下文对象
         """
         if reference_context_id:
-            if reference_context_id.lower() == "[random]":
-                reference_context_id = random.choice(
-                    await self.context_manager.get_all_user_id()
-                )
-                logger.info(
-                    "Use Random Context ID: {reference_context_id}",
-                    user_id = user_id,
-                    reference_context_id = reference_context_id
-                )
             logger.info(
                 "Use Reference Context ID: {reference_context_id}",
                 user_id = user_id,
