@@ -41,11 +41,12 @@ from TimeParser import (
 )
 from ConfigManager import ConfigLoader
 from RegexChecker import RegexChecker
+from .LoggerInit import logger_init
 
 # ==== 本模块代码 ==== #
 configs = ConfigLoader()
 
-__version__ = configs.get_config("Core.Version", "4.2.6.2").get_value(str)
+__version__ = configs.get_config("Core.Version", "4.2.6.3").get_value(str)
 
 @dataclass
 class Response:
@@ -66,6 +67,9 @@ class Response:
 class Core:
     # region > init
     def __init__(self, max_concurrency: int | None = None):
+        # 初始化日志
+        logger_init()
+
         # 全局锁(用于获取会话锁)
         self.lock = asyncio.Lock()
 

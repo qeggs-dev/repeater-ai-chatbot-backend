@@ -1,6 +1,4 @@
-from .LoggerInit import logger_init
-logger_init()
-
+from . import LoggerInit
 from ._core import Core, Response, __version__
 from . import RequestUserInfo
 from . import UserConfigManager
