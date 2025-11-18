@@ -30,7 +30,6 @@
  - 特殊装饰：
    - Python发卡
    - 印有Async的臂章
-   - 蓝色USB尾巴 (可选, USB 3.2 Gen 2, Type-A or Type-C)
 
 ---
 
