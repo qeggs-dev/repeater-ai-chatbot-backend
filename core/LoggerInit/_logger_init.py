@@ -4,10 +4,8 @@ from pathlib import Path
 from loguru import logger
 from ConfigManager import ConfigLoader
 from ._intercept_handler import InterceptHandler
-
-configs = ConfigLoader()
-
-def logger_init():
+from ._logger_config import LoggerConfig
+def logger_init(config: LoggerConfig):
     logging.root.handlers = [InterceptHandler()]
     logging.root.setLevel(logging.INFO)
 
@@ -18,33 +16,31 @@ def logger_init():
 
     # 移除默认处理器
     logger.remove()
-    log_level = configs.get_config("logger.log_level", "INFO").get_value(str)
     # 添加自定义处理器
     logger.add(
         sys.stderr,
         format = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{extra[user_id]}</cyan> - <level>{message}</level>",
         filter = lambda record: "donot_send_console" not in record["extra"],
-        level = log_level
+        level = config.log_level.value
     )
 
-    log_dir = configs.get_config("logger.log_file_dir", "./logs").get_value(Path)
-    rotation = configs.get_config("logger.rotation", "1 MB").get_value(str)
-    log_retention = configs.get_config("logger.log_retention", "10 days").get_value(str)
-    log_compression = configs.get_config("logger.compression", "zip").get_value(str)
-    if not log_dir.exists():
-        log_dir.mkdir(parents=True, exist_ok=True)
-    log_prefix = configs.get_config("logger.log_file_prefix", "repeater_log_").get_value(str)
-    log_file = log_dir / (log_prefix + "{time:YYYY-MM-DD_HH-mm-ss.SSS}.log")
+    if not config.log_dir.exists():
+        config.log_dir.mkdir(parents=True, exist_ok=True)
+    
+    log_prefix = config.log_prefix
+    log_suffix = config.log_suffix
+    log_file = config.log_dir / (log_prefix + "{time:YYYY-MM-DD_HH-mm-ss.SSS}" + log_suffix)
     logger.add(
         log_file,
         format = "{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {extra[user_id]} - {message}",
-        level = log_level,
+        level = config.log_level.value,
         enqueue = True,
         delay = True,
-        rotation = rotation,
-        retention = log_retention,
-        compression = log_compression,
+        rotation = config.rotation,
+        retention = config.log_retention,
+        compression = config.log_compression,
     )
+
     logger.configure(
         extra={
             "user_id": "[System]"
