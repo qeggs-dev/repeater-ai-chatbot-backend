@@ -162,6 +162,7 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 | `LOGGER.LOG_LEVEL` | 日志级别 | *选填* | `INFO` | str | |
 | `LOGGER.LOG_FILE_DIR` | 日志文件位置 | *选填* | `./logs` | str | |
 | `LOGGER.LOG_FILE_PREFIX` | 日志文件前缀 | *选填* | `repeater_log_` | str | |
+| `LOGGER.LOG_FILE_SUFFIX` | 日志文件后缀 | *选填* | `.log` | str | |
 | `LOGGER.ROTATION` | 日志文件轮换配置 | *选填* | `10 MB` | str | 日志大小、时间长度等 |
 | `LOGGER.LOG_RETENTION` | 日志文件保留时间 | *选填* | `14 days` | str | 时间 |
 | `MODEL.DEFAULT_TEMPERATURE` | 默认模型温度 | *选填* | `1.0` | float | |
