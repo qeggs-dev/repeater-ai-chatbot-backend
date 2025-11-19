@@ -4,6 +4,7 @@ from ._object import Request, Delta, Response
 from ...RequestLog import RequestLog
 from ...Context import ContentUnit, ContextRole, FunctionResponseUnit
 from ...RequestLog import TimeStamp
+from ...LoggerInit import ConfigLoader, LogLevel
 from loguru import logger
 
 class StreamingResponseGenerationLayer:
@@ -138,8 +139,9 @@ class StreamingResponseGenerationLayer:
             if self.request.print_chunk:
                 if not self.model_response_content_unit.reasoning_content:
                     self._print_file.write('\n\n')
-                self._print_file.write(f"\033[7m{delta_data.reasoning_content}\033[0m")
-                self._print_file.flush()
+                if ConfigLoader.last_loaded_config.log_level > LogLevel.TRACE:
+                    self._print_file.write(f"\033[7m{delta_data.reasoning_content}\033[0m")
+                    self._print_file.flush()
                 logger.trace("Received Reasoning_Content chunk: {reasoning_content}", user_id = self.user_id, reasoning_content = repr(delta_data.reasoning_content))
             self.model_response_content_unit.reasoning_content += delta_data.reasoning_content
         
@@ -148,8 +150,9 @@ class StreamingResponseGenerationLayer:
             if self.request.print_chunk:
                 if not self.model_response_content_unit.content:
                     self._print_file.write('\n\n')
-                self._print_file.write(delta_data.content)
-                self._print_file.flush()
+                if ConfigLoader.last_loaded_config.log_level > LogLevel.TRACE:
+                    self._print_file.write(delta_data.content)
+                    self._print_file.flush()
                 logger.trace("Received Content chunk: {content}", user_id = self.user_id, content = repr(delta_data.content))
             self.model_response_content_unit.content += delta_data.content
         
