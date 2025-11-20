@@ -21,10 +21,8 @@
 
 ## 注意事项:
  - 本服务由一位 `16岁自学开发者`(现在17了) 使用AI协作开发，公益项目，如果你愿意捐赠，可以在机器人的**QQ空间**中找到赞赏码以支持项目运营(或是支持开发者)。
- - 初始服务仅作为实验项目运行，不保证服务稳定性（存在维修断电以及临时消息丢失的可能，但这与项目本身无关，~~只是我不懂运维罢了~~），有需要可自行部署。
- - 项目随时可能会因为开发者个人原因，或API额度耗尽等因素而被迫中止。
  - 使用者需确认生成内容的合法性，并自行承担使用本服务可能产生的风险。
- - 如果你觉得这个Bot非常好用，请去看一下[`Deepseek`](https://www.deepseek.com/)的官网吧，这个Bot最初就是基于他们的模型API开发的。
+ - 如果你觉得这个Bot非常好用，请去看一下[`Deepseek`](https://www.deepseek.com/)的官网吧，这个Bot最初就是基于他们的模型API文档开发的。
 
 ---
 
@@ -75,55 +73,6 @@
 
 PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需要你保证你的配置正确
 并且每一次你都可以通过启动器来启动程序
-
----
-
-## 启动器配置文件格式
-
-```json
-{
-    "title": "Repeater LLM Chat Backend Starter",
-    "process_title": "Repeater LLM Chat Backend",
-    "process_exit_title": "Repeater LLM Chat Backend Starter",
-    "console_title": "Repeater LLM Chat Backend",
-    "exit_title": "Repeater LLM Chat Backend Starter",
-    "python_name": {
-        "windows": "python",
-        "linux": "python3",
-        "macos": "python3",
-        "jvm": "python3",
-        "default": "python3"
-    },
-    "pip_name": {
-        "windows": "pip",
-        "linux": "pip3",
-        "macos": "pip3",
-        "jvm": "pip3",
-        "default": "pip3"
-    },
-    "requirements": [],
-    "requirements_file": "requirements.txt",
-    "cwd": "./",
-    "work_directory": "./",
-    "use_venv": true,
-    "venv_prompt": "venv",
-    "script_name": null,
-    "argument": null,
-    "restart": false,
-    "reselect": false,
-    "run_cmd_need_to_ask": true,
-    "run_cmd_ask_default_values": {},
-    "divider_line_char": "=",
-    "inject_environment_variables": {},
-    "text_encoding": "utf-8",
-    "print_return_code": true,
-    "print_runtime": true,
-    "automatic_exit": false,
-    "allow_print": false
-}
-```
-
-注：所有选项均为选填，按照需求填写内容即可
 
 ---
 
@@ -286,7 +235,7 @@ JSON同理，配置管理器同时支持JSON和YAML两种格式。
 YAML同理
 PS: 目前仅支持LLM Chat的任务类型(系统不会检查该字段，但APIINFO模块会收集相关组)
 models中定义该模型的url时会覆盖上层的url
-支持任意OpenAI兼容接口的模型
+支持兼容OpenAI接口的Chat.Completion模型
 
 3. blacklist.regex (或其他任何RegexChecker处理的文件格式)文件:
 ```re
@@ -296,14 +245,63 @@ models中定义该模型的url时会覆盖上层的url
 PS: 首行必须是`[REGEX PARALLEL FILE]`或`[REGEX SERIES FILE]`，表示该文件是`并行`还是`串行`匹配
 之后每行都是`正则表达式`，匹配到的`昵称`或`user_id`的请求将会被**拒绝**
 
-4 UserNicknameMapping.json 文件格式：
+4. UserNicknameMapping.json 文件格式：
 ```json
 {
     "old_nickname": "new_nickname",
     "user_id": "new_nickname"
 }
 ```
-PS: `原始昵称`到`模型看到的昵称`的映射关系，键可以是`昵称`或`user_id`，值是`新的昵称`
+`原始昵称`到`模型看到的昵称`的映射关系
+键可以是`昵称`或`user_id`，值是`新的昵称`
+
+
+5. 启动器配置文件格式
+
+```json
+{
+    "title": "Repeater LLM Chat Backend Starter",
+    "process_title": "Repeater LLM Chat Backend",
+    "process_exit_title": "Repeater LLM Chat Backend Starter",
+    "console_title": "Repeater LLM Chat Backend",
+    "exit_title": "Repeater LLM Chat Backend Starter",
+    "python_name": {
+        "windows": "python",
+        "linux": "python3",
+        "macos": "python3",
+        "jvm": "python3",
+        "default": "python3"
+    },
+    "pip_name": {
+        "windows": "pip",
+        "linux": "pip3",
+        "macos": "pip3",
+        "jvm": "pip3",
+        "default": "pip3"
+    },
+    "requirements": [],
+    "requirements_file": "requirements.txt",
+    "cwd": "./",
+    "work_directory": "./",
+    "use_venv": true,
+    "venv_prompt": "venv",
+    "script_name": null,
+    "argument": null,
+    "restart": false,
+    "reselect": false,
+    "run_cmd_need_to_ask": true,
+    "run_cmd_ask_default_values": {},
+    "divider_line_char": "=",
+    "inject_environment_variables": {},
+    "text_encoding": "utf-8",
+    "print_return_code": true,
+    "print_runtime": true,
+    "automatic_exit": false,
+    "allow_print": true
+}
+```
+注：所有选项均为选填，按照需求填写内容即可
+
 ---
 
 ## Markdown图片渲染样式
@@ -419,7 +417,7 @@ PS: `原始昵称`到`模型看到的昵称`的映射关系，键可以是`昵�
 
 ---
 
-# 用户配置表
+## 用户配置表
 
 | 配置项 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
