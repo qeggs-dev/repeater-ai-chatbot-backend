@@ -263,20 +263,20 @@ JSON同理，配置管理器同时支持JSON和YAML两种格式。
         ]
     },
     {
-        "Name": "Baidu Qianfan",
-        "ApiKeyEnv": "QIANFAN_API_KEY",
-        "URL": "https://qianfan.baidubce.com/v2",
+        "Name": "Open AI",
+        "ApiKeyEnv": "OPENAI_API_KEY",
+        "URL": "https://api.openai.com/v1",
         "models": [
             {
-                "Name": "Deepseek R1",
-                "Id": "deepseek-r1-250528",
-                "Uid": "deepseek-r1",
+                "Name": "GPT-3.5 Turbo",
+                "Id": "gpt-3.5-turbo",
+                "Uid": "gpt-3.5-turbo",
                 "TaskType": "LLM Chat"
             },
             {
-                "Name": "Deepseek R1",
-                "Id": "deepseek-v3",
-                "Uid": "deepseek-v3",
+                "Name": "GPT-4",
+                "Id": "gpt-4",
+                "Uid": "gpt-4",
                 "TaskType": "LLM Chat"
             }
         ]
@@ -286,6 +286,7 @@ JSON同理，配置管理器同时支持JSON和YAML两种格式。
 YAML同理
 PS: 目前仅支持LLM Chat的任务类型(其他类型会忽略)
 models中定义该模型的url时会覆盖上层的url
+支持任意OpenAI兼容接口的模型
 
 3. blacklist.regex (或其他任何RegexChecker处理的文件格式)文件:
 ```re
