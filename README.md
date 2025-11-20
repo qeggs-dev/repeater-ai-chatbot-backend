@@ -60,7 +60,7 @@
 
 1. 将项目克隆到本地
 2. 进入项目目录
-5. 运行`run.py`启动器（不用担心，这个启动器可以在全局环境运行，它只有标准库依赖）
+5. 运行`run.py`启动器 (详情请查看[Sloves_Starter](https://github.com/qeggs-dev/Sloves_Starter))
 
 ### 手动安装
 
@@ -156,7 +156,6 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 | `WEB.INDEX_WEB_FILE` | 首页文件位置 | *选填* | | str | |
 
 PS: 配置读取时默认不区分大小写
-
 ---
 
 ## 各种配置文件的数据格式
@@ -254,53 +253,6 @@ PS: 首行必须是`[REGEX PARALLEL FILE]`或`[REGEX SERIES FILE]`，表示该�
 ```
 `原始昵称`到`模型看到的昵称`的映射关系
 键可以是`昵称`或`user_id`，值是`新的昵称`
-
-
-5. 启动器配置文件格式
-
-```json
-{
-    "title": "Repeater LLM Chat Backend Starter",
-    "process_title": "Repeater LLM Chat Backend",
-    "process_exit_title": "Repeater LLM Chat Backend Starter",
-    "console_title": "Repeater LLM Chat Backend",
-    "exit_title": "Repeater LLM Chat Backend Starter",
-    "python_name": {
-        "windows": "python",
-        "linux": "python3",
-        "macos": "python3",
-        "jvm": "python3",
-        "default": "python3"
-    },
-    "pip_name": {
-        "windows": "pip",
-        "linux": "pip3",
-        "macos": "pip3",
-        "jvm": "pip3",
-        "default": "pip3"
-    },
-    "requirements": [],
-    "requirements_file": "requirements.txt",
-    "cwd": "./",
-    "work_directory": "./",
-    "use_venv": true,
-    "venv_prompt": "venv",
-    "script_name": null,
-    "argument": null,
-    "restart": false,
-    "reselect": false,
-    "run_cmd_need_to_ask": true,
-    "run_cmd_ask_default_values": {},
-    "divider_line_char": "=",
-    "inject_environment_variables": {},
-    "text_encoding": "utf-8",
-    "print_return_code": true,
-    "print_runtime": true,
-    "automatic_exit": false,
-    "allow_print": true
-}
-```
-注：所有选项均为选填，按照需求填写内容即可
 
 ---
 
@@ -437,3 +389,9 @@ PS: 首行必须是`[REGEX PARALLEL FILE]`或`[REGEX SERIES FILE]`，表示该�
 ## 命令表：
 
 \*已被移动至[Repeater NoneBot插件仓库](https://github.com/qeggs-dev/repeater-qq-ai-chatbot-nonebot-plugins)
+
+---
+
+## 相关仓库
+
+[Sloves_Starter](https://github.com/qeggs-dev/Sloves_Starter)
