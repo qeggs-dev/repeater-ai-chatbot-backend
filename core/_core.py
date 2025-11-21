@@ -415,6 +415,28 @@ class Core:
                         finish_reason_cause = "User in blacklist",
                         status = 403
                     )
+                
+                # 获取API信息
+                apilist = self.apiinfo.find(model_uid = model_uid)
+                # 取第一个API
+                if len(apilist) == 0:
+                    logger.error(
+                        "API not found: {model_uid}",
+                        user_id = user_id,
+                        model_uid = model_uid
+                    )
+                    output = Response(
+                        content = f"API not found: {model_uid}",
+                        status = 404
+                    )
+                    return output
+                elif len(apilist) > 1:
+                    logger.warning(
+                        "Multiple API found: {length}, using the first one",
+                        user_id = user_id,
+                        length = len(apilist)
+                    )
+                api = apilist[0]
 
                 # 进行用户名映射
                 user_info = await self.nickname_mapping(user_id, user_info)
@@ -465,32 +487,11 @@ class Core:
                 # 设置上下文
                 request.context = context
                 
-                # 获取API信息
-                apilist = self.apiinfo.find(model_uid = model_uid)
-                # 取第一个API
-                if len(apilist) == 0:
-                    logger.error(
-                        "API not found: {model_uid}",
-                        user_id = user_id,
-                        model_uid = model_uid
-                    )
-                    output = Response(
-                        content = f"API not found: {model_uid}",
-                        status = 404
-                    )
-                    return output
-                elif len(apilist) > 1:
-                    logger.warning(
-                        "Multiple API found: {length}, using the first one",
-                        user_id = user_id,
-                        length = len(apilist)
-                    )
-                api = apilist[0]
-                
                 # 设置请求对象的API信息
                 request.url = api.url
                 request.model = api.id
                 request.key = api.api_key
+                request.timeout = api.timeout
                 logger.info(
                     "API URL: {url}",
                     user_id = user_id,
