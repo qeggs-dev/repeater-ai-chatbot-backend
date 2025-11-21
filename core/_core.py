@@ -415,6 +415,13 @@ class Core:
                         finish_reason_cause = "User in blacklist",
                         status = 403
                     )
+
+                # 获取配置
+                config = await self.get_config(user_id)
+                
+                # 获取默认模型uid
+                if model_uid is None:
+                    model_uid: str = config.get("model_uid", configs.get_config("api_info.default_model_uid", "deepseek-chat").get_value(str))
                 
                 # 获取API信息
                 apilist = self.apiinfo.find(model_uid = model_uid)
@@ -440,13 +447,6 @@ class Core:
 
                 # 进行用户名映射
                 user_info = await self.nickname_mapping(user_id, user_info)
-
-                # 获取配置
-                config = await self.get_config(user_id)
-                
-                # 获取默认模型uid
-                if model_uid is None:
-                    model_uid: str = config.get("model_uid", configs.get_config("api_info.default_model_uid", "deepseek-chat").get_value(str))
 
                 # 获取Prompt_vp以展开变量内容
                 prompt_vp = await self.get_prompt_vp(
