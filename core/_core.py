@@ -50,7 +50,7 @@ from .CoreResponse import Response
 # ==== 本模块代码 ==== #
 configs = ConfigLoader()
 
-__version__ = configs.get_config("Core.Version", "4.2.6.5").get_value(str)
+__version__ = configs.get_config("Core.Version", "4.2.6.6").get_value(str)
 
 class Core:
     # region > init
@@ -498,7 +498,7 @@ class Core:
                     url = api.url
                 )
                 logger.info(
-                    "API Model: {parent}.{model_name}",
+                    "API Model: {parent}/{model_name}",
                     user_id = user_id,
                     parent = api.parent,
                     model_name = api.name
