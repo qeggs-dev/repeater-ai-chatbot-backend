@@ -1,3 +1,4 @@
 from ._apiinfo import ApiInfo
-from ._apigroup import ApiGroup
+from ._api_obj import ApiObject
+from ._model_type import ModelType
 from ._exceptions import *
