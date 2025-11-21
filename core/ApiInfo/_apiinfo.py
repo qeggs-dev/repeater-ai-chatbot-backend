@@ -35,7 +35,7 @@ class ApiInfo:
                     parent = group.name,
                     url = model.url or group.url,
                     type = model.type,
-                    timeout = model.timeout or group.timeout,
+                    timeout = model.timeout or group.timeout or 60.0,
                 )
                 if api_obj.uid not in self._api_objs:
                     self._api_objs[api_obj.uid] = [api_obj]
