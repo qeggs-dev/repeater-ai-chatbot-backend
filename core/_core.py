@@ -288,7 +288,7 @@ class Core:
         """
         if reference_context_id:
             logger.info(
-                "Use Reference Context ID: {reference_context_id}",
+                "Reference Context ID: {reference_context_id}",
                 user_id = user_id,
                 reference_context_id = reference_context_id
             )
@@ -303,9 +303,8 @@ class Core:
             )
         else:
             logger.info(
-                "Use Current Context ID: {reference_context_id}",
+                "Current Context ID: {user_id}",
                 user_id = user_id,
-                reference_context_id = reference_context_id
             )
             context = await context_loader.load(
                 user_id = user_id,
