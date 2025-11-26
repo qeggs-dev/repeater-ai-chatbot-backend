@@ -48,7 +48,6 @@
 | python-multipart  | 0.0.20   | Apache Software License              | [Apache-2.0](https://github.com/Kludex/python-multipart/blob/master/LICENSE.txt)    | `core.DataManager` & `API`         | Support for form data                 |
 | uvicorn           | 0.34.3   | BSD License                          | [BSD-3-Clause](https://github.com/Kludex/uvicorn/blob/main/LICENSE.md)              | `run_fastapi.py`                   | Run FastAPI                           |
 | numpy             | 2.3.4    | BSD License                          | [BSD-3-Clause](https://github.com/numpy/numpy/blob/main/LICENSE.txt)                | *Entire Project*                   | Speed up batch computing of data      |
-| deprecated        | 1.2.18   | MIT License                          | [MIT](https://github.com/laurent-laporte-pro/deprecated/blob/master/README.md)      | *Not in use yet*                   | Mark Obsolete Code                    |
 
 ---
 
