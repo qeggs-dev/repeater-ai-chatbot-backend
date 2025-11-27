@@ -188,6 +188,7 @@ class Core:
             randfloat = lambda min, max: random.uniform(float(min), float(max)),
             randchoice = lambda *args: random.choice(args),
             generate_uuid = lambda **kw: uuid.uuid4(),
+            copytext = lambda text, number, spacers: str(spacers).join([str(text)] * int(number)),
         )
     # endregion
     
