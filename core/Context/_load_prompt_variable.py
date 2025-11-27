@@ -5,6 +5,7 @@ from TimeParser import (
     format_deltatime_high_precision
 )
 from TextProcessors import PromptVP, limit_blank_lines
+from typing import Any
 
 class LoadPromptVariable:
     def __init__(self, **kwargs):
@@ -15,7 +16,7 @@ class LoadPromptVariable:
     #     self.prompt = prompt
     #     self.context = context
 
-    async def get_prompt_variable(self, user_id: str, **kwargs) -> PromptVP:
+    async def get_prompt_variable(self, user_id: str, **kwargs: Any) -> PromptVP:
         prompt_vp = PromptVP()
 
         prompt_vp.bulk_register_variable(**self._variable)
