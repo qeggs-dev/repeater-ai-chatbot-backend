@@ -174,7 +174,7 @@ class PromptVP:
     
     def _process_conditional_blocks(self, text: str, **kwargs) -> str:
         '''处理条件块'''
-        def replacer(match):
+        def replacer(match: re.Match[str]):
             var_name = match.group(1)
             content_block = match.group(2).strip()
             
@@ -210,13 +210,13 @@ class PromptVP:
         return True
     
     def _parse_var_and_args(self, s: str) -> tuple:
-        '''解析变量名和参数列表 - 使用shlex改进'''
+        '''解析变量名和参数列表'''
         try:
             tokens = shlex.split(s)
             if not tokens:
                 return None, []
-            var_name = tokens[0].strip()
-            args = [arg.strip() for arg in tokens[1:]]
+            var_name = tokens[0]
+            args = [arg for arg in tokens[1:]]
             return var_name, args
         except Exception:
             # 解析失败时回退到简单方法
