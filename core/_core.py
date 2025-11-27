@@ -189,7 +189,8 @@ class Core:
             randfloat = lambda min, max: random.uniform(float(min), float(max)),
             randchoice = lambda *args: random.choice(args),
             generate_uuid = lambda **kw: uuid.uuid4(),
-            copytext = lambda text, number, spacers = "": str(spacers).join([str(text)] * int(number)),
+            copytext = lambda text, number, spacers = "": spacers.join([text] * int(number)),
+            text_matrix = lambda text, lines, columns, spacers = " ": spacers.join(([text] * int(columns)) for _ in range(int(lines))),
             random_matrix = lambda rows, cols: np.random.rand(int(rows), int(cols)),
         )
     # endregion
