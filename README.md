@@ -298,7 +298,9 @@ PS: 首行必须是`[REGEX PARALLEL FILE]`或`[REGEX SERIES FILE]`，表示该�
 
 ---
 
-## 变量表
+## 模板展开系统
+
+### 变量表
 
 | 变量 | 描述 | 参数 |
 | :---: | :---: | :---: |
@@ -321,12 +323,33 @@ PS: 首行必须是`[REGEX PARALLEL FILE]`或`[REGEX SERIES FILE]`，表示该�
 | `generate_uuid` | 生成UUID | 无 |
 | `copytext` | 重复文本 | 重复文本， 重复次数, 间隔符 |
 
-变量传参方式：
-使用空格分割
+### 变量传参方式
+
+优先使用shell格式分割，失败时再按空格分割
 ```Plaintext
 {random 1 10}
 {randchoice a b c d e}
 {copytext a 5 " "}
+```
+
+### 转义序列
+
+```Plaintext
+转义处理器：<esc:"">
+<esc:"\0">空字符
+<esc:"\n">换行符
+<esc:"\r">回车符
+<esc:"\t">制表符
+<esc:"\a">响铃符
+<esc:"\b">退格符
+<esc:"\f">换页符
+<esc:"\v">垂直制表符
+<esc:"\e">转义符
+<esc:"\xhh">二位16进制字符
+<esc:"\uHHHH">四位16进制字符
+<esc:"\UHHHHHHHH">八位16进制字符
+<esc:"\oOOO">8进制字符
+<esc:"\dDDD">10进制字符
 ```
 
 ---
@@ -338,7 +361,7 @@ PS: 首行必须是`[REGEX PARALLEL FILE]`或`[REGEX SERIES FILE]`，表示该�
 | `GET` | `/` | 无 | 无 | 获取Index Web | `Web页面` |
 | `GET` | `/index.html` | 无 | 无 | (同上) 获取Index Web | `Web页面` |
 | `GET` | `/docs` | 无 | 无 | 获取接口文档 | `Web页面` |
-| `POST` | `/chat/completion/{user_id:str}` | JSON请求体 | *`message(str)`*<br/>*`user_name(str)`*<br/>*`role(str) = 'user'`*<br/>*`role_name(str)`*<br/>*`model_type(str)`*<br/>*`load_prompt(bool) = true`*<br/>*`save_context(bool) = true`*<br/>*`reference_context_id(str)`*<br/>*`continue_completion(bool)`*  | AI聊天 | `JSON响应对象` 或 `流式Delta对象` |
+| `POST` | `/chat/completion/{user_id:str}` | JSON请求体 | *`message(str)`*<br/>*`user_name(str)`*<br/>*`role(str) = 'user'`*<br/>*`role_name(str)`*<br/>*`model_uid(str)`*<br/>*`load_prompt(bool) = true`*<br/>*`save_context(bool) = true`*<br/>*`reference_context_id(str)`*<br/>*`continue_completion(bool)`*  | AI聊天 | `JSON响应对象` 或 `流式Delta对象` |
 | `POST` | `/render/{user_id:str}`| JSON请求体 | **`text(str)`**<br/>*`style(str)`*<br/>*`timeout(float)`* | 文本渲染 | `JSON对象` |
 | `POST` | `/userdata/variable/expand/{user_id:str}` | JSON请求体 | *`username(str)`*<br/>`text(str)` | 变量解析 | `JSON对象` |
 | `GET` | `/userdata/context/get/{user_id:str}` | | | 获取上下文 | `JSON列表` |
