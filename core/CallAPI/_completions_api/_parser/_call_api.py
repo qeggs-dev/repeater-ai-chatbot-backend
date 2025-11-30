@@ -165,7 +165,7 @@ class CallAPI(CallNstreamAPIBase):
                                 id = id,
                                 type = type,
                                 name = name,
-                                arguments = arguments
+                                arguments_str = arguments
                             )
                         )
         

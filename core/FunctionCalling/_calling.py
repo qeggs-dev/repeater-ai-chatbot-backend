@@ -39,7 +39,7 @@ class FunctionCalling:
             id = function_response.id
             name = function_response.name
             try:
-                arguments:dict = function_response.arguments
+                arguments:dict = function_response.load_arguments()
             except ContextSyntaxError:
                 raise FunctionCallingArgumentsSyntaxError(f"FunctionCalling {id} {name} arguments syntax error")
             
