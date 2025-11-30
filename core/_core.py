@@ -51,7 +51,7 @@ from .CoreResponse import Response
 # ==== 本模块代码 ==== #
 configs = ConfigLoader()
 
-__version__ = configs.get_config("Core.Version", "4.2.8.0").get_value(str)
+__version__ = configs.get_config("Core.Version", "4.2.8.1").get_value(str)
 
 class Core:
     # region > init
