@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import overload
+from typing import overload, Iterable
 from enum import Enum
 from ._exceptions import *
 from ._func_calling_obj import CallingFunctionResponse
@@ -191,7 +191,7 @@ class ContextObject:
         else:
             raise TypeError("index must be int or slice")
     
-    def __setitem__(self, index: int, value: ContentUnit):
+    def __setitem__(self, index: int | slice, value: ContentUnit | Iterable[ContentUnit]):
         """
         设置上下文列表中的指定项
         
@@ -216,7 +216,8 @@ class ContextObject:
         :return: 上下文列表的迭代器
         """
         # 先 yield 提示词
-        yield self.prompt
+        if self.prompt:
+            yield self.prompt
         # 再正常遍历 context_list
         for content in self.context_list:
             yield content
@@ -445,9 +446,9 @@ class ContextObject:
             context_list = pop_list
         )
     
-    def pop_left_n(self, n: int = 0) -> ContentUnit:
+    def pop_begin_n(self, n: int = 0) -> ContentUnit:
         """
-        弹出最左边的n个元素
+        弹出头部的n个元素
 
         :param n: 弹出的元素个数
         :return: 弹出的元素列表
@@ -504,7 +505,7 @@ class ContextObject:
             for i in range(len(self.context_list)):
                 if self.context_list[i].role == ensure_role_at_top:
                     # pop掉前面的内容
-                    self.pop_left_n(i)
+                    self.pop_begin_n(i)
                     break
     
     def copy(self) -> ContextObject:
