@@ -1,52 +1,52 @@
-# md_styles.py
+# _styles.py
 # Markdown 渲染样式预设 - 纯色主题
 
+import os
 import aiofiles
 from pathlib import Path
-from ConfigManager import ConfigLoader
 from PathProcessors import validate_path, sanitize_filename
 from loguru import logger
 
-configs = ConfigLoader()
-
-async def _read_style(style_file_path: Path, encoding: str = "utf-8") -> str:
-    if not style_file_path.exists():
-        raise FileNotFoundError(f"Style file not found: {style_file_path}")
-    if not style_file_path.is_file():
-        raise ValueError(f"Style file must be a file: {style_file_path}")
-    if not style_file_path.suffix == ".css":
-        raise ValueError(f"Style file must be a .css file: {style_file_path}")
+class Styles:
+    def __init__(self, style_dir: str | os.PathLike):
+        self._style_dir = Path(style_dir)
     
-    async with aiofiles.open(style_file_path, 'r', encoding=encoding) as f:
-        return await f.read()
+    @staticmethod
+    async def _read_style(style_file_path: Path, encoding: str = "utf-8") -> str:
+        if not style_file_path.exists():
+            raise FileNotFoundError(f"Style file not found: {style_file_path}")
+        if not style_file_path.is_file():
+            raise ValueError(f"Style file must be a file: {style_file_path}")
+        if not style_file_path.suffix == ".css":
+            raise ValueError(f"Style file must be a .css file: {style_file_path}")
+        
+        async with aiofiles.open(style_file_path, 'r', encoding=encoding) as f:
+            return await f.read()
 
 
-async def get_style(style_name: str, use_base: bool = True, encoding: str = "utf-8") -> str:
-    style_name = sanitize_filename(style_name)
-    basepath = configs.get_config("Render.Markdown.to_Image.Styles_DIR", "./styles").get_value(Path)
-    style_file_path = basepath / f"{style_name}.css"
+    async def get_style(self, style_name: str, use_base: bool = True, encoding: str = "utf-8") -> str:
+        style_name = sanitize_filename(style_name)
+        style_file_path: Path = self._style_dir / f"{style_name}.css"
 
-    if not validate_path(base_path = basepath, new_path = style_file_path):
-        logger.warning(f"Style path validation failed: {style_file_path}")
-        return BASE_STYLE
-    
-    try:
-        return await _read_style(style_file_path, encoding)
-    except (FileNotFoundError, ValueError):
-        if use_base:
-            logger.warning(f"Style file not found: {style_file_path}")
+        if not validate_path(base_path = style_file_path, new_path = style_file_path):
+            logger.warning(f"Style path validation failed: {style_file_path}")
             return BASE_STYLE
-        else:
-            logger.error(f"Style file not found: {style_file_path}")
-            raise ValueError(f"Style file not found: {style_file_path}")
-            
+        
+        try:
+            return await self._read_style(style_file_path, encoding)
+        except (FileNotFoundError, ValueError):
+            if use_base:
+                logger.warning(f"Style file not found: {style_file_path}")
+                return BASE_STYLE
+            else:
+                logger.error(f"Style file not found: {style_file_path}")
+                raise ValueError(f"Style file not found: {style_file_path}")
+                
 
-async def get_style_names() -> list[str]:
-    basepath = configs.get_config("Render.Markdown.to_Image.Styles_DIR", "./styles").get_value(Path)
-    style_names = [f.stem for f in basepath.glob('*.css')]
-    return style_names
-
-
+    def get_style_names(self) -> list[str]:
+        basepath = self._style_dir
+        style_names = [f.stem for f in basepath.glob('*.css')]
+        return style_names
 
 BASE_STYLE = """
 body {

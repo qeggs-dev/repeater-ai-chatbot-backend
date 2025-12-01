@@ -3,7 +3,7 @@ import markdown
 import imgkit
 import asyncio
 from pathlib import Path
-from ._styles import get_style
+from ._styles import Styles
 from ._BrExtension import BrExtension
 
 # 修改 markdown_to_image 函数
@@ -15,6 +15,7 @@ async def markdown_to_image(
     css: str | None = None,
     style: str = "light",
     style_file_encoding: str = "utf-8",
+    style_dir: str | os.PathLike = "./styles",
     preprocess_map_before: dict[str, str] | None = None,
     preprocess_map_end: dict[str, str] | None = None,
     options: dict = None,
@@ -43,9 +44,10 @@ async def markdown_to_image(
     html_content = markdown.markdown(markdown_text, extensions=[BrExtension()])
     
     # 2. 构建完整 HTML
+    styles = Styles(style_dir = style_dir)
     if css is None:
         # 使用预设样式
-        css = await get_style(style, style_file_encoding)
+        css = await styles.get_style(style, style_file_encoding)
     
     # 添加自适应宽度
     css += f"\nbody {{ width: {max(width, 60) - 60}px; }}"
