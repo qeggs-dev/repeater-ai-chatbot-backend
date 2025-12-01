@@ -6,6 +6,7 @@ import orjson
 from typing import Generator, Iterable
 from pathlib import Path
 from ._base_model import Base_Config
+import shutil
 
 configs = Base_Config()
 
@@ -19,17 +20,20 @@ class ConfigLoader:
             cls._instance.load()
         return cls._instance
 
-    def update_base_path(self, path: str | os.PathLike) -> None:
-        self._base_path = Path(path)
+    @classmethod
+    def update_base_path(cls, path: str | os.PathLike) -> None:
+        cls._base_path = Path(path)
     
-    def _scan_dir(self, globs: Iterable[str]) -> Generator[Path, None, None]:
+    @classmethod
+    def _scan_dir(cls, globs: Iterable[str]) -> Generator[Path, None, None]:
         for glob in globs:
-            for path in self._base_path.glob(glob):
+            for path in cls._base_path.glob(glob):
                 yield path
     
-    def _config_files(self) -> list[Path]:
+    @classmethod
+    def _config_files(cls) -> list[Path]:
         return sorted(
-            self._scan_dir(
+            cls._scan_dir(
                 [
                     "*.yaml",
                     "*.yml",
@@ -49,28 +53,72 @@ class ConfigLoader:
         with open(path, "rb") as f:
             return orjson.loads(f.read())
     
-    def load(self, use_cache: bool = True) -> Base_Config:
+    @classmethod
+    def load(cls, write_when_it_fails: bool = False) -> Base_Config:
         """
         Load the configs from the config files.
 
         :param use_cache: If True, use the cached config, otherwise reload the config
         """
-        configs: list[Box] = []
-        for path in self._config_files():
-            if path.suffix in [".yaml", ".yml"]:
-                configs.append(Box(self._load_yaml(path)))
-            elif path.suffix == ".json":
-                configs.append(Box(self._load_json(path)))
-        
-        if not configs:
-            return {}
-        
-        base_config = configs[0]
-        for config in configs[1:]:
-            base_config.merge_update(config)
-        
-        return Base_Config(**base_config.to_dict())
+        try:
+            configs: list[Box] = []
+            for path in cls._config_files():
+                if path.suffix in [".yaml", ".yml"]:
+                    configs.append(Box(cls._load_yaml(path)))
+                elif path.suffix == ".json":
+                    configs.append(Box(cls._load_json(path)))
+            
+            if not configs:
+                return {}
+            
+            base_config = configs[0]
+            for config in configs[1:]:
+                base_config.merge_update(config)
+            
+            return Base_Config(**base_config.to_dict())
+        except Exception as e:
+            if write_when_it_fails:
+                cls.save(config)
+            else:
+                raise
     
-    def update_config(self, config: Base_Config) -> None:
+    @staticmethod
+    def update_config(config: Base_Config) -> None:
         global configs
         configs = config
+    
+    @staticmethod
+    def _dump_yaml(path: Path, data: Base_Config) -> None:
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(
+                yaml.safe_dump(
+                    data.model_dump(),
+                    allow_unicode=True,
+                    sort_keys=False
+                )
+            )
+    
+    @staticmethod
+    def _dump_json(path: Path, data: Base_Config) -> None:
+        with open(path, "wb") as f:
+            f.write(
+                orjson.dumps(
+                    data.model_dump()
+                )
+            )
+    
+    @classmethod
+    def save(cls, config: Base_Config, filename: str = "config.json") -> None:
+        """
+        Save the config to the config files.
+        
+        :param config: The config to save
+        """
+        shutil.rmtree(cls._base_path)
+        cls._base_path.mkdir(parents=True, exist_ok=True)
+        config_file_path = cls._base_path / filename
+        if config_file_path.suffix in [".yaml", ".yml"]:
+            cls._dump_yaml(config_file_path, config)
+        elif config_file_path.suffix == ".json":
+            cls._dump_json(config_file_path, config)
+            
