@@ -14,8 +14,6 @@ from fastapi.responses import (
 from loguru import logger
 from Global_Config_Manager import ConfigLoader
 
-config_loader = ConfigLoader()
-
 @app.post("/admin/apiinfo/reload")
 async def reload_apiinfo(api_key: str = Header(..., alias="X-Admin-API-Key")):
     """
@@ -56,7 +54,7 @@ async def reload_configs(api_key: str = Header(..., alias="X-Admin-API-Key")):
     if not admin_api_key.validate_key(api_key):
         raise HTTPException(detail="Invalid API key", status_code=401)
     logger.info("Reloading configs", user_id="[Admin API]")
-    await asyncio.to_thread(config_loader.load())
+    await asyncio.to_thread(ConfigLoader.load())
     return JSONResponse({"detail": "Apiinfo reloaded"})
 
 @app.post("/admin/regenerate/admin_key")
