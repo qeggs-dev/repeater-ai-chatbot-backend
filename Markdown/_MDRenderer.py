@@ -1,23 +1,23 @@
+import os
 import markdown
 import imgkit
 import asyncio
 from pathlib import Path
-from ._styles import get_style, get_style_names
-from ConfigManager import ConfigLoader
+from ._styles import get_style
 from ._BrExtension import BrExtension
-
-configs = ConfigLoader()
 
 # 修改 markdown_to_image 函数
 async def markdown_to_image(
     markdown_text: str,
     output_path: str,
+    wkhtmltoimage_path: str | os.PathLike, # wkhtmltoimage 的路径
     width: int = 800,
     css: str | None = None,
     style: str = "light",
+    style_file_encoding: str = "utf-8",
     preprocess_map_before: dict[str, str] | None = None,
     preprocess_map_end: dict[str, str] | None = None,
-    options: dict = None
+    options: dict = None,
 ) -> str:
     """
     使用 wkhtmltoimage 将 Markdown 转为自适应图片
@@ -25,6 +25,7 @@ async def markdown_to_image(
     参数:
     - markdown_text: Markdown 文本
     - output_path: 输出图片路径 (.png/.jpg)
+    - wkhtmltoimage_path: wkhtmltoimage 的路径
     - width: 目标宽度 (像素)
     - css: 自定义 CSS 样式 (优先级高于style参数)
     - style: 预设样式名称 (light/dark/pink/blue/green)
@@ -44,7 +45,7 @@ async def markdown_to_image(
     # 2. 构建完整 HTML
     if css is None:
         # 使用预设样式
-        css = await get_style(style)
+        css = await get_style(style, style_file_encoding)
     
     # 添加自适应宽度
     css += f"\nbody {{ width: {max(width, 60) - 60}px; }}"
@@ -75,8 +76,9 @@ async def markdown_to_image(
         default_options.update(options)
     
     # 4. 转换并保存图片
-    wkhtmltoimage_path = configs.get_config("render.markdown.wkhtmltoimage_path").get_value(Path)
     config = imgkit.config(wkhtmltoimage = wkhtmltoimage_path)
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
     await asyncio.to_thread(
         imgkit.from_string,
         string = full_html,
@@ -85,4 +87,4 @@ async def markdown_to_image(
         options = default_options
     )
     
-    return str(Path(output_path).resolve())
+    return str(output.resolve())

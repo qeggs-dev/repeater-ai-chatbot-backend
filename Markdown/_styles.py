@@ -9,7 +9,7 @@ from loguru import logger
 
 configs = ConfigLoader()
 
-async def _read_style(style_file_path: Path) -> str:
+async def _read_style(style_file_path: Path, encoding: str = "utf-8") -> str:
     if not style_file_path.exists():
         raise FileNotFoundError(f"Style file not found: {style_file_path}")
     if not style_file_path.is_file():
@@ -17,11 +17,11 @@ async def _read_style(style_file_path: Path) -> str:
     if not style_file_path.suffix == ".css":
         raise ValueError(f"Style file must be a .css file: {style_file_path}")
     
-    async with aiofiles.open(style_file_path, 'r', encoding='utf-8') as f:
+    async with aiofiles.open(style_file_path, 'r', encoding=encoding) as f:
         return await f.read()
 
 
-async def get_style(style_name: str, use_base: bool = True) -> str:
+async def get_style(style_name: str, use_base: bool = True, encoding: str = "utf-8") -> str:
     style_name = sanitize_filename(style_name)
     basepath = configs.get_config("Render.Markdown.to_Image.Styles_DIR", "./styles").get_value(Path)
     style_file_path = basepath / f"{style_name}.css"
@@ -31,7 +31,7 @@ async def get_style(style_name: str, use_base: bool = True) -> str:
         return BASE_STYLE
     
     try:
-        return await _read_style(style_file_path)
+        return await _read_style(style_file_path, encoding)
     except (FileNotFoundError, ValueError):
         if use_base:
             logger.warning(f"Style file not found: {style_file_path}")
