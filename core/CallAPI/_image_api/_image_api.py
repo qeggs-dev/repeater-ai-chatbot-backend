@@ -3,7 +3,7 @@ from openai import AsyncOpenAI
 from openai.types.image import Image
 from openai.types.images_response import ImagesResponse
 from loguru import logger
-from ...CoroutinePool import CoroutinePool
+from ...Coroutine_Pool import CoroutinePool
 from ._request import Request, ImageSize
 from ._response import Response
 

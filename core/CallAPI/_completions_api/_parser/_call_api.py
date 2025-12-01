@@ -15,12 +15,12 @@ from .._object import (
     Logprob,
     TokensCount
 )
-from ....Context import (
+from ....Context_Manager import (
     FunctionResponseUnit,
     ContentUnit,
     ContextRole
 )
-from ....RequestLog import RequestLog, TimeStamp
+from ....Request_Log import RequestLog, TimeStamp
 from ._call_api_base import CallNstreamAPIBase
 from .._exceptions import *
 

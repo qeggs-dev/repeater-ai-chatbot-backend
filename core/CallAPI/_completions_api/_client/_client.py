@@ -13,7 +13,7 @@ from .._object import (
     Request,
     Response,
 )
-from ....CoroutinePool import CoroutinePool
+from ....Coroutine_Pool import CoroutinePool
 from TimeParser import (
     format_deltatime,
     format_deltatime_ns
