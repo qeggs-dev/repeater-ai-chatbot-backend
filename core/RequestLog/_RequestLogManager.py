@@ -26,12 +26,12 @@ class RequestLogManager:
 
         # 防抖保存等待时间
         if debonce_save_wait_time is None:
-            debonce_save_wait_time = configs.get_config("RequestLog.Debonce.Save_Wait_Time", 1200.0).get_value(float)
+            debonce_save_wait_time = configs.get_config("request_log.debonce.save_wait_time", 1200.0).get_value(float)
         self._debonce_save_wait_time:float = debonce_save_wait_time
 
         # 最大缓存大小
         if max_cache_size is None:
-            max_cache_size = configs.get_config("RequestLog.Max_Cache_Size", 1000).get_value(int)
+            max_cache_size = configs.get_config("request_log.max_cache_size", 1000).get_value(int)
         self._max_cache_size = max_cache_size
 
         # 日志文件路径

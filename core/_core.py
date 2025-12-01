@@ -51,7 +51,7 @@ from .CoreResponse import Response
 # ==== 本模块代码 ==== #
 configs = ConfigLoader()
 
-__version__ = configs.get_config("Core.Version", "4.2.8.2").get_value(str)
+__version__ = configs.get_config("core.version", "4.2.8.2").get_value(str)
 
 class Core:
     # region > init
@@ -104,8 +104,8 @@ class Core:
 
         # 初始化调用日志管理器
         self.request_log = RequestLog.RequestLogManager(
-            configs.get_config('RequestLog.Path', "./workspace/request_log").get_value(Path),
-            auto_save = configs.get_config('RequestLog.Auto_Save', True).get_value(bool)
+            configs.get_config('request_log.path', "./workspace/request_log").get_value(Path),
+            auto_save = configs.get_config('request_log.auto_save', True).get_value(bool)
         )
 
         # 黑名单
@@ -124,7 +124,7 @@ class Core:
             退出时执行的任务
             """
             # 保存调用日志
-            if configs.get_config("RequestLog.Auto_Save", True).get_value(bool):
+            if configs.get_config("request_log.auto_save", True).get_value(bool):
                 self.request_log.save_request_log()
             logger.info("Exiting...")
         

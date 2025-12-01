@@ -57,7 +57,7 @@ class ContextLoader:
             logger.info(f"Load User Prompt", user_id = user_id)
         else:
             # 加载默认提示词
-            default_prompt_dir = configs.get_config("Prompt.Default_Dir", Path("./Prompt/Presets")).get_value(Path)
+            default_prompt_dir = configs.get_config("prompt.default_dir", Path("./Prompt/Presets")).get_value(Path)
             if default_prompt_dir.exists():
                 # 如果存在默认提示词文件，则加载默认提示词文件
                 config = await self.config.load(user_id)
@@ -65,7 +65,7 @@ class ContextLoader:
                 # 获取默认提示词文件名
                 parset_prompt_name = config.get("parset_prompt_name", configs.get_config("prompt.parset_name", "default").get_value(str))
                 parset_prompt_encoding = config.get("parset_prompt_encoding", configs.get_config("prompt.encoding", "utf-8").get_value(str))
-                suffix = configs.get_config("Prompt.Default_Suffix", "md").get_value(str)
+                suffix = configs.get_config("prompt.default_suffix", "md").get_value(str)
 
                 # 加载默认提示词文件
                 default_prompt_file = default_prompt_dir / f'{sanitize_filename(parset_prompt_name)}.{suffix}'

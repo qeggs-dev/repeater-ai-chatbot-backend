@@ -28,10 +28,10 @@ class ConfigManager:
         self._use_global_cache = use_global_cache
 
         self._downgrade_tasks: dict[str, asyncio.Task] = {}
-        self._downgrade_wait_time: float = downgrade_wait_time or configs.get_config("Config_Cache.Downgrade_Wait_Time", 600.0).get_value(float)
+        self._downgrade_wait_time: float = downgrade_wait_time or configs.get_config("config_cache.downgrade_wait_time", 600.0).get_value(float)
 
         self._debonce_save_tasks: dict[str, asyncio.Task] = {}
-        self._debonce_save_wait_time: float = debonce_save_wait_time or configs.get_config("Config_Cache.Debonce_Save_Wait_Time", 600.0).get_value(float)
+        self._debonce_save_wait_time: float = debonce_save_wait_time or configs.get_config("config_cache.debonce_save_wait_time", 600.0).get_value(float)
 
         self._lock = asyncio.Lock()
 
