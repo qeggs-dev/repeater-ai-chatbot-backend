@@ -1,3 +1,4 @@
+from __future__ import annotations
 import os
 from box import Box
 import yaml
@@ -6,13 +7,24 @@ from typing import Generator, Iterable
 from pathlib import Path
 from ._base_model import Base_Config
 
+configs = Base_Config()
+
 class ConfigLoader:
-    def __init__(self, config_dir: str | os.PathLike = "./config"):
-        self._config_dir = Path(config_dir)
+    _instance: ConfigLoader | None = None
+    _base_path: Path
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.load()
+        return cls._instance
+
+    def update_base_path(self, path: str | os.PathLike) -> None:
+        self._base_path = Path(path)
     
     def _scan_dir(self, globs: Iterable[str]) -> Generator[Path, None, None]:
         for glob in globs:
-            for path in self._config_dir.glob(glob):
+            for path in self._base_path.glob(glob):
                 yield path
     
     def _config_files(self) -> list[Path]:
@@ -37,7 +49,12 @@ class ConfigLoader:
         with open(path, "rb") as f:
             return orjson.loads(f.read())
     
-    def load(self) -> Base_Config:
+    def load(self, use_cache: bool = True) -> Base_Config:
+        """
+        Load the configs from the config files.
+
+        :param use_cache: If True, use the cached config, otherwise reload the config
+        """
         configs: list[Box] = []
         for path in self._config_files():
             if path.suffix in [".yaml", ".yml"]:
@@ -53,3 +70,7 @@ class ConfigLoader:
             base_config.merge_update(config)
         
         return Base_Config(**base_config.to_dict())
+    
+    def update_config(self, config: Base_Config) -> None:
+        global configs
+        configs = config

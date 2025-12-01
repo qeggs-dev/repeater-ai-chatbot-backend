@@ -7,7 +7,10 @@ from ._bot_info import (
 from ._callapi import CallAPI_Config
 from ._context import Context_Config
 from ._core import Core_Config
-from ._logger import Logger_Config
+from ._logger import (
+    Logger_Config,
+    LogLevel
+)
 from ._model import Model_Config
 from ._prompt import Prompt_Config
 from ._render import (
@@ -37,6 +40,7 @@ __all__ = [
     "Context_Config",
     "Core_Config",
     "Logger_Config",
+    "LogLevel",
     "Model_Config",
     "Prompt_Config",
     "Preprocess_Map_Config",
