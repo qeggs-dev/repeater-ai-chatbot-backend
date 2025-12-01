@@ -31,7 +31,7 @@ from . import Request_Log
 from TextProcessors import (
     PromptVP,
 )
-from .Request_User_Info import UserInfo
+from .Request_User_Info import Request_User_Info
 from .Lock_Pool import AsyncLockPool
 from TimeParser import (
     format_timestamp,
@@ -40,7 +40,7 @@ from TimeParser import (
     format_timestamp,
     calculate_age,
 )
-from ConfigManager import ConfigLoader
+from .Global_Config_Manager import configs
 from RegexChecker import RegexChecker
 from .Logger_Init import (
     logger_init,
@@ -49,9 +49,7 @@ from .Logger_Init import (
 from .Core_Response import Response
 
 # ==== 本模块代码 ==== #
-configs = ConfigLoader()
-
-__version__ = configs.get_config("core.version", "4.2.9.0").get_value(str)
+__version__ = configs.core.version or "4.2.9.0"
 
 class Core:
     # region > init
@@ -75,17 +73,11 @@ class Core:
         )
         # 初始化Client并设置并发大小
         self.api_client = CompletionsAPI.ClientNoStream(
-            configs.get_config(
-                "callapi.max_concurrenc",
-                1000
-            ).get_value(int)
+            configs.callapi.max_concurrency
             if max_concurrency is None else max_concurrency
         )
         self.stream_api_client = CompletionsAPI.ClientStream(
-            configs.get_config(
-                "callapi.max_concurrency",
-                1000
-            ).get_value(int)
+            configs.callapi.max_concurrency
             if max_concurrency is None else max_concurrency
         )
 
@@ -93,10 +85,7 @@ class Core:
         self.apiinfo = ApiInfo()
         # 从指定文件加载API信息
         self.apiinfo.load(
-            configs.get_config(
-                "api_info.api_file_path",
-                "./config/api_info.json"
-            ).get_value(Path)
+            configs.api_info.api_file_path
         )
 
         # 初始化锁池
@@ -104,19 +93,19 @@ class Core:
 
         # 初始化调用日志管理器
         self.request_log = Request_Log.RequestLogManager(
-            configs.get_config('request_log.path', "./workspace/request_log").get_value(Path),
-            auto_save = configs.get_config('request_log.auto_save', True).get_value(bool)
+            configs.request_log.dir,
+            auto_save = configs.request_log.auto_save,
         )
 
         # 黑名单
         self.blacklist: RegexChecker = RegexChecker()
-        blacklist_file_path = configs.get_config("blacklist.file_path", "./config/blacklist.regex").get_value(Path)
+        blacklist_file_path = configs.blacklist.file_path
         try:
             with open(blacklist_file_path, 'r', encoding='utf-8') as f:
                 self.blacklist.load_strstream(f)
         except ValueError:
             logger.error("Invalid blacklist file")
-        self.blacklist_match_timeout: int | None = configs.get_config("blacklist.match_timeout", 10).get_value(int)
+        self.blacklist_match_timeout: int | None = configs.blacklist.match_timeout
 
         # 添加退出函数
         def _exit():
@@ -124,7 +113,7 @@ class Core:
             退出时执行的任务
             """
             # 保存调用日志
-            if configs.get_config("request_log.auto_save", True).get_value(bool):
+            if configs.request_log.auto_save:
                 self.request_log.save_request_log()
             logger.info("Exiting...")
         
@@ -149,7 +138,7 @@ class Core:
             self,
             user_id: str,
             model_uid: str = "",
-            user_info: UserInfo = UserInfo(),
+            user_info: Request_User_Info = Request_User_Info(),
             config: User_Config_Manager.Configs = User_Config_Manager.Configs(),
         ) -> PromptVP:
         """
@@ -161,11 +150,11 @@ class Core:
         :param config: 用户配置
         :return: PromptVP实例
         """
-        bot_birthday_year = configs.get_config("bot_info.birthday.year", 2024).get_value(int)
-        bot_birthday_month = configs.get_config("bot_info.birthday.month", 1).get_value(int)
-        bot_birthday_day = configs.get_config("bot_info.birthday.day", 1).get_value(int)
-        timezone = configs.get_config("time.timezone", 8).get_value(int)
-        bot_name = configs.get_config("bot_info.name", "Bot").get_value(str)
+        bot_birthday_year = config.get_config("bot_info.birthday.year", 2024).get_value(int)
+        bot_birthday_month = config.get_config("bot_info.birthday.month", 1).get_value(int)
+        bot_birthday_day = config.get_config("bot_info.birthday.day", 1).get_value(int)
+        timezone = config.get_config("time.timezone", 8).get_value(int)
+        bot_name = config.get_config("bot_info.name", "Bot").get_value(str)
         
         return await self.promptvariable.get_prompt_variable(
             user_id = user_id,
@@ -196,7 +185,7 @@ class Core:
     # endregion
     
     # region > nickname mapping
-    async def nickname_mapping(self, user_id: str, user_info: UserInfo) -> UserInfo:
+    async def nickname_mapping(self, user_id: str, user_info: Request_User_Info) -> Request_User_Info:
         """
         用户昵称映射
 
@@ -204,7 +193,7 @@ class Core:
         :param user_info: 用户信息
         :return: 昵称
         """
-        user_nickname_mapping_file_path = configs.get_config("user_nickname_mapping.file_path", "./config/user_nickname_mapping.json").get_value(Path)
+        user_nickname_mapping_file_path = configs.user_nickname_mapping.file_path
         unm_path = user_nickname_mapping_file_path
         if not unm_path.exists():
             return user_info
@@ -323,7 +312,7 @@ class Core:
         :param path: 黑名单文件路径
         """
         if not path:
-            blacklist_file_path = configs.get_config("blacklist_file_path", "./config/blacklist.regex").get_value(Path)
+            blacklist_file_path = configs.blacklist.file_path
         else:
             blacklist_file_path = Path(path)
         
@@ -365,7 +354,7 @@ class Core:
             self,
             message: str,
             user_id: str,
-            user_info: UserInfo = UserInfo(),
+            user_info: Request_User_Info = Request_User_Info(),
             role: str = "user",
             role_name:  str = "",
             model_uid: str | None = None,
@@ -417,7 +406,7 @@ class Core:
                 
                 # 获取默认模型uid
                 if model_uid is None:
-                    model_uid: str = config.get("model_uid", configs.get_config("api_info.default_model_uid", "deepseek-chat").get_value(str))
+                    model_uid: str = config.get("model_uid", config.get_config("api_info.default_model_uid", "deepseek-chat").get_value(str))
                 
                 # 获取API信息
                 apilist = self.apiinfo.find(model_uid = model_uid)
@@ -470,7 +459,7 @@ class Core:
                 )
 
                 # 如果上下文需要收缩，则进行收缩(为零或类型不对则不进行操作)
-                max_context_length = config.get('auto_shrink_length', configs.get_config("model.auto_shrink_length", 0).get_value(int))
+                max_context_length = config.get('auto_shrink_length', config.get_config("model.auto_shrink_length", 0).get_value(int))
                 if isinstance(max_context_length, int) and max_context_length > 0:
                     if len(context) > max_context_length:
                         logger.info(f"Context length exceeds {max_context_length}, auto shrink", user_id = user_id)
@@ -547,14 +536,14 @@ class Core:
 
                 # 设置请求对象的参数信息
                 request.user_name = user_info.nickname
-                request.temperature = config.get("temperature", configs.get_config("model.default_temperature", 1.0).get_value(float))
-                request.top_p = config.get("top_p", configs.get_config("model.default_top_p", 1.0).get_value(float))
-                request.max_tokens = config.get("max_tokens", configs.get_config("model.default_max_tokens", 4096).get_value(int))
-                request.max_completion_tokens = config.get("model.max_completion_tokens", configs.get_config("default_max_completion_tokens", 4096).get_value(int))
-                request.stop = config.get("stop", configs.get_config("model.default_stop", None).get_value((list, None)))
-                request.stream = configs.get_config("model.stream", True).get_value(bool)
-                request.frequency_penalty = config.get("frequency_penalty", configs.get_config("model.default_frequency_penalty", 0.0).get_value(float))
-                request.presence_penalty = config.get("presence_penalty", configs.get_config("model.default_presence_penalty", 0.0).get_value(float))
+                request.temperature = config.get("temperature", config.get_config("model.default_temperature", 1.0).get_value(float))
+                request.top_p = config.get("top_p", config.get_config("model.default_top_p", 1.0).get_value(float))
+                request.max_tokens = config.get("max_tokens", config.get_config("model.default_max_tokens", 4096).get_value(int))
+                request.max_completion_tokens = config.get("model.max_completion_tokens", config.get_config("default_max_completion_tokens", 4096).get_value(int))
+                request.stop = config.get("stop", config.get_config("model.default_stop", None).get_value((list, None)))
+                request.stream = config.get_config("model.stream", True).get_value(bool)
+                request.frequency_penalty = config.get("frequency_penalty", config.get_config("model.default_frequency_penalty", 0.0).get_value(float))
+                request.presence_penalty = config.get("presence_penalty", config.get_config("model.default_presence_penalty", 0.0).get_value(float))
                 request.print_chunk = print_chunk
 
                 # 记录预处理结束时间
@@ -705,7 +694,7 @@ class Core:
     # endregion
     # region > 重新加载API信息
     async def reload_apiinfo(self):
-        await self.apiinfo.load_async(configs.get_config("api_info.api_file_path", "./config/api_info.json").get_value(Path))
+        await self.apiinfo.load_async(configs.api_info.api_file_path)
     # endregion
 
     # region > 加载指定API INFO文件

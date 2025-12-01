@@ -4,9 +4,7 @@ from loguru import logger
 from ..Data_Manager import UserConfigManager
 from ._exceptions import *
 from ._object import Configs
-from ConfigManager import ConfigLoader
-
-configs = ConfigLoader()
+from ..Global_Config_Manager import configs
 
 class ConfigManager:
     # 用户配置管理器 (定义为类属性以减少重复实例化)
@@ -28,10 +26,10 @@ class ConfigManager:
         self._use_global_cache = use_global_cache
 
         self._downgrade_tasks: dict[str, asyncio.Task] = {}
-        self._downgrade_wait_time: float = downgrade_wait_time or configs.get_config("config_cache.downgrade_wait_time", 600.0).get_value(float)
+        self._downgrade_wait_time: float = downgrade_wait_time or configs.user_config_cache.downgrade_wait_time
 
         self._debonce_save_tasks: dict[str, asyncio.Task] = {}
-        self._debonce_save_wait_time: float = debonce_save_wait_time or configs.get_config("config_cache.debonce_save_wait_time", 600.0).get_value(float)
+        self._debonce_save_wait_time: float = debonce_save_wait_time or configs.user_config_cache.debounce_save_wait_time
 
         self._lock = asyncio.Lock()
 

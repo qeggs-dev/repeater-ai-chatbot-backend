@@ -1,27 +1,24 @@
-from ConfigManager import ConfigLoader
+
 from ._main_user_data_manager import MainManager as UserDataManager
 from typing import Any
+from ...Global_Config_Manager import configs, Change_Data_Config
 
-configs = ConfigLoader()
-
-_sub_dir_name:str = configs.get_config("user_data.sub_dir_name", "ParallelData").get_value(str)
-_cache_metadata:bool = configs.get_config("user_data.cache_metadata", False).get_value(bool)
-_cache_data:bool = configs.get_config("user_data.cache_data", False).get_value(bool)
-
-
-class _baseManager(UserDataManager):
-    def __init__(self, base_name: str):
-        self.base_name = base_name if base_name else "UserData"
-        super().__init__(
-            base_name = self.base_name,
-            cache_metadata = configs.get_config(f"user_data.{self.base_name}.cache_metadata", _cache_metadata).get_value(bool),
-            cache_data = configs.get_config(f"user_data.{self.base_name}.cache_data", _cache_data).get_value(bool),
-            sub_dir_name = _sub_dir_name
-        )
-
-class ContextManager(_baseManager):
+class ContextManager(UserDataManager):
     def __init__(self):
-        super().__init__('Context_UserData')
+        super().__init__(
+            "Context_UserData",
+            cache_metadata = (
+                configs.user_data.cache_medadata.context
+                if isinstance(configs.user_data.cache_medadata, Change_Data_Config)
+                else configs.user_data.cache_medadata
+            ),
+            cache_data = (
+                configs.user_data.cache_data.context
+                if isinstance(configs.user_data.cache_data, Change_Data_Config)
+                else configs.user_data.cache_data
+            ),
+            branches_dir_name = configs.user_data.branches_dir_name
+        )
     
     async def load(self, user_id: str, default: list = []):
         return await super().load(user_id, default if isinstance(default, list) else [])
@@ -29,9 +26,22 @@ class ContextManager(_baseManager):
     async def save(self, user_id: str, data: list):
         await super().save(user_id, data if isinstance(data, list) else [])
 
-class PromptManager(_baseManager):
+class PromptManager(UserDataManager):
     def __init__(self):
-        super().__init__('Prompt_UserData')
+        super().__init__(
+            "Prompt_UserData",
+            cache_metadata = (
+                configs.user_data.cache_medadata.prompt
+                if isinstance(configs.user_data.cache_medadata, Change_Data_Config)
+                else configs.user_data.cache_medadata
+            ),
+            cache_data = (
+                configs.user_data.cache_data.prompt
+                if isinstance(configs.user_data.cache_data, Change_Data_Config)
+                else configs.user_data.cache_data
+            ),
+            branches_dir_name = configs.user_data.branches_dir_name
+        )
     
     async def load(self, user_id: str, default: str = ""):
         return await super().load(user_id, default if isinstance(default, str) else "")
@@ -39,9 +49,22 @@ class PromptManager(_baseManager):
     async def save(self, user_id: str, data: str):
         await super().save(user_id, data if isinstance(data, str) else "")
 
-class UserConfigManager(_baseManager):
+class UserConfigManager(UserDataManager):
     def __init__(self):
-        super().__init__('UserConfig_UserData')
+        super().__init__(
+            "UserConfig_UserData",
+            cache_metadata = (
+                configs.user_data.cache_medadata.config
+                if isinstance(configs.user_data.cache_medadata, Change_Data_Config)
+                else configs.user_data.cache_medadata
+            ),
+            cache_data = (
+                configs.user_data.cache_data.config
+                if isinstance(configs.user_data.cache_data, Change_Data_Config)
+                else configs.user_data.cache_data
+            ),
+            branches_dir_name = configs.user_data.branches_dir_name
+        )
     
     async def load(self, user_id: str, default: dict = {}):
         return await super().load(user_id, default if isinstance(default, dict) else {})

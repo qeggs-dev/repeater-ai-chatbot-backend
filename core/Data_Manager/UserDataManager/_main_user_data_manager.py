@@ -8,14 +8,12 @@ from loguru import logger
 # ==== 自定义库 ==== #
 from .SubManager import SubManager
 from PathProcessors import validate_path, sanitize_filename
-from ConfigManager import ConfigLoader
+from ...Global_Config_Manager import configs
 from ._user_mainmanager_interface import UserMainManagerInterface
 
-configs = ConfigLoader()
-
 class MainManager(UserMainManagerInterface):
-    def __init__(self, base_name: str, cache_metadata:bool = False, cache_data:bool = False, sub_dir_name:str = "ParallelData"):
-        self._base_path = configs.get_config("user_data.dir", "./data/userdata").get_value(Path)
+    def __init__(self, base_name: str, cache_metadata:bool = False, cache_data:bool = False, branches_dir_name:str = "ParallelData"):
+        self._base_path = Path(configs.user_data.dir)
         self._base_name = sanitize_filename(base_name)
         if not validate_path(self._base_path, self._base_name):
             raise ValueError(f"Invalid path \"{self._base_name}\" for \"{self._base_path}\"")
@@ -24,7 +22,7 @@ class MainManager(UserMainManagerInterface):
         self.cache_metadata = cache_metadata
         self.cache_data = cache_data
 
-        self.sub_dir_name = sub_dir_name
+        self.sub_dir_name = branches_dir_name
     
     @property
     def base_path(self):

@@ -1,7 +1,7 @@
 from dataclasses import dataclass, asdict
 
 @dataclass
-class UserInfo:
+class Request_User_Info:
     username: str | None = None
     nickname: str | None = None
     age: int | None = None
