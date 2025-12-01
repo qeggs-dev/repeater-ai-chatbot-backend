@@ -1,15 +1,12 @@
 from .._resource import app
-from ConfigManager import ConfigLoader
+from ...Global_Config_Manager import configs
 from fastapi.responses import FileResponse, HTMLResponse
 from pathlib import Path
-
-configs = ConfigLoader()
-
-index_web_file = configs.get_config("Web.Index_Web_File", "").get_value(Path)
 
 @app.get("/")
 @app.get("/index.html")
 async def index_web():
+    index_web_file = Path(configs.web.index_web_file)
     if index_web_file.exists() and index_web_file.is_file():
         return FileResponse(index_web_file)
     else:

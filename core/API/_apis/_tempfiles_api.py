@@ -1,7 +1,9 @@
-from .._resource import app, chat, configs, validate_path
+from .._resource import app, chat, validate_path
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
 from pathlib import Path
+
+from ...Global_Config_Manager import configs
 
 @app.get("/file/render/{file_uuid}.png", name = "render_file")
 async def get_render_file(file_uuid: str):
@@ -11,7 +13,7 @@ async def get_render_file(file_uuid: str):
     Args:
         file_uuid (str): The UUID of the file to render
     """
-    render_output_image_dir = configs.get_config("render.output_image_dir", "./workspace/temp/render").get_value(Path)
+    render_output_image_dir = configs.render.markdown.to_image.output_dir
     # 防止遍历攻击
     if not validate_path(render_output_image_dir, file_uuid):
         raise HTTPException(status_code=400, detail="Invalid file UUID")

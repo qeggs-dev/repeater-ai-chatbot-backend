@@ -1,7 +1,9 @@
 from .._resource import (
     app,
-    chat,
-    core
+    chat
+)
+from ...Context_Manager import (
+    ContextObject
 )
 from fastapi import (
     HTTPException
@@ -34,7 +36,7 @@ async def get_userdata_file(user_id: str):
     config = await chat.user_config_manager.load(user_id = user_id)
     prompt = await chat.prompt_manager.load(user_id = user_id, default = "")
 
-    def readable_context(context: core.Context.ContextObject) -> str:
+    def readable_context(context: ContextObject) -> str:
         text = "======== Context  ========\n"
         for item in context.context_list:
             text += f"[{item.role}]: \n{item.content}\n\n"

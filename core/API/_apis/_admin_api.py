@@ -1,8 +1,8 @@
+import asyncio
 from .._resource import (
     app,
     admin_api_key,
-    chat,
-    configs
+    chat
 )
 from fastapi import (
     HTTPException,
@@ -12,6 +12,9 @@ from fastapi.responses import (
     JSONResponse
 )
 from loguru import logger
+from Global_Config_Manager import ConfigLoader
+
+config_loader = ConfigLoader()
 
 @app.post("/admin/apiinfo/reload")
 async def reload_apiinfo(api_key: str = Header(..., alias="X-Admin-API-Key")):
@@ -53,22 +56,8 @@ async def reload_configs(api_key: str = Header(..., alias="X-Admin-API-Key")):
     if not admin_api_key.validate_key(api_key):
         raise HTTPException(detail="Invalid API key", status_code=401)
     logger.info("Reloading configs", user_id="[Admin API]")
-    await configs.reload_config_async()
+    await asyncio.to_thread(config_loader.load())
     return JSONResponse({"detail": "Apiinfo reloaded"})
-
-@app.post("/admin/configs/{name}/seek/{index}")
-async def seek_configs(name: str, index: int, api_key: str = Header(..., alias="X-Admin-API-Key")):
-    """
-    Endpoint for seek configs
-    """
-    if not admin_api_key.validate_key(api_key):
-        raise HTTPException(detail="Invalid API key", status_code=401)
-    if configs.seek_config(name, index):
-        logger.info(f"Seek {name}", user_id="[Admin API]")
-        return JSONResponse({"detail": "Apiinfo reloaded"})
-    else:
-        logger.error(f"Seek {name} Failed", user_id="[Admin API]")
-        return JSONResponse({"detail": "Seek Configs failed"}, status_code=400)
 
 @app.post("/admin/regenerate/admin_key")
 async def regenerate_admin_key(api_key: str = Header(..., alias="X-Admin-API-Key")):

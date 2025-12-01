@@ -1,7 +1,11 @@
 from .._resource import (
     chat,
-    app,
-    core
+    app
+)
+from ...Context_Manager import (
+    ContextObject,
+    ContentUnit,
+    ContextRole
 )
 from fastapi import Form
 from fastapi.responses import (
@@ -88,7 +92,7 @@ async def withdraw_context(user_id: str, context_pair_num: int = Form(1, gt=0)):
     # 从context_loader中加载用户ID为user_id的上下文
     context_loader = await chat.get_context_loader()
     context = await context_loader.get_context_object(user_id)
-    pop_items: list[core.Context.ContextObject] = []
+    pop_items: list[ContextObject] = []
     
     try:
         for _ in range(context_pair_num):
@@ -98,7 +102,7 @@ async def withdraw_context(user_id: str, context_pair_num: int = Form(1, gt=0)):
     except (ValueError, IndexError) as e:
         raise HTTPException(400, str(e)) from e
     
-    pop_context = core.Context.ContextObject()
+    pop_context = ContextObject()
     for item in pop_items[::-1]:
         pop_context.context_list.extend(
             item.context_list
@@ -129,14 +133,14 @@ async def inject_context(user_id: str, request: InjectContext):
     context = await context_loader.get_context_object(user_id)
 
     context.append(
-        core.Context.ContentUnit(
-            role = core.Context.ContextRole.USER,
+        ContentUnit(
+            role = ContextRole.USER,
             content = request.user_content
         )
     )
     context.append(
-        core.Context.ContentUnit(
-            role = core.Context.ContextRole.ASSISTANT,
+        ContentUnit(
+            role = ContextRole.ASSISTANT,
             content = request.assistant_content,
         )
     )

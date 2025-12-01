@@ -1,4 +1,5 @@
-from .._resource import chat, app, core
+from .._resource import chat, app
+from ...Request_User_Info import Request_User_Info
 from fastapi import Form
 from fastapi.responses import PlainTextResponse
 from loguru import logger
@@ -27,7 +28,7 @@ async def expand_variables(user_id: str, request: ExpandRequest):
     # 调用PromptVP类处理文本
     prompt_vp = await chat.get_prompt_vp(
         user_id = user_id,
-        user_info = core.RequestUserInfo.UserInfo(
+        user_info = Request_User_Info(
             username = user_name,
             nickname = request.user_nickname,
             age = request.user_age,

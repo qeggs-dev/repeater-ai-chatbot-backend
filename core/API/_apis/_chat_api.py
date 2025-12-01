@@ -3,14 +3,6 @@ import orjson
 from environs import Env
 env = Env()
 env.read_env()
-from fastapi import (
-    FastAPI,
-    Request,
-    BackgroundTasks,
-    Form,
-    Query,
-    Header
-)
 from fastapi.responses import (
     FileResponse,
     JSONResponse,
@@ -20,8 +12,11 @@ from fastapi.responses import (
 from fastapi.exceptions import (
     HTTPException
 )
-from loguru import logger
-from .._resource import app, chat, core
+from .._resource import app, chat
+from ...Core_Response import Response
+from ...Request_User_Info import Request_User_Info
+from ...ApiInfo import APIGroupNotFoundError
+from ...CallAPI import CompletionsAPI
 from pydantic import BaseModel, Field
 import orjson
 
@@ -58,7 +53,7 @@ async def chat_endpoint(
             user_id = user_id,
             message = request.message,
             user_info = (
-                core.RequestUserInfo.UserInfo(
+                Request_User_Info.UserInfo(
                     username = request.user_info.username,
                     nickname = request.user_info.nickname,
                     age = request.user_info.age,
@@ -76,13 +71,13 @@ async def chat_endpoint(
             continue_completion = request.continue_completion,
             stream = request.stream
         )
-        if isinstance(context, core.Response):
+        if isinstance(context, Response):
             return JSONResponse(context.as_dict, status_code=200)
         else:
-            async def generator_wrapper(context: AsyncIterator[core.CallAPI.CompletionsAPI.Delta]) -> AsyncIterator[bytes]:
+            async def generator_wrapper(context: AsyncIterator[CompletionsAPI.Delta]) -> AsyncIterator[bytes]:
                 async for chunk in context:
                     yield orjson.dumps(chunk.as_dict) + b"\n"
 
             return StreamingResponse(generator_wrapper(context), media_type="application/x-ndjson")
-    except core.ApiInfo.APIGroupNotFoundError as e:
+    except APIGroupNotFoundError as e:
         raise HTTPException(detail=str(e), status_code=404)
