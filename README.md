@@ -32,23 +32,23 @@
 ---
 
 ### 依赖项:
-| Name              | Version  | License                              | License Link                                                                        | Where it is used                   | Reasons                               |
-|-------------------|----------|--------------------------------------|-------------------------------------------------------------------------------------|------------------------------------|---------------------------------------|
-| Markdown          | 3.8.2    | BSD 3-Clause License                 | [BSD-3-Clause](https://github.com/Python-Markdown/markdown/blob/master/LICENSE.md)  | `Markdown`                         | Parses Markdown text into HTML        |
-| pyyaml            | 6.0.2    | MIT License                          | [MIT](https://github.com/yaml/pyyaml/blob/main/LICENSE)                             | `API` & `ConfigManager`            | Read configuration file               |
-| aiofiles          | 24.1.0   | Apache Software License              | [Apache-2.0](https://github.com/Tinche/aiofiles/blob/main/LICENSE)                  | `core.DataManager`                 | Asynchronous file support             |
-| environs          | 14.2.0   | MIT License                          | [MIT](https://github.com/sloria/environs/blob/main/LICENSE)                         | `run_fastapi.py` & `ConfigManager` | Support for environment variables     |
-| fastapi           | 0.115.13 | MIT License                          | [MIT](https://github.com/fastapi/fastapi/blob/master/LICENSE)                       | `API`                              | Build API                             |
-| httpx             | 0.28.1   | BSD License                          | [BSD-3-Clause](https://github.com/encode/httpx/blob/master/LICENSE.md)              | `core.FuncerClient`                | Asynchronous HTTP client              |
-| imgkit            | 1.2.3    | MIT License                          | [MIT](https://github.com/jarrekk/imgkit/blob/master/LICENSE)                        | `Markdown`                         | Render HTML as an image               |
-| loguru            | 0.7.3    | MIT License                          | [MIT](https://github.com/Delgan/loguru/blob/master/LICENSE)                         | *Entire Project*                   | Logging                               |
-| openai            | 1.90.0   | Apache Software License              | [Apache-2.0](https://github.com/openai/openai-python/blob/main/LICENSE)             | `core.CallAPI`                     | Call the OpenAI API                   |
+| Name              | Version  | License                              | License Link                                                                        | Where it is used                    | Reasons                               |
+|-------------------|----------|--------------------------------------|-------------------------------------------------------------------------------------|-------------------------------------|---------------------------------------|
+| Markdown          | 3.8.2    | BSD 3-Clause License                 | [BSD-3-Clause](https://github.com/Python-Markdown/markdown/blob/master/LICENSE.md)  | `Markdown`                          | Parses Markdown text into HTML        |
+| pyyaml            | 6.0.2    | MIT License                          | [MIT](https://github.com/yaml/pyyaml/blob/main/LICENSE)                             | `API` & `ConfigManager`             | Read configuration file               |
+| aiofiles          | 24.1.0   | Apache Software License              | [Apache-2.0](https://github.com/Tinche/aiofiles/blob/main/LICENSE)                  | `core.DataManager`                  | Asynchronous file support             |
+| environs          | 14.2.0   | MIT License                          | [MIT](https://github.com/sloria/environs/blob/main/LICENSE)                         | `run_repeater.py` & `ConfigManager` | Support for environment variables     |
+| fastapi           | 0.115.13 | MIT License                          | [MIT](https://github.com/fastapi/fastapi/blob/master/LICENSE)                       | `API`                               | Build API                             |
+| httpx             | 0.28.1   | BSD License                          | [BSD-3-Clause](https://github.com/encode/httpx/blob/master/LICENSE.md)              | `core.FuncerClient`                 | Asynchronous HTTP client              |
+| imgkit            | 1.2.3    | MIT License                          | [MIT](https://github.com/jarrekk/imgkit/blob/master/LICENSE)                        | `Markdown`                          | Render HTML as an image               |
+| loguru            | 0.7.3    | MIT License                          | [MIT](https://github.com/Delgan/loguru/blob/master/LICENSE)                         | *Entire Project*                    | Logging                               |
+| openai            | 1.90.0   | Apache Software License              | [Apache-2.0](https://github.com/openai/openai-python/blob/main/LICENSE)             | `core.CallAPI`                      | Call the OpenAI API                   |
 | orjson            | 3.10.18  | Apache Software License; MIT License | [Apache-2.0](https://github.com/ijl/orjson/blob/master/LICENSE-APACHE) / [MIT](https://github.com/ijl/orjson/blob/master/LICENSE-MIT) | `core.DataManager` | High-performance JSON  resolution |
-| pydantic          | 2.11.7   | MIT License                          | [MIT](https://github.com/pydantic/pydantic/blob/main/LICENSE)                       | `core.ConfigManager` & `API`       | Simple and convenient data validation |
-| python-multipart  | 0.0.20   | Apache Software License              | [Apache-2.0](https://github.com/Kludex/python-multipart/blob/master/LICENSE.txt)    | `core.DataManager` & `API`         | Support for form data                 |
-| uvicorn           | 0.34.3   | BSD License                          | [BSD-3-Clause](https://github.com/Kludex/uvicorn/blob/main/LICENSE.md)              | `run_fastapi.py`                   | Run FastAPI                           |
-| numpy             | 2.3.4    | BSD License                          | [BSD-3-Clause](https://github.com/numpy/numpy/blob/main/LICENSE.txt)                | *Entire Project*                   | Speed up batch computing of data      |
-| python-box        | 7.3.2    | MIT License                          | [MIT](https://github.com/cdgriffith/Box/blob/master/LICENSE)                        | `core.Global_Config_Manager`       | Mixed configuration files             |
+| pydantic          | 2.11.7   | MIT License                          | [MIT](https://github.com/pydantic/pydantic/blob/main/LICENSE)                       | `core.ConfigManager` & `API`        | Simple and convenient data validation |
+| python-multipart  | 0.0.20   | Apache Software License              | [Apache-2.0](https://github.com/Kludex/python-multipart/blob/master/LICENSE.txt)    | `core.DataManager` & `API`          | Support for form data                 |
+| uvicorn           | 0.34.3   | BSD License                          | [BSD-3-Clause](https://github.com/Kludex/uvicorn/blob/main/LICENSE.md)              | `run_repeater.py`                   | Run FastAPI                           |
+| numpy             | 2.3.4    | BSD License                          | [BSD-3-Clause](https://github.com/numpy/numpy/blob/main/LICENSE.txt)                | *Entire Project*                    | Speed up batch computing of data      |
+| python-box        | 7.3.2    | MIT License                          | [MIT](https://github.com/cdgriffith/Box/blob/master/LICENSE)                        | `core.Global_Config_Manager`        | Mixed configuration files             |
 
 ---
 
@@ -72,7 +72,7 @@
 3. 执行`python3 -m venv .venv`创建虚拟环境
 4. 执行`.venv/bin/activate`激活虚拟环境(Windows下则是`.venv\Scripts\activate`)
 5. 执行`pip install -r requirements.txt`安装依赖
-6. 执行`python3 run_fastapi.py`启动服务
+6. 执行`python3 run_repeater.py`启动服务
 
 PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需要你保证你的配置正确
 并且每一次你都可以通过启动器来启动程序
@@ -84,10 +84,9 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 | 环境变量 | 描述 | 是否必填 | 默认值(*示例值*) |
 | :---: | :---: | :---: | :---: |
 | `*API_KEY` | API_Key (具体变量名由`API_INFO.API_FILE_PATH`指向 文件中`ApiKeyEnv`字段的名称) | **必填** | *\*可从[Deepseek开放平台/API Keys](https://platform.deepseek.com/api_keys)页面获取* |
-| `ADMIN_API_KEY` | 管理员API_Key (用于框架的管理员操作身份验证) | **选填但生产环境建议填写** | *\*自动生成随机 API Key* |
+| `ADMIN_API_KEY` | 管理员API_Key (用于Repeater的管理员操作身份验证) | **选填但生产环境建议填写</br>如果填写的不够随机，程序会报错</br>建议先执行一次取生成的API_Key** | *\*自动生成随机 API Key* |
 | `CONFIG_DIR` | 配置文件夹路径 | **选填** | `./config/project_config` |
 | `CONFIG_FORCE_LOAD_LIST` | 配置文件强制加载列表(元素为配置文件路径) | **选填** | *`["./config/project_config/configs.json", "./config/project_config/configs2.json"]`* |
-| `CONFIG_ENVIRONMENT` | 配置文件环境 | **选填** | `DEV` |
 | `HOST` | 服务监听的IP | **选填** | `0.0.0.0` |
 | `PORT` | 服务监听的端口 | **选填** | `8080` |
 | `WORKERS` | 服务监听的进程数 | **选填** | `1` |
@@ -99,15 +98,41 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
 ```json
 {
     "api_info": {
+        // API INFO 配置
+
+        // API INFO 文件路径
         "api_file_path": "./config/api_info.json",
-        "default_model_uid": "chat"
+        // 默认使用的模型uid
+        // 这里需要填写你在api_info.json中配置的模型uid
+        // 如果用户没有指定模型，则使用这个模型进行响应
+        // uid匹配默认是不分大小写的
+        // 不建议使用默认UID，因为chat指定的太过宽泛
+        // 建议在部署时，自己定一个或是根据厂商和模型的名字来定一个
+        // 比如deepseek-chat之类的
+        "default_model_uid": "chat",
+        // 在匹配UID时是否启用大小写敏感
+        "case_sensitive": false
     },
     "blacklist": {
+        // 黑名单配置
+
+        // 黑名单文件路径
+        // 嗯这个文件只需要在开头写一个`[REGEX PARALLEL FILE]`
+        // 然后下面每一行一个正则表达式就行了
+        // 如果没有你也可以不写
+        // 但是文件头必须有
         "file_path": "./config/blacklist.regex",
-        "match_timeout": 10
+
+        // 黑名单匹配超时时间，单位为秒
+        "match_timeout": 10.0 // 匹配超时时间，单位为秒
     },
     "bot_info": {
+        // BotInfo 配置
+        // 这些字段仅影响模板展开器
+
+        // Bot 的名称
         "name": "Repeater",
+        // Bot 的生日
         "birthday": {
             "day": 28,
             "month": 6,
@@ -115,97 +140,254 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
         }
     },
     "callapi": {
+        // CallAPI 配置
+
+        // 协程池最大并发数
         "max_concurrency": 1000
     },
     "context": {
+        // Context 配置
+
+        // 自动上下文长度裁剪
+        // 当你聊天过长时，可能会超过模型上下文窗口限制
+        // 这个设置可以让Repeater为你自动裁剪最久的消息
+        // 让你可以继续聊天
+        // 默认值：null，表示不启用
+        // 你可以在这里填写一个整数，表示自动裁剪的长度，单位为消息条数
         "auto_shrink_length": null
     },
     "core": {
+        // Core 模块申请的配置
+
+        // 默认版本
+        // 此选项不为空时会覆盖模板展开器中的version字段
+        // 注：此选项不会改变实际版本，而只会改变模板展开器中的version变量
         "version": ""
     },
     "logger": {
+        // Logger 配置
+
+        // Log 文件输出路径
         "file_path": "./logs/repeater-log-{time:YYYY-MM-DD_HH-mm-ss.SSS}.log",
+        // Log 级别
         "level": "INFO",
+        // Log 轮换设置
         "rotation": "10 MB",
+        // Log 保留设置
         "retention": "7 days",
+        // Log 过期后执行的操作
         "compression": "zip"
     },
     "model": {
-        "default_model_uid": "chat",
+        // 你可以微调默认的用户model参数
+        // 如果用户没有定义模型参数，则你这里定义的参数取请求API
+
+        // 默认模型温度，更高的温度意味着下一个词更高的不确定性
         "default_temperature": 1.0,
+        // 默认模型Top_P，指越大在采样时考虑的词汇越多
         "default_top_p": 1.0,
+        // 默认模型最大生成长度(兼容)
         "default_max_tokens": 4096,
+        // 默认模型最大生成长度
         "default_max_completion_tokens": 4096,
+        // 默认模型频率惩罚，值越高模型越不容易出现重复内容
+        // 惩罚程度按照频率增加，如果该值为负则是奖励模型输出重复内容
         "default_frequency_penalty": 0.0,
+        // 默认模型存在惩罚，值越高模型越不容易出现重复内容
+        // 惩罚程度只要存在就一直不变，如果该值为负则是奖励模型输出重复内容
         "default_presence_penalty": 0.0,
+        // 默认模型停止符
+        // 当模型输出到停止符内容时，停止生成
         "default_stop": [],
+        // 默认模型是否流式输出
+        // 注意：这里只是在告诉Repeater应该使用什么方式调用模型接口
+        // 如果模型不支持流式生成，调用可能会报错
+        // 且该参数不能决定/chat/completion接口是否流式输出
+        // 如果这里为false
+        // 那么/chat/completion接口调用时stream参数能且只能为false
+        // 此时如果客户端请求流式响应，会返回503错误
+        // 请求控制台和日志不会显示生成过程，也不会有chunk统计数据
+        // 如果这里为true
+        // 那么/chat/completion接口调用时stream参数可以为true或false
+        // 且控制台和日志会打印当前chunk，并生成chunk统计数据
         "stream": true
     },
     "prompt": {
+        // 告诉Prompt加载器预设提示词目录的路径
         "dir": "./config/prompt/presets",
+        // 预设提示词文件的后缀名
         "suffix": ".md",
+        // 预设提示词文件应该用什么编码打开
         "encoding": "utf-8",
+        // 如果用户没设置路由到其他提示词，应该使用哪一个提示词
         "preset_name": "default"
     },
     "render": {
+        // 图片渲染完成后的链接有效时间
         "default_image_timeout": 60.0,
         "markdown": {
             "to_image": {
+                // 如果用户没设置样式，应该使用什么样式
                 "default_style": "light",
+                // 样式文件在什么地方
                 "styles_dir": "./config/styles",
+                // 样式文件应该使用什么编码打开
                 "style_file_encoding": "utf-8",
+                // 在翻译开始和结束的时候，对哪些子字符串进行映射
                 "preprocess_map": {
+                    // 在翻译开始之前
+                    // 此时的文本是Markdown格式
                     "before": {},
-                    "after": {}
+
+                    // 在翻译结束之后
+                    // 此时的文本是HTML格式
+                    "after": {
+                        "<code>": "<pre><code>",
+                        "</code>": "</code></pre>"
+                    }
                 },
+                // wkhtmltoimage 可执行文件的路径
+                // 可以从 https://wkhtmltopdf.org/downloads.html 下载
+                // 如果系统PATH中没有 wkhtmltoimage 的话
+                // 建议在此处设置 wkhtmltoimage 的完整路径
                 "wkhtmltoimage_path": "wkhtmltoimage",
+                // wkhtmltoimage 输出的图片保存目录
                 "output_dir": "./workspace/temp/render"
             }
         }
     },
     "request_log": {
+        // /chat/completion 端口的请求日志
+
+        // 请求日志的保存目录
         "dir": "./workspace/request_log",
+        // 是否自动保存请求日志
         "auto_save": true,
+        // 缓存请求日志的等待时间
         "debonce_save_wait_time": 1200.0,
+        // 请求日志缓存的队列最大长度
         "max_cache_size": 1000
     },
-    "server": { // 这里的几个字段为null或不填则会使用环境变量中定义的配置
+    "server": {
+        // 服务器配置
+        // 这里的几个字段为null或不填则会使用环境变量中定义的配置
+        // 如果这里填写了内容，那么这里的内容会覆盖环境变量中的值
+
+        // 监听的IP
         "host": null,
+        // 监听的端口
         "port": null,
+        // 工作进程数量
         "workers": null,
+        // 是否在文件发生变动时自动重启
         "reload": null
     },
     "static": {
+        // 静态文件配置
+
+        // README.md 文件的路径
         "readme_file_path": "./README.md",
+        // 静态文件目录
         "static_dir": "./static"
     },
     "time": {
+        // 时间偏移量，单位为小时
         "time_offset": 0.0
     },
     "user_config_cache": {
+        // 用户配置缓存配置
+
+        // 读取配置后等待多少秒后从缓存删除
         "downgrade_wait_time": 600.0,
+        // 保存配置到缓存后等待多少秒后从关闭缓存并写入
         "debounce_save_wait_time": 1000.0
     },
     "user_data": {
+        // 用户数据配置
+
+        // 用户数据的保存目录
         "dir": "./workspace/data/user_data",
+        // 分支数据使用的目录名称
         "branches_dir_name": "branches",
+        // 元数据文件名称
         "metadata_file_name": "metadata.json",
+
+        // 是否缓存
+        // 这里的两个字段同时支持bool和cache_data结构
+        // 如果为bool，则该值对所有数据类型生效
+        // 如果为cache_data结构，则该值对指定的数据类型生效
+        // 警告：缓存系统仍未进行可行性与稳定性验证，请谨慎使用
+
+        // 是否缓存元数据
         "cache_medadata": false,
-        "cache_data": false
+        // 是否缓存用户数据
+        "cache_data": {
+            "context": false,
+            "prompt": false,
+            "config": false
+        }
     },
     "user_nickname_mapping": {
+        // 用户昵称映射配置
+
+        // 昵称映射文件路径
+        // 有些用户的昵称可能会让模型陷入循环
+        // 可以用这个文件来映射它们到一个安全的昵称
         "file_path": "./config/user_nickname_mapping.json"
     },
     "web": {
+        // Web配置
+
+        // Index Web 文件路径
+        // 如果不填写这个项目，那么默认会使用内置的索引页面
         "index_web_file": "./static/index.html"
     }
 }
 ```
 
 PS: 配置读取时键名不区分大小写，但建议使用小写格式
-配置管理器会扫描环境变量`CONFIG_DIR`下的所有json/yaml文件
-并按照路径名顺序排列，后加载配置中的字段会覆盖之前的配置
+配置管理器会递归扫描环境变量`CONFIG_DIR`下的所有json/yaml文件
+并按照路径的字符串顺序排列，后加载配置中的字段会覆盖之前的配置
 你也可以使用环境变量`CONFIG_FORCE_LOAD_LIST`来强制按照指定的顺序加载配置
+
+当你不知道如何配置时，直接运行程序
+它可以给你自动生成一份默认配置文件
+
+配置文件全部都有默认值，你只需要填写你需要的部分即可
+比如：
+``` json
+{
+    "api_info": {
+        // 必须要定义模型，否则Repeater可能会不知道你要给谁发请求
+        "api_file_path": "./config/api_info.json",
+        // 这里非常建议你填写，因为默认的`chat`真的很容易冲突
+        "default_model_uid": "deepseek-chat"
+    },
+    "logger": {
+        // 建议填写，默认的是DEBUG，它的输出有点多
+        "level": "INFO",
+        // 你可以自定义名字日志的名字，这由你自己决定
+        "file_path": "./logs/repeater.log"
+    },
+    "render": {
+        "markdown": {
+            "to_image": {
+                // 这里十分建议你填写你自己的 wkhtmltoimage 可执行文件的路径
+                // 除非你的系统PATH里面已经有了 wkhtmltoimage
+                "wkhtmltoimage_path": "wkhtmltoimage",
+                
+                // 这里也建议填写，因为不填写这一项可能会导致图片中的代码块没有pre标签而出现问题
+                "preprocess_map": {
+                    "after": {
+                        "<code>": "<pre><code>",
+                        "</code>": "</code></pre>"
+                    }
+                },
+            }
+        }
+    }
+}
+```
 
 ---
 
@@ -218,20 +400,21 @@ PS: 配置读取时键名不区分大小写，但建议使用小写格式
 ```json
 [
     {
-        "name": "Deepseek",
-        "api_key_env": "DEEPSEEK_API_KEY",
-        "url": "https://api.deepseek.com",
+        "name": "Deepseek", // 显示在日志上的模型组名称
+        "api_key_env": "DEEPSEEK_API_KEY", // 这里填写API_KEY的环境变量名称
+        "url": "https://api.deepseek.com", // 这里填写API的URL
         "models": [
             {
-                "name": "Deepseek Think Model",
-                "id": "deepseek-reasoner",
-                "uid": "deepseek-reasoner",
-                "type": "chat"
+                "name": "Deepseek Think Model", // 显示在日志上的模型名称
+                "id": "deepseek-reasoner", // 面向API厂商的模型ID
+                "uid": "deepseek-reasoner", // 面向Repeater和用户的模型ID
+                "type": "chat" // 保留字段，必须为chat
             },
             {
                 "name": "Deepseek Chat Model",
                 "id": "deepseek-chat",
                 "uid": "deepseek-chat",
+                "url": "https://api.deepseek.com/chat", // 如果模型有单独的URL，可以单独填写
                 "type": "chat"
             }
         ]
@@ -251,9 +434,11 @@ PS: 配置读取时键名不区分大小写，但建议使用小写格式
                 "name": "GPT-4",
                 "id": "gpt-4",
                 "uid": "gpt-4",
+                "timeout": 240.0, // 模型单独设置的超时时间可以覆盖模型组提供的全局设置
                 "type": "chat"
             }
-        ]
+        ],
+        "timeout": 120.0 // 请求的超时设置，单位为秒
     }
 ]
 ```
@@ -323,6 +508,15 @@ PS: 首行必须是`[REGEX PARALLEL FILE]`或`[REGEX SERIES FILE]`，表示该�
 ---
 
 ## 模板展开系统
+
+模板展开系统用于将模板中的变量替换为实际值
+这里用单大括号括起来的内容叫变量
+例如 `{user_name}` 表示用户名
+模板展开系统会自动将变量替换为实际值，例如 `{user_name}` 可能会被替换为 `张三`
+而在Repeater内，模板展开器是允许注册函数变量的
+所以你可以给变量传参，按照Shell的风格进行
+例如 `{randchoice 1 2 3}` 表示随机选择1、2、3中的一个
+`{copytext "hello" 5 " "}` 表示将`hello`复制5次，并用空格连接
 
 ### 变量表
 
@@ -428,6 +622,9 @@ PS: 转义必须保证转义处理器一字不漏，否则会以普通文本输�
 | `POST` | `/admin/configs/reload` | 请求头 | `X-Admin-API-Key(str)` | 重新加载配置 (警告：某些模块会缓存配置结果，这可能导致模块之间的配置差异！) | `JSON对象` |
 | `POST` | `/admin/configs/{name:str}/seek/{index:int}` | 请求头 | `X-Admin-API-Key(str)` | 移动指针在指定配置栈中的位置 | `JSON对象` |
 | `POST` | `/admin/regenerate/admin_key` | 请求头 | `X-Admin-API-Key(str)` | 重新生成管理密钥 | `JSON对象` |
+| `GET` | `/version` | | | 获取版本信息 | `JSON对象` |
+| `GET` | `/version/api` | | | 获取API版本信息 | `纯文本` |
+| `GET` | `/version/core` | | | 获取核心版本信息 | `纯文本` |
 
 ---
 
