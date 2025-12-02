@@ -12,10 +12,10 @@ from pathlib import Path
 import traceback
 
 # ==== 第三方库 ==== #
-from loguru import logger
-import aiofiles
 import orjson
+import aiofiles
 import numpy as np
+from loguru import logger
 
 # ==== 自定义库 ==== #
 from .CallAPI import (
@@ -30,6 +30,7 @@ from .ApiInfo import (
 from . import Request_Log
 from TextProcessors import (
     PromptVP,
+    str_to_bool
 )
 from .Request_User_Info import Request_User_Info
 from .Lock_Pool import AsyncLockPool
@@ -170,11 +171,13 @@ class Core:
         
         return await self.promptvariable.get_prompt_variable(
             user_id = user_id,
-            BirthdayCountdown = lambda **kw: get_birthday_countdown(
+            birthday_countdown = lambda detailed_mode = False: get_birthday_countdown(
                 bot_birthday_month,
                 bot_birthday_day,
-                name=bot_name
+                name=bot_name,
+                detailed_mode = str_to_bool(detailed_mode),
             ),
+            reprs = lambda *args: "\n".join([repr(arg) for arg in args]),
             version = ConfigManager.get_configs().core.version or __version__,
             model_uid = model_uid if model_uid else config.get("model_uid"),
             botname = bot_name,
