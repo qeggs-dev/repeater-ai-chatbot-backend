@@ -16,7 +16,7 @@ async def get_request_log():
         JSONResponse: Filtered log object dictionary
     """
     logs = await chat.request_log.read_request_log()
-    return JSONResponse(logs)
+    return JSONResponse([log.as_dict for log in logs])
 
 @app.get("/request_log/stream")
 async def stream_request_log():
