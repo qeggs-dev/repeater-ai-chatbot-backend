@@ -14,7 +14,7 @@ from ._RequestLogObject import RequestLogObject, CallAPILogObject
 class RequestLogManager:
     def __init__(
             self,
-            base_dir: os.PathLike | str,
+            base_dir: str | os.PathLike,
             debonce_save_wait_time: float | None = None,
             max_cache_size: int | None = None,
             auto_save: bool = True
