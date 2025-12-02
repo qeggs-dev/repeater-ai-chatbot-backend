@@ -52,7 +52,7 @@ from .Core_Response import Response
 # { PARADIGM } . { DEPLOYMENT } . { INTERFACE } . { INTERNAL } 
 # 如果一次修改涉及了主要使用范式的变化，就更新PARADIGM
 # 如果一次修改涉及了部署方面的巨大变化，就增加DEPLOYMENT
-# 如果一次修改涉及了接口的修改，就增加INTERFACE
+# 如果一次修改涉及了接口的修改，或是需要客户端对此做兼容，就增加INTERFACE
 # 如果一次修改仅实现了内部修改，而不影响外部接口，就增加INTERNAL
 # 上一级别的变化会清零后面的所有版本号
 __version__ = "4.3.0.0"
