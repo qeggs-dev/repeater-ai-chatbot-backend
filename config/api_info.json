@@ -1,81 +1,26 @@
 [
     {
-        "Name": "Deepseek",
-        "ApiKeyEnv": "DEEPSEEK_API_KEY",
-        "URL": "https://api.deepseek.com",
+        "name": "Deepseek",
+        "api_key_env": "DEEPSEEK_API_KEY",
+        "url": "https://api.deepseek.com",
         "models": [
             {
-                "Name": "Deepseek Think Model",
-                "Id": "deepseek-reasoner",
-                "Uid": "deepseek-reasoner",
-                "TaskType": "LLM Chat"
+                "name": "Deepseek Think Model",
+                "id": "deepseek-reasoner",
+                "uid": "deepseek-reasoner",
+                "type": "chat"
             },
             {
-                "Name": "Deepseek Chat Model",
-                "Id": "deepseek-chat",
-                "Uid": "deepseek-chat",
-                "TaskType": "LLM Chat"
+                "name": "Deepseek Chat Model",
+                "id": "deepseek-chat",
+                "uid": "deepseek-chat",
+                "type": "chat"
             },
             {
-                "Name": "Deepseek Coder Model",
-                "Id": "deepseek-coder",
-                "Uid": "deepseek-coder",
-                "TaskType": "LLM Chat"
-            }
-        ]
-    },
-    {
-        "Name": "Baidu Qianfan",
-        "ApiKeyEnv": "QIANFAN_API_KEY",
-        "URL": "https://qianfan.baidubce.com/v2",
-        "models": [
-            {
-                "Name": "Deepseek R1",
-                "Id": "deepseek-r1-250528",
-                "Uid": "deepseek-r1",
-                "TaskType": "LLM Chat"
-            },
-            {
-                "Name": "Deepseek R1",
-                "Id": "deepseek-v3",
-                "Uid": "deepseek-v3",
-                "TaskType": "LLM Chat"
-            },
-            {
-                "Name": "Kimi-K2-Instruct",
-                "Id": "kimi-k2-instruct",
-                "Uid": "kimi-k2",
-                "TaskType": "LLM Chat"
-            },
-            {
-                "Name": "ERNIE 4.5 Turbo",
-                "Id": "ernie-4.5-turbo-128k",
-                "Uid": "ernie-4.5-turbo",
-                "TaskType": "LLM Chat"
-            },
-            {
-                "Name": "ERNIE-X1.1",
-                "Id": "ernie-x1.1",
-                "Uid": "ernie-x1.1",
-                "TaskType": "LLM Chat"
-            },
-            {
-                "Name": "Qwen3-235B-A22B-Thinking-2507",
-                "Id": "qwen3-235b-a22b-thinking-2507",
-                "Uid": "qwen3-235b-thinking",
-                "TaskType": "LLM Chat"
-            },
-            {
-                "Name": "Qwen3-Next-80B-A3B-Thinking",
-                "Id": "qwen3-next-80b-a3b-thinking",
-                "Uid": "qwen3-next-thinking",
-                "TaskType": "LLM Chat"
-            },
-            {
-                "Name": "Qwen3-235B-A22B-Instruct-2507",
-                "Id": "qwen3-235b-a22b-instruct-2507",
-                "Uid": "qwen3-235b-instruct",
-                "TaskType": "LLM Chat"
+                "name": "Deepseek Coder Model",
+                "id": "deepseek-coder",
+                "uid": "deepseek-coder",
+                "type": "chat"
             }
         ]
     }
