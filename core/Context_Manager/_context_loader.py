@@ -33,7 +33,7 @@ from TextProcessors import (
     limit_blank_lines,
 )
 from PathProcessors import validate_path, sanitize_filename
-from ..Global_Config_Manager import ConfigManager
+from ..Global_Config_Manager import ConfigManager as GlobalConfigManager
 
 # ==== 本模块代码 ==== #
 class ContextLoader:
@@ -55,15 +55,15 @@ class ContextLoader:
             logger.info(f"Load User Prompt", user_id = user_id)
         else:
             # 加载默认提示词
-            default_prompt_dir = Path(ConfigManager.get_configs().prompt.dir)
+            default_prompt_dir = Path(GlobalConfigManager.get_configs().prompt.dir)
             if default_prompt_dir.exists():
                 # 如果存在默认提示词文件，则加载默认提示词文件
                 config = await self.config.load(user_id)
                 
                 # 获取默认提示词文件名
-                parset_prompt_name = config.get("parset_prompt_name", ConfigManager.get_configs().prompt.preset_name)
-                parset_prompt_encoding = config.get("parset_prompt_encoding", ConfigManager.get_configs().prompt.encoding)
-                suffix = ConfigManager.get_configs().prompt.suffix
+                parset_prompt_name = config.get("parset_prompt_name", GlobalConfigManager.get_configs().prompt.preset_name)
+                parset_prompt_encoding = config.get("parset_prompt_encoding", GlobalConfigManager.get_configs().prompt.encoding)
+                suffix = GlobalConfigManager.get_configs().prompt.suffix
 
                 # 加载默认提示词文件
                 default_prompt_file = default_prompt_dir / f'{sanitize_filename(parset_prompt_name)}{suffix}'
