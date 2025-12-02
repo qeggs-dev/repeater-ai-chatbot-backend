@@ -3,7 +3,10 @@ env = Env()
 env.read_env()
 
 import sys
-from API import app, configs
+from core import (
+    Global_Config_Manager as Global_Config,
+    API as Core_API
+)
 from loguru import logger
 
 def main():
@@ -16,10 +19,10 @@ def main():
     workers = env.int("WORKERS", None)
     reload = env.bool("RELOAD", False)
 
-    host = configs.get_config("server.host", host).get_value(str)
-    port = configs.get_config("server.port", port).get_value(int)
-    workers = configs.get_config("server.workers", workers).get_value(int)
-    reload = configs.get_config("server.reload", reload).get_value(bool)
+    host = Global_Config.ConfigManager.get_configs().server.host or host
+    port = Global_Config.ConfigManager.get_configs().server.port or port
+    workers = Global_Config.ConfigManager.get_configs().server.workers or workers
+    reload = Global_Config.ConfigManager.get_configs().server.reload or reload
 
     logger.info(f"Starting server at {host}:{port}")
 
@@ -34,7 +37,7 @@ def main():
     logger.info("Server starting...")
 
     uvicorn.run(
-        app = app,
+        app = Core_API.app,
         host = host,
         port = port,
         workers = workers,
