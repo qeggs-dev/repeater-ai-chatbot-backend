@@ -4,7 +4,7 @@ import imgkit
 import asyncio
 from pathlib import Path
 from ._styles import Styles
-from ._BrExtension import BrExtension
+from ._br_extension import BrExtension
 
 # 修改 markdown_to_image 函数
 async def markdown_to_image(

@@ -1,4 +1,9 @@
-def get_birthday_countdown(birth_month:int, birth_day:int, name:str="", precise:bool=False):
+def get_birthday_countdown(
+        birth_month:int,
+        birth_day:int,
+        name:str="",
+        precise:bool=False
+    ) -> str:
     '''
     获取距离生日还有多少天
     '''
@@ -15,7 +20,7 @@ def get_birthday_countdown(birth_month:int, birth_day:int, name:str="", precise:
     
     # 判断当前是否在生日当天
     if now.date() == birthday_this_year.date():
-        return f"🎉 今天是{name}生日，Happy Birthday!"
+        return f"今天是{name}生日，Happy Birthday!"
     
     # 计算下一次生日的年份
     if now > birthday_this_year:
@@ -48,6 +53,6 @@ def get_birthday_countdown(birth_month:int, birth_day:int, name:str="", precise:
         days += 1
     
     if precise:
-        return f"⏳ 距离{name}生日还有：{days}天 {hours}时 {minutes}分 {seconds}秒"
+        return f"距离{name}生日还有：{days}天 {hours}时 {minutes}分 {seconds}秒"
     else:
-        return f"⏳ 距离{name}生日还有：{days}天"
+        return f"距离{name}生日还有：{days}天"
