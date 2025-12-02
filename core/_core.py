@@ -152,7 +152,7 @@ class Core:
             user_id: str,
             model_uid: str = "",
             user_info: Request_User_Info = Request_User_Info(),
-            config: User_Config_Manager.Configs = User_Config_Manager.Configs(),
+            config: User_Config_Manager.UserConfigs = User_Config_Manager.UserConfigs(),
         ) -> PromptVP:
         """
         获取指定用户的PromptVP实例
@@ -179,7 +179,7 @@ class Core:
             ),
             reprs = lambda *args: "\n".join([repr(arg) for arg in args]),
             version = ConfigManager.get_configs().core.version or __version__,
-            model_uid = model_uid if model_uid else config.get("model_uid"),
+            model_uid = model_uid if model_uid else config.model_uid,
             botname = bot_name,
             username = user_info.username or "None",
             nickname = user_info.nickname or "None",
@@ -188,8 +188,8 @@ class Core:
             user_info = user_info.as_dict,
             birthday = f"{bot_birthday_year}-{bot_birthday_month}-{bot_birthday_day}",
             zodiac = lambda **kw: date_to_zodiac(bot_birthday_month, bot_birthday_day),
-            time = lambda time_format = "%Y-%m-%d %H:%M:%S %Z": format_timestamp(time.time(), config.get("timezone", timezone), time_format),
-            age = lambda **kw: calculate_age(bot_birthday_year, bot_birthday_month, bot_birthday_day, offset_timezone = config.get("timezone", timezone)),
+            time = lambda time_format = "%Y-%m-%d %H:%M:%S %Z": format_timestamp(time.time(), config.timezone or timezone, time_format),
+            age = lambda **kw: calculate_age(bot_birthday_year, bot_birthday_month, bot_birthday_day, offset_timezone = config.timezone or timezone),
             random = lambda min, max: random.randint(int(min), int(max)),
             randfloat = lambda min, max: random.uniform(float(min), float(max)),
             randchoice = lambda *args: random.choice(args),
@@ -235,7 +235,7 @@ class Core:
     # endregion
 
     # region > get config
-    async def get_config(self, user_id: str) -> User_Config_Manager.Configs:
+    async def get_config(self, user_id: str) -> User_Config_Manager.UserConfigs:
         """
         加载用户配置
 
@@ -428,7 +428,7 @@ class Core:
                 
                 # 获取默认模型uid
                 if model_uid is None:
-                    model_uid: str = config.get("model_uid", ConfigManager.get_configs().api_info.default_model_uid)
+                    model_uid: str = config.model_uid or ConfigManager.get_configs().api_info.default_model_uid
                 
                 # 获取API信息
                 apilist = self.apiinfo.find(model_uid = model_uid)
@@ -481,7 +481,7 @@ class Core:
                 )
 
                 # 如果上下文需要收缩，则进行收缩(为零或类型不对则不进行操作)
-                max_context_length = config.get('auto_shrink_length', ConfigManager.get_configs().context.auto_shrink_length)
+                max_context_length = config.auto_shrink_length or ConfigManager.get_configs().context.auto_shrink_length
                 if isinstance(max_context_length, int) and max_context_length > 0:
                     if len(context) > max_context_length:
                         logger.info(f"Context length exceeds {max_context_length}, auto shrink", user_id = user_id)
@@ -558,13 +558,13 @@ class Core:
 
                 # 设置请求对象的参数信息
                 request.user_name = user_info.nickname
-                request.temperature = config.get("temperature", ConfigManager.get_configs().model.default_temperature)
-                request.top_p = config.get("top_p", ConfigManager.get_configs().model.default_top_p)
-                request.frequency_penalty = config.get("frequency_penalty", ConfigManager.get_configs().model.default_frequency_penalty)
-                request.presence_penalty = config.get("presence_penalty", ConfigManager.get_configs().model.default_presence_penalty)
-                request.max_tokens = config.get("max_tokens", ConfigManager.get_configs().model.default_max_tokens)
-                request.max_completion_tokens = config.get("model.max_completion_tokens", ConfigManager.get_configs().model.default_max_completion_tokens)
-                request.stop = config.get("stop", ConfigManager.get_configs().model.default_stop)
+                request.temperature = config.temperature or ConfigManager.get_configs().model.default_temperature
+                request.top_p = config.top_p or ConfigManager.get_configs().model.default_top_p
+                request.frequency_penalty = config.frequency_penalty or ConfigManager.get_configs().model.default_frequency_penalty
+                request.presence_penalty = config.presence_penalty or ConfigManager.get_configs().model.default_presence_penalty
+                request.max_tokens = config.max_tokens or ConfigManager.get_configs().model.default_max_tokens
+                request.max_completion_tokens = config.max_completion_tokens or ConfigManager.get_configs().model.default_max_completion_tokens
+                request.stop = config.stop or ConfigManager.get_configs().model.default_stop
                 request.stream = ConfigManager.get_configs().model.stream
                 request.print_chunk = print_chunk
 
