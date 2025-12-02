@@ -123,7 +123,7 @@ async def render(
 
 @app.get("/render_styles")
 async def get_render_styles():
-    styles_path = ConfigManager.get_configs().render.markdown.to_image.styles_dir
+    styles_path = Path(ConfigManager.get_configs().render.markdown.to_image.styles_dir)
     styles = Styles(
         styles_path = styles_path,
     )
