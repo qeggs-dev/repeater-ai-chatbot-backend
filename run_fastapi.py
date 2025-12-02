@@ -2,15 +2,17 @@ from environs import Env
 env = Env()
 env.read_env()
 
+import uvicorn
 import sys
 from core import (
     Global_Config_Manager as Global_Config,
-    API as Core_API
+    API as Core_API,
+    __version__ as core_version,
+    __api_version__ as core_api_version,
 )
 from loguru import logger
 
 def main():
-    import uvicorn
     host = "0.0.0.0" # 默认监听所有地址
     port = 8000 # 默认监听8000端口
 
@@ -33,6 +35,8 @@ def main():
         logger.info("Server will reload on code change")
     
     logger.info(f"Run With Python {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
+    logger.info(f"Core Version: {core_version}")
+    logger.info(f"Core API Version: {core_api_version}")
     
     logger.info("Server starting...")
 
