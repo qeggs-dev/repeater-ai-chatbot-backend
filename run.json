@@ -15,7 +15,7 @@
     },
     "venv_prompt": ".venv",
     "script_name": [
-        "run_fastapi.py"
+        "run_repeater.py"
     ],
     "argument": null,
     "restart": true,
