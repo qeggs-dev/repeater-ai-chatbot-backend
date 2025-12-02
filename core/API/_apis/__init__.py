@@ -55,3 +55,8 @@ from ._static_api import (
     robots,
     static,
 )
+from ._version import (
+    version,
+    api_version,
+    core_version,
+)
