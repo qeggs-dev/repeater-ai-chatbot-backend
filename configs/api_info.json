@@ -15,12 +15,6 @@
                 "id": "deepseek-chat",
                 "uid": "deepseek-chat",
                 "type": "chat"
-            },
-            {
-                "name": "Deepseek Coder Model",
-                "id": "deepseek-coder",
-                "uid": "deepseek-coder",
-                "type": "chat"
             }
         ]
     }

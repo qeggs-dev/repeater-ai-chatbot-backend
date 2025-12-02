@@ -32,7 +32,6 @@
         "compression": "zip"
     },
     "model": {
-        "default_model_uid": "chat",
         "default_temperature": 1.0,
         "default_top_p": 1.0,
         "default_max_tokens": 4096,
@@ -57,7 +56,10 @@
                 "style_file_encoding": "utf-8",
                 "preprocess_map": {
                     "before": {},
-                    "after": {}
+                    "after": {
+                        "<code>": "<pre><code>",
+                        "</code>": "</code></pre>"
+                    }
                 },
                 "wkhtmltoimage_path": "wkhtmltoimage",
                 "output_dir": "./workspace/temp/render"
