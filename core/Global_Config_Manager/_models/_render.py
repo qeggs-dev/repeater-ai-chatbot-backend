@@ -11,7 +11,7 @@ class Markdwn_To_Image_Config(BaseModel):
     model_config = ConfigDict(case_sensitive=False)
 
     default_style: str = "light"
-    styles_dir: str = "./config/styles"
+    styles_dir: str = "./configs/styles"
     style_file_encoding: str = "utf-8"
     preprocess_map: Preprocess_Map_Config = Field(default_factory=Preprocess_Map_Config)
     wkhtmltoimage_path: str = "wkhtmltoimage"
