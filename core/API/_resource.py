@@ -4,7 +4,6 @@ env = Env()
 from fastapi import FastAPI
 
 # ==== 自定义库 ==== #
-from ..Global_Config_Manager import ConfigManager
 from .._core import Core
 from AdminApikeyManager import AdminKeyManager
 from PathProcessors import validate_path
