@@ -20,7 +20,7 @@ from ..Data_Manager import (
 )
 from ..User_Config_Manager import (
     ConfigManager,
-    Configs
+    UserConfigs
 )
 from ._object import (
     ContextObject,
@@ -39,16 +39,16 @@ from ..Global_Config_Manager import ConfigManager as GlobalConfigManager
 class ContextLoader:
     def __init__(
             self,
-            config: ConfigManager,
-            prompt: PromptManager,
             context: ContextManager,
+            prompt: PromptManager,
+            config: ConfigManager,
         ):
-        self.config: ConfigManager = config
-        self.prompt: PromptManager = prompt
-        self.context: ContextManager = context
+        self._context_manager: ContextManager = context
+        self._prompt_manager: PromptManager = prompt
+        self._config_manager: ConfigManager = config
     
     async def _load_prompt(self, context:ContextObject, user_id: str, prompt_vp: PromptVP) -> ContextObject:
-        user_prompt:str = await self.prompt.load(user_id=user_id, default='')
+        user_prompt:str = await self._prompt_manager.load(user_id=user_id, default='')
         if user_prompt:
             # 使用用户提示词
             prompt = user_prompt
@@ -58,11 +58,11 @@ class ContextLoader:
             default_prompt_dir = Path(GlobalConfigManager.get_configs().prompt.dir)
             if default_prompt_dir.exists():
                 # 如果存在默认提示词文件，则加载默认提示词文件
-                config = await self.config.load(user_id)
+                config = await self._config_manager.load(user_id)
                 
                 # 获取默认提示词文件名
-                parset_prompt_name = config.get("parset_prompt_name", GlobalConfigManager.get_configs().prompt.preset_name)
-                parset_prompt_encoding = config.get("parset_prompt_encoding", GlobalConfigManager.get_configs().prompt.encoding)
+                parset_prompt_name = config.parset_prompt_name or GlobalConfigManager.get_configs().prompt.preset_name
+                parset_prompt_encoding = GlobalConfigManager.get_configs().prompt.encoding
                 suffix = GlobalConfigManager.get_configs().prompt.suffix
 
                 # 加载默认提示词文件
@@ -97,7 +97,7 @@ class ContextLoader:
             user_id: str
         ) -> ContextObject:
         try:
-            context_data = await self.context.load(user_id=user_id, default=[])
+            context_data = await self._context_manager.load(user_id=user_id, default=[])
         except orjson.JSONDecodeError:
             raise ContextLoadingSyntaxError(f"Context File Syntax Error: {user_id}")
         # 构建上下文对象
@@ -207,5 +207,5 @@ class ContextLoader:
         :param user_id: 用户ID
         :param context: 上下文对象
         """
-        await self.context.save(user_id, context.context)
+        await self._context_manager.save(user_id, context.context)
         logger.info(f"Save Context: {len(context)}", user_id = user_id)
