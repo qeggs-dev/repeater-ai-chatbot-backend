@@ -1,11 +1,12 @@
 {
     "api_info": {
-        "api_file_path": "./config/api_info.json",
-        "default_model_uid": "chat"
+        "api_file_path": "./configs/api_info.json",
+        "default_model_uid": "chat",
+        "case_sensitive": false
     },
     "blacklist": {
-        "file_path": "./config/blacklist.regex",
-        "match_timeout": 10
+        "file_path": "./configs/blacklist.regex",
+        "match_timeout": 10.0
     },
     "bot_info": {
         "name": "Repeater",
@@ -26,7 +27,7 @@
     },
     "logger": {
         "file_path": "./logs/repeater-log-{time:YYYY-MM-DD_HH-mm-ss.SSS}.log",
-        "level": "INFO",
+        "level": "DEBUG",
         "rotation": "10 MB",
         "retention": "7 days",
         "compression": "zip"
@@ -42,7 +43,7 @@
         "stream": true
     },
     "prompt": {
-        "dir": "./config/prompt/presets",
+        "dir": "./configs/prompt/presets",
         "suffix": ".md",
         "encoding": "utf-8",
         "preset_name": "default"
@@ -52,14 +53,11 @@
         "markdown": {
             "to_image": {
                 "default_style": "light",
-                "styles_dir": "./config/styles",
+                "styles_dir": "./configs/styles",
                 "style_file_encoding": "utf-8",
                 "preprocess_map": {
                     "before": {},
-                    "after": {
-                        "<code>": "<pre><code>",
-                        "</code>": "</code></pre>"
-                    }
+                    "after": {}
                 },
                 "wkhtmltoimage_path": "wkhtmltoimage",
                 "output_dir": "./workspace/temp/render"
@@ -97,9 +95,9 @@
         "cache_data": false
     },
     "user_nickname_mapping": {
-        "file_path": "./config/user_nickname_mapping.json"
+        "file_path": "./configs/user_nickname_mapping.json"
     },
     "web": {
-        "index_web_file": "./static/index.html"
+        "index_web_file": ""
     }
 }
