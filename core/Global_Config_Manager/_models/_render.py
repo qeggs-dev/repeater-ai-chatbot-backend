@@ -17,6 +17,7 @@ class Render_Markdown_Config(BaseModel):
     html_template_file_encoding: str = "utf-8"
     default_html_template: str = "default.html"
     preprocess_map: Preprocess_Map_Config = Field(default_factory=Preprocess_Map_Config)
+    title: str = "Repeater Image Generator"
 
 class Markdwn_To_Image_Config(BaseModel):
     model_config = ConfigDict(case_sensitive=False)
@@ -28,6 +29,9 @@ class Markdwn_To_Image_Config(BaseModel):
     headless: bool = True
     output_suffix: str = ".png"
     executable_path: str = None
+    width: int = 1200
+    height: int = 600
+    quality: int = 90
 
 class Render_Config(BaseModel):
     model_config = ConfigDict(case_sensitive=False)
