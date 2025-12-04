@@ -213,6 +213,8 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
         "stream": true
     },
     "prompt": {
+        // Prompt 配置
+
         // 告诉Prompt加载器预设提示词目录的路径
         "dir": "./config/prompt/presets",
         // 预设提示词文件的后缀名
@@ -223,37 +225,55 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
         "preset_name": "default"
     },
     "render": {
-        // 图片渲染完成后的链接有效时间
-        "default_image_timeout": 60.0,
-        "markdown": {
-            "to_image": {
-                // 如果用户没设置样式，应该使用什么样式
-                "default_style": "light",
-                // 样式文件在什么地方
-                "styles_dir": "./config/styles",
-                // 样式文件应该使用什么编码打开
-                "style_file_encoding": "utf-8",
-                // 在翻译开始和结束的时候，对哪些子字符串进行映射
-                "preprocess_map": {
-                    // 在翻译开始之前
-                    // 此时的文本是Markdown格式
-                    "before": {},
+        // Markdown 图片渲染器配置
 
-                    // 在翻译结束之后
-                    // 此时的文本是HTML格式
-                    "after": {
-                        "<code>": "<pre><code>",
-                        "</code>": "</code></pre>"
-                    }
-                },
-                // wkhtmltoimage 可执行文件的路径
-                // 可以从 https://wkhtmltopdf.org/downloads.html 下载
-                // 如果系统PATH中没有 wkhtmltoimage 的话
-                // 建议在此处设置 wkhtmltoimage 的完整路径
-                "wkhtmltoimage_path": "wkhtmltoimage",
-                // wkhtmltoimage 输出的图片保存目录
-                "output_dir": "./workspace/temp/render"
-            }
+        // 图片等待多少时间后被删除（URL有效时间）
+        "default_image_timeout": 60.0,
+        // Markdown 到 HTML 渲染配置
+        "markdown": {
+            // 默认样式
+            "default_style": "light",
+            // 样式文件目录
+            "styles_dir": "./configs/styles",
+            // 样式文件应该用什么编码打开
+            "style_file_encoding": "utf-8",
+            // HTML 模板文件目录
+            "html_template_dir": "./configs/html_templates",
+            // HTML 模板文件应该用什么编码打开
+            "html_template_file_encoding": "utf-8",
+            // 默认使用的 HTML 模板文件
+            "default_html_template": "default.html",
+            // Markdown 预处理器配置
+            "preprocess_map": {
+                // Before 预处理器
+                // 处理 Markdown 数据
+                "before": {},
+                // After 预处理器
+                // 处理 HTML 数据
+                "after": {}
+            },
+            // 在 HTML 中添加的标题
+            "title": "Repeater Image Generator"
+        },
+        "to_image": {
+            // 最多允许在一个浏览器中打开多少个页面
+            "max_pages_per_browser": 5,
+            // 最多允许同时打开的浏览器数量
+            "max_browsers": 2,
+            // 浏览器类型
+            "browser_type": "msedge",
+            // 浏览器是否为无头模式
+            "headless": true,
+            // 输出图片的目录
+            "output_dir": "./workspace/temp/render",
+            // 输出图片的格式
+            "output_suffix": ".png",
+            // 浏览器的可执行文件路径
+            "executable_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+
+            // 浏览器窗口大小
+            "width": 1200,
+            "height": 600
         }
     },
     "request_log": {
