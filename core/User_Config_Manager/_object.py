@@ -19,5 +19,6 @@ class UserConfigs(BaseModel):
     auto_shrink_length: int | None = None
     render_style: str | None = None
     render_html_template: str | None = None
+    render_title: str | None = None
     load_prompt: bool = True
     save_context: bool = True
