@@ -10,6 +10,7 @@ async def markdown_to_html(
     markdown_text: str,
     html_template: str,
     css: str,
+    title: str = "Markdown Render",
     width: int = 800,
     preprocess_map_before: dict[str, str] | None = None,
     preprocess_map_after: dict[str, str] | None = None,
@@ -51,6 +52,10 @@ async def markdown_to_html(
     template_handler.register_variable(
         name = "css",
         value = css
+    )
+    template_handler.register_variable(
+        name = "title",
+        value = title
     )
 
     # 5. 生成 HTML 文本
