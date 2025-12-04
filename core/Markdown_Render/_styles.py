@@ -48,7 +48,7 @@ class Styles:
         style_names = [f.stem for f in basepath.glob('*.css')]
         return style_names
 
-BASE_STYLE = """
+BASE_STYLE = r"""
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: #ffffff;
