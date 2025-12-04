@@ -1,8 +1,12 @@
 from .._resource import (
     app,
-    chat
+    chat,
+    browser_pool_manager
 )
-from Markdown import markdown_to_image, Styles
+from ...Markdown_Render import (
+    markdown_to_html,
+    Styles
+)
 from fastapi import (
     HTTPException,
     BackgroundTasks,
@@ -11,6 +15,7 @@ from fastapi import (
 from fastapi.responses import ORJSONResponse
 from pydantic import BaseModel
 import asyncio
+import aiofiles
 import os
 import time
 from loguru import logger
@@ -22,6 +27,10 @@ class RenderRequest(BaseModel):
     text: str
     style: str | None = None
     timeout: float | None = None
+    css: str | None = None
+    width: int = 1600
+    height: int = 900
+    quality: int = 90
 
 @app.post("/render/{user_id}")
 async def render(
@@ -33,14 +42,15 @@ async def render(
     """
     Endpoint for rendering markdown text to image
     """
+    start_time = time.monotonic_ns()
 
     if render_request.text == None:
         raise HTTPException(status_code=400, detail="text is required")
     
     # 生成图片ID
     fuuid = uuid4()
-    filename = f"{fuuid}.png"
-    render_output_image_dir = Path(ConfigManager.get_configs().render.markdown.to_image.output_dir)
+    filename = f"{fuuid}{ConfigManager.get_configs().render.to_image.output_suffix}"
+    render_output_image_dir = Path(ConfigManager.get_configs().render.to_image.output_dir)
 
     # 延迟删除函数
     async def _wait_delete(sleep_time: float, filename: str):
@@ -61,44 +71,78 @@ async def render(
             logger.info("Image delete task cancelled", user_id = user_id)
             await _delete(filename)
         
-    if render_request.style:
-        style_path = ConfigManager.get_configs().render.markdown.to_image.styles_dir
-        styles = Styles(
-            style_path
-        )
+    style_path = ConfigManager.get_configs().render.markdown.styles_dir
+    styles = Styles(
+        style_path
+    )
+    style_file_encoding = ConfigManager.get_configs().render.markdown.style_file_encoding
+
+    # 获取用户配置
+    config = await chat.user_config_manager.load(user_id)
+
+    if render_request.css:
+        style_name = "custom"
+        css = render_request.css
+    elif render_request.style:
         if render_request.style in styles.get_style_names():
-            style = render_request.style
+            style_name = render_request.style
         else:
             raise HTTPException(status_code=400, detail="Invalid style")
+        
+        css = await styles.get_style(
+            style_name,
+            encoding = style_file_encoding
+        )
     else:
-        # 获取用户配置
-        config = await chat.user_config_manager.load(user_id)
         # 获取环境变量中的图片渲染风格
-        default_style = ConfigManager.get_configs().render.markdown.to_image.default_style
-        # 获取图片渲染风格
-        style: str = config.render_style or default_style
+        style_name = ConfigManager.get_configs().render.markdown.default_style
+        css = await styles.get_style(
+            config.render_style or style_name,
+            encoding = style_file_encoding
+        )
     
     if not render_request.timeout:
         render_request.timeout = ConfigManager.get_configs().render.default_image_timeout
     
     # 日志打印文件名和渲染风格
-    logger.info(f'Rendering image {filename} for "{style}" style', user_id=user_id)
+    logger.info(f'Rendering image {filename} for "{style_name}" style', user_id=user_id)
 
-    wkhtmltoimage_path = Path(ConfigManager.get_configs().render.markdown.to_image.wkhtmltoimage_path)
-    style_file_encoding = ConfigManager.get_configs().render.markdown.to_image.style_file_encoding
-    preprocess_map_before = ConfigManager.get_configs().render.markdown.to_image.preprocess_map.before
-    preprocess_map_end = ConfigManager.get_configs().render.markdown.to_image.preprocess_map.after
+    browser_type = ConfigManager.get_configs().render.to_image.browser_type
+    preprocess_map_before = ConfigManager.get_configs().render.markdown.preprocess_map.before
+    preprocess_map_after = ConfigManager.get_configs().render.markdown.preprocess_map.after
+    html_template_dir = Path(ConfigManager.get_configs().render.markdown.html_template_dir)
+    html_template_encoding = ConfigManager.get_configs().render.markdown.html_template_file_encoding
+    html_template_name = config.render_html_template if config.render_html_template is not None else ConfigManager.get_configs().render.markdown.default_html_template
 
-    # 调用markdown_to_image函数生成图片
-    await markdown_to_image(
+    # 读取HTML模板
+    async with aiofiles.open(html_template_dir / html_template_name, 'r', encoding=html_template_encoding) as f:
+        html_template = await f.read()
+    
+    end_of_preprocessing = time.monotonic_ns()
+
+    # 调用生成HTML
+    html = await markdown_to_html(
         markdown_text = render_request.text,
-        output_path = render_output_image_dir / filename,
-        wkhtmltoimage_path = wkhtmltoimage_path,
-        style = style,
-        style_file_encoding = style_file_encoding,
+        html_template = html_template,
+        width = render_request.width,
+        css = css,
         preprocess_map_before = preprocess_map_before,
-        preprocess_map_end = preprocess_map_end,
+        preprocess_map_after = preprocess_map_after,
     )
+
+    end_of_md_to_html = time.monotonic_ns()
+
+    # 生成图片
+    result = await browser_pool_manager.render_html(
+        html_content = html,
+        output_path = render_output_image_dir / filename,
+        browser_type = browser_type,
+        width = render_request.width,
+        height = render_request.height,
+    )
+
+    end_of_render = time.monotonic_ns()
+
     create_ms = time.time_ns() // 10**6
     create = create_ms // 1000
     logger.info(f'Created image {filename}', user_id = user_id)
@@ -113,17 +157,26 @@ async def render(
         {
             "image_url": str(fileurl),
             "file_uuid": str(fuuid),
-            "style": style,
+            "style": style_name,
+            "status": result.status.value,
+            "browser_used": result.browser_used,
             "timeout": render_request.timeout,
+            "error": result.error,
             "text": render_request.text,
+            "image_render_time_ms": result.render_time_ms,
             "created": create,
-            "created_ms": create_ms
+            "created_ms": create_ms,
+            "times": {
+                "preprocess": end_of_preprocessing - start_time,
+                "markdown_to_html": end_of_md_to_html - end_of_preprocessing,
+                "render": end_of_render - end_of_md_to_html,
+            }
         }
     )
 
 @app.get("/render_styles")
 async def get_render_styles():
-    styles_path = Path(ConfigManager.get_configs().render.markdown.to_image.styles_dir)
+    styles_path = Path(ConfigManager.get_configs().render.markdown.styles_dir)
     styles = Styles(
         styles_path = styles_path,
     )
