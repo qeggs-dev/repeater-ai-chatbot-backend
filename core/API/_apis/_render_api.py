@@ -5,7 +5,8 @@ from .._resource import (
 )
 from ...Markdown_Render import (
     markdown_to_html,
-    Styles
+    Styles,
+    HTML_Render
 )
 from fastapi import (
     HTTPException,
@@ -28,9 +29,9 @@ class RenderRequest(BaseModel):
     style: str | None = None
     timeout: float | None = None
     css: str | None = None
-    width: int = 1600
-    height: int = 900
-    quality: int = 90
+    width: int | None = None
+    height: int | None = None
+    quality: int | None = None
 
 @app.post("/render/{user_id}")
 async def render(
@@ -87,14 +88,17 @@ async def render(
         if render_request.style in styles.get_style_names():
             style_name = render_request.style
         else:
-            raise HTTPException(status_code=400, detail="Invalid style")
+            raise HTTPException(
+                status_code=404,
+                detail="Style not found"
+            )
         
         css = await styles.get_style(
             style_name,
             encoding = style_file_encoding
         )
     else:
-        # 获取环境变量中的图片渲染风格
+        # 获取全局配置中的默认图片渲染风格
         style_name = ConfigManager.get_configs().render.markdown.default_style
         css = await styles.get_style(
             config.render_style or style_name,
@@ -113,6 +117,11 @@ async def render(
     html_template_dir = Path(ConfigManager.get_configs().render.markdown.html_template_dir)
     html_template_encoding = ConfigManager.get_configs().render.markdown.html_template_file_encoding
     html_template_name = config.render_html_template if config.render_html_template is not None else ConfigManager.get_configs().render.markdown.default_html_template
+    title = config.render_title if config.render_title is not None else ConfigManager.get_configs().render.markdown.title
+
+    width = render_request.width if render_request.width is not None else ConfigManager.get_configs().render.to_image.width
+    height = render_request.height if render_request.height is not None else ConfigManager.get_configs().render.to_image.height
+    quality = render_request.quality if render_request.quality is not None else ConfigManager.get_configs().render.to_image.quality
 
     # 读取HTML模板
     async with aiofiles.open(html_template_dir / html_template_name, 'r', encoding=html_template_encoding) as f:
@@ -124,7 +133,8 @@ async def render(
     html = await markdown_to_html(
         markdown_text = render_request.text,
         html_template = html_template,
-        width = render_request.width,
+        width = width,
+        title = title,
         css = css,
         preprocess_map_before = preprocess_map_before,
         preprocess_map_after = preprocess_map_after,
@@ -137,8 +147,11 @@ async def render(
         html_content = html,
         output_path = render_output_image_dir / filename,
         browser_type = browser_type,
-        width = render_request.width,
-        height = render_request.height,
+        config = HTML_Render.RenderConfig(
+            width = width,
+            height = height,
+            quality = quality
+        )
     )
 
     end_of_render = time.monotonic_ns()
