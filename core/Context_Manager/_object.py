@@ -478,36 +478,29 @@ class ContextObject:
         """
         缩小上下文长度
         
-        :param length: 正数保留最后length个元素，负数保留前|length|个元素
+        :param length: 上下文总字数
         :param ensure_role_at_top: 确保指定角色在顶部
         :raise IndexOutOfRangeError: 数量超出范围
         """
-        current_len = len(self.context_list)
-        
+        if length < 0:
+            raise IndexOutOfRangeError("length must be positive")
+
         # 当length大于等于实际长度时，不做任何事
-        if abs(length) >= len(self.context_list):
+        if abs(length) >= self.total_length:
             return
         
-        if length > 0:
-            # 保留最后 length 个元素
-            self.context_list = self.context_list[-length:]
-        elif length < 0:
-            # 保留前 |length| 个元素
-            elements_to_remove = current_len + length  # length为负，所以是加法
-            self.pop_last_n(elements_to_remove)
-        else:
-            # length == 0，清空列表
-            self.context_list = []
+        while self.total_length > length:
+            self.pop_begin_n(1)
         
-        # 检查头部角色信息
         if self.context_list and self.context_list[0].role != ensure_role_at_top:
             # 从头部寻找第一个为ensure_role_at_top的ContextUnit
             for i in range(len(self.context_list)):
                 if self.context_list[i].role == ensure_role_at_top:
-                    # pop掉前面的内容
-                    self.pop_begin_n(i)
+                    self.context_list = self.context_list[i:]
                     break
-    
+            else:
+                raise IndexOutOfRangeError(f"Role {ensure_role_at_top} not found in context_list")
+        
     def copy(self) -> ContextObject:
         """
         复制对象
