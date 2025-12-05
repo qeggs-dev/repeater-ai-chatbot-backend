@@ -7,7 +7,11 @@ from ._logger import (
     LogLevel
 )
 from ._model import Model_Config
-from ._prompt_template import Prompt_Template_Config
+from ._prompt_template import (
+    Prompt_Template_Config,
+    Bot_Info_Config,
+    Time_Config,
+)
 from ._prompt._prompt import Prompt_Config
 from ._render import (
     Preprocess_Map_Config,
@@ -20,7 +24,7 @@ from ._server import Server_Config
 from ._static import Static_Config
 from ._user_config_cache import User_Config_Cache_Config
 from ._user_data import (
-    Change_Data_Config,
+    Cache_Data_Config,
     User_Data_Config
 )
 from ._user_nickname_mapping import User_Nickname_Mapping_Config
@@ -47,7 +51,7 @@ __all__ = [
     "Static_Config",
     "Time_Config",
     "User_Config_Cache_Config",
-    "Change_Data_Config",
+    "Cache_Data_Config",
     "User_Data_Config",
     "User_Nickname_Mapping_Config",
     "Web_Config"
