@@ -1,15 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from enum import StrEnum
-
-class LogLevel(StrEnum):
-    """Logger log levels."""
-    TRACE = "TRACE"
-    DEBUG = "DEBUG"
-    INFO = "INFO"
-    SUCCESS = "SUCCESS"
-    WARNING = "WARNING"
-    ERROR = "ERROR"
-    CRITICAL = "CRITICAL"
+from ._log_level import LogLevel
 
 class Logger_Config(BaseModel):
     model_config = ConfigDict(case_sensitive=False)

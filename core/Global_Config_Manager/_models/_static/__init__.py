@@ -1,0 +1,1 @@
+from ._static import Static_Config
