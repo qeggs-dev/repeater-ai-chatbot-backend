@@ -12,7 +12,13 @@ config_loader.load(
 from . import API
 __api_version__ = API.__version__
 from . import Logger_Init
-from ._core import Core, Response, __version__
+from ._core import Core, Response
+from ._info import (
+    __version__,
+    __author__,
+    __license__,
+    __copyright__,
+)
 from . import Request_User_Info
 from . import User_Config_Manager
 from . import ApiInfo
