@@ -55,7 +55,15 @@ async def translation_chunk(
                             delta_data.function_arguments = tool.function.arguments
         
         if hasattr(choice, "finish_reason"):
-            delta_data.finish_reason = FinishReason(choice.finish_reason)
+            # 我不知道为什么，这里就是会出现 None
+            # 这 很 奇 怪
+            # 你这里是明明 Literal['stop', 'length', 'tool_calls', 'content_filter', 'function_call']
+            # 为什么会出现 None 呢
+            # 你害的我这个 Enum 炸了
+            # 所以我这里加了一个 if
+            # 注入怨念.jpg
+            if choice.finish_reason is not None:
+                delta_data.finish_reason = FinishReason(choice.finish_reason)
             
     if hasattr(chunk, "system_fingerprint"):
         delta_data.system_fingerprint = chunk.system_fingerprint
