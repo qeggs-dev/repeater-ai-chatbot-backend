@@ -92,7 +92,7 @@ class PromptVP:
     _VAR_EXTRACT_PATTERN = re.compile(r'(?<!\\)(?:\\\\)*\{([a-zA-Z0-9_]+)')
     # 条件块正则表达式
     _CONDITIONAL_BLOCK_PATTERN = re.compile(
-        r'\[([a-zA-Z0-9_]+)\]\s*->\s*```(.*?)```',
+        r'\[(.*?)\]\s*->\s*```(.*?)```',
         re.DOTALL
     )
     # 转义块正则表达式
@@ -181,12 +181,15 @@ class PromptVP:
             var_name, var_args = self._parse_var_and_args(variable)
             
             # 检查变量是否存在
-            if variable in self.variables:
+            if var_name in self.variables:
                 value = self.variables[var_name]
                 
                 # 如果是函数变量，执行函数获取值
                 if callable(value):
-                    value = value(*var_args, **kwargs)
+                    try:
+                        value = value(*var_args, **kwargs)
+                    except Exception as e:
+                        return f"[Function Error: {str(e)}]"
                 
                 # 检查值是否应该显示内容块
                 if self._should_display(value):
