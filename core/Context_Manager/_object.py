@@ -1,11 +1,11 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import overload, Iterable
-from enum import Enum
+from enum import StrEnum
 from ._exceptions import *
 from ._func_calling_obj import CallingFunctionResponse
 
-class ContextRole(Enum):
+class ContextRole(StrEnum):
     """
     上下文角色
     """
