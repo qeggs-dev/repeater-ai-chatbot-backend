@@ -17,6 +17,7 @@ from ...Core_Response import Response
 from ...Request_User_Info import Request_User_Info
 from ...ApiInfo import APIGroupNotFoundError
 from ...CallAPI import CompletionsAPI
+from ...Context_Manager import ContextRole
 from pydantic import BaseModel, Field
 import orjson
 
@@ -29,7 +30,7 @@ class UserInfo(BaseModel):
 class ChatRequest(BaseModel):
     message: str = ""
     user_info: UserInfo = Field(default_factory=UserInfo)
-    role: str = "user"
+    role: ContextRole = ContextRole.USER
     role_name: str | None = None
     model_uid: str | None = None
     load_prompt: bool | None = None
