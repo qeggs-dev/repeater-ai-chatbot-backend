@@ -119,6 +119,7 @@ async def render(
     html_template_dir = Path(ConfigManager.get_configs().render.markdown.html_template_dir)
     html_template_encoding = ConfigManager.get_configs().render.markdown.html_template_file_encoding
     html_template_name = config.render_html_template if config.render_html_template is not None else ConfigManager.get_configs().render.markdown.default_html_template
+    html_template_suffix = ConfigManager.get_configs().render.markdown.html_template_suffix
     title = config.render_title if config.render_title is not None else ConfigManager.get_configs().render.markdown.title
 
     width = render_request.width if render_request.width is not None else ConfigManager.get_configs().render.to_image.width
@@ -126,7 +127,7 @@ async def render(
     quality = render_request.quality if render_request.quality is not None else ConfigManager.get_configs().render.to_image.quality
 
     # 读取HTML模板
-    async with aiofiles.open(html_template_dir / html_template_name, 'r', encoding=html_template_encoding) as f:
+    async with aiofiles.open(html_template_dir / f"{html_template_name}{html_template_suffix}", 'r', encoding = html_template_encoding) as f:
         html_template = await f.read()
     
     end_of_preprocessing = time.monotonic_ns()
