@@ -1,5 +1,6 @@
 from __future__ import annotations
 import asyncio
+import time
 from typing import Any
 from ._enums import (
     BrowserType,
@@ -127,7 +128,6 @@ class BrowserPoolManager:
         Returns:
             RenderResult dataclass
         """
-        import time
         start_time = time.time()
         
         # 解析参数

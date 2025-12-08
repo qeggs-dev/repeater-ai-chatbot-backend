@@ -5,28 +5,30 @@ import re
 
 class CodeBlockExtension(Extension):
     def extendMarkdown(self, md):
-        md.preprocessors.register(CodeBlockPreprocessor(md), 'code_block', 30)
+        md.preprocessors.register(CodeBlockPreprocessor(md), "code_block", 30)
 
 class CodeBlockPreprocessor(Preprocessor):
-    FIND_BIG_CODE_BLOCK_PATTERN = re.compile(r'```.*?```', re.DOTALL)
-    FIND_LITTLE_CODE_BLOCK_PATTERN = re.compile(r'`.*?`', re.DOTALL)
-    def run(self, lines:Iterable[str]):
-        # 合并所有行
+    FIND_BIG_CODE_BLOCK_PATTERN = re.compile(r"```(.*?)```", re.DOTALL)
+    FIND_BIG_CODE_BLOCK_WITH_LANG_PATTERN = re.compile(r"```(.*?)(\n.*?)```", re.DOTALL)
+    FIND_LITTLE_CODE_BLOCK_PATTERN = re.compile(r"`(.*?)`", re.DOTALL)
+
+    def run(self, lines: Iterable[str]) -> Iterable[str]:
+        # 合并文本
         text = "\n".join(lines)
 
-        # 查找大代码块
-        big_code_blocks = self.FIND_BIG_CODE_BLOCK_PATTERN.findall(text)
-        for big_code_block in big_code_blocks:
-            text = text.replace(big_code_block, f'<pre><code>{big_code_block}</code></pre>')
+        # 替换带语言的大代码块
+        text = self.FIND_BIG_CODE_BLOCK_WITH_LANG_PATTERN.sub(r'<pre><code lang="\1">\2</code></pre>', text)
 
-        # 查找小代码块
-        little_code_blocks = self.FIND_LITTLE_CODE_BLOCK_PATTERN.findall(text)
-        for little_code_block in little_code_blocks:
-            text = text.replace(little_code_block, f'<code>{little_code_block}</code>')
+        # 替换大代码块
+        text = self.FIND_BIG_CODE_BLOCK_PATTERN.sub(r"<pre><code>\1</code></pre>", text)
 
-        # 将文本分割回行
-        return text.split('\n')
-    
+        # 替换小代码块
+        text = self.FIND_LITTLE_CODE_BLOCK_PATTERN.sub(r"<code>\1</code>", text)
 
-def makeExtension(**kwargs):
-    return CodeBlockPreprocessor(**kwargs)
+        # 将文本拆分成行
+        lines = text.splitlines()
+
+        return lines
+
+def makeExtension(*args, **kwargs):
+    return CodeBlockExtension(*args, **kwargs)

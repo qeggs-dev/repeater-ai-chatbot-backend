@@ -1,2 +1,4 @@
 from ._br_extension import BrExtension
 from ._code_block_extension import CodeBlockExtension
+from ._fix_list_code_blocks import FixListCodeExtension
+from ._dividing_line import DividingLineExtension

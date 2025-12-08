@@ -5,14 +5,14 @@ import re
 
 class BrExtension(Extension):
     def extendMarkdown(self, md):
-        md.preprocessors.register(BrPreprocessor(md), 'br_extension', 15)
+        md.preprocessors.register(BrPreprocessor(md), "br_extension", 15)
 
 class BrPreprocessor(Preprocessor):
-    FIND_PATTERN = re.compile(r'```.*?```', re.DOTALL)
-    SUB_PATTERN = re.compile(r'\n+')
+    FIND_PATTERN = re.compile(r"```.*?```", re.DOTALL)
+    SUB_PATTERN = re.compile(r"\n+")
     def run(self, lines:Iterable[str]):
         # 将所有行合并为一个字符串
-        text = '\n'.join(lines)
+        text = "\n".join(lines)
         
         # 使用正则表达式匹配代码块
         parts = []
@@ -22,7 +22,7 @@ class BrPreprocessor(Preprocessor):
         for match in self.FIND_PATTERN.finditer(text):
             # 添加代码块之前的内容（处理换行符）
             before_code = text[last_end:match.start()]
-            before_code_processed = self.SUB_PATTERN.sub('<br>\n', before_code)
+            before_code_processed = self.SUB_PATTERN.sub("<br>\n", before_code)
             parts.append(before_code_processed)
             
             # 添加代码块（保持原样）
@@ -32,12 +32,12 @@ class BrPreprocessor(Preprocessor):
         # 添加剩余内容
         if last_end < len(text):
             remaining = text[last_end:]
-            remaining_processed = self.SUB_PATTERN.sub('<br>\n', remaining)
+            remaining_processed = self.SUB_PATTERN.sub("<br>\n", remaining)
             parts.append(remaining_processed)
         
         # 重新分割为行
-        result_text = ''.join(parts)
-        return result_text.split('\n')
+        result_text = "".join(parts)
+        return result_text.split("\n")
 
-def makeExtension(**kwargs):
-    return BrExtension(**kwargs)
+def makeExtension(*args, **kwargs):
+    return BrExtension(*args, **kwargs)
