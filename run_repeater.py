@@ -5,7 +5,7 @@ env.read_env()
 import uvicorn
 import sys
 from core import (
-    Global_Config_Manager as Global_Config,
+    Global_Config_Manager,
     API as Core_API,
     __version__ as core_version,
     __api_version__ as core_api_version,
@@ -21,10 +21,10 @@ def main():
     workers = env.int("WORKERS", None)
     reload = env.bool("RELOAD", False)
 
-    host = Global_Config.ConfigManager.get_configs().server.host or host
-    port = Global_Config.ConfigManager.get_configs().server.port or port
-    workers = Global_Config.ConfigManager.get_configs().server.workers or workers
-    reload = Global_Config.ConfigManager.get_configs().server.reload or reload
+    host = Global_Config_Manager.ConfigManager.get_configs().server.host or host
+    port = Global_Config_Manager.ConfigManager.get_configs().server.port or port
+    workers = Global_Config_Manager.ConfigManager.get_configs().server.workers or workers
+    reload = Global_Config_Manager.ConfigManager.get_configs().server.reload or reload
 
     logger.info(f"Starting server at {host}:{port}")
 
