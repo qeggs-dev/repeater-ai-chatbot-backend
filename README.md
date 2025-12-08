@@ -270,7 +270,7 @@ PS: `run.py`启动器会在完成所有操作后启动主程序，而这只需�
             // 输出图片的格式
             "output_suffix": ".png",
             // 浏览器的可执行文件路径
-            "executable_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+            "executable_path": "",
 
             // 浏览器窗口大小
             "width": 1200,
@@ -382,25 +382,12 @@ PS: 配置读取时键名不区分大小写，但建议使用小写格式
     },
     "logger": {
         // 建议填写，默认的是DEBUG，它的输出有点多
-        "level": "INFO",
-        // 你可以自定义名字日志的名字，这由你自己决定
-        "file_path": "./logs/repeater.log"
+        "level": "INFO"
     },
     "render": {
-        "markdown": {
-            "to_image": {
-                // 这里十分建议你填写你自己的 wkhtmltoimage 可执行文件的路径
-                // 除非你的系统PATH里面已经有了 wkhtmltoimage
-                "wkhtmltoimage_path": "wkhtmltoimage",
-                
-                // 这里也建议填写，因为不填写这一项可能会导致图片中的代码块没有pre标签而出现问题
-                "preprocess_map": {
-                    "after": {
-                        "<code>": "<pre><code>",
-                        "</code>": "</code></pre>"
-                    }
-                },
-            }
+        "to_image": {
+            // 也建议填写，除非你对 playwright 安装了独立的浏览器
+            "executable_path" : "" // 这里填写你安装的任意浏览器可执行文件的路径
         }
     }
 }
@@ -606,7 +593,7 @@ PS: 转义必须保证转义处理器一字不漏，否则会以普通文本输�
 | `GET` | `/` | 无 | 无 | 获取Index Web | `Web页面` |
 | `GET` | `/index.html` | 无 | 无 | (同上) 获取Index Web | `Web页面` |
 | `GET` | `/docs` | 无 | 无 | 获取接口文档 | `Web页面` |
-| `POST` | `/chat/completion/{user_id:str}` | JSON请求体 | *`message(str)`*<br/>*`user_name(str)`*<br/>*`role(str) = 'user'`*<br/>*`role_name(str)`*<br/>*`model_uid(str)`*<br/>*`load_prompt(bool) = true`*<br/>*`save_context(bool) = true`*<br/>*`reference_context_id(str)`*<br/>*`continue_completion(bool)`*  | AI聊天 | `JSON响应对象` 或 `流式Delta对象` |
+| `POST` | `/chat/completion/{user_id:str}` | JSON请求体 | *`message(str)`*<br/>*`user_name(str)`*<br/>*`role(str) = "user"`*<br/>*`role_name(str)`*<br/>*`model_uid(str)`*<br/>*`load_prompt(bool) = true`*<br/>*`save_context(bool) = true`*<br/>*`reference_context_id(str)`*<br/>*`continue_completion(bool)`*  | AI聊天 | `JSON响应对象` 或 `流式Delta对象` |
 | `POST` | `/render/{user_id:str}`| JSON请求体 | **`text(str)`**<br/>*`style(str)`*<br/>*`timeout(float)`* | 文本渲染 | `JSON对象` |
 | `POST` | `/userdata/variable/expand/{user_id:str}` | JSON请求体 | *`username(str)`*<br/>`text(str)` | 变量解析 | `JSON对象` |
 | `GET` | `/userdata/context/get/{user_id:str}` | | | 获取上下文 | `JSON列表` |
