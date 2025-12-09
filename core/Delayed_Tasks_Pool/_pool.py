@@ -12,27 +12,27 @@ class DelayedTasksPool:
     async def _task_warper(self, sleep_time: float, task: Coroutine[None, None, T], id: str | None = None) -> T:
         """Wrapper for tasks to add them to the pool"""
         if id is None:
-            id = f"{task.__module__}/{task.__qualname__}"
+            id = task.__qualname__
         logger.trace(
-            "Adding task to pool: {id}",
+            "Adding task to pool: \"{id}\"",
             id = id
         )
         try:
             logger.trace(
-                "Task {id} will be executed after {sleep_time} seconds",
+                "Task \"{id}\" will be executed after {sleep_time} seconds",
                 id = id,
                 sleep_time = sleep_time
             )
             await asyncio.sleep(sleep_time)
         except asyncio.CancelledError:
             logger.trace(
-                "Task {id} cancelled",
+                "Task \"{id}\" cancelled",
                 id = id
             )
             pass
         finally:
             logger.trace(
-                "Task {id} is being executed",
+                "Task \"{id}\" is being executed",
                 id = id
             )
             result = await task
