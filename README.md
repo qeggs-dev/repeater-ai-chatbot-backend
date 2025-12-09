@@ -20,7 +20,7 @@
 > 注：拟人化并非复读机的赛道，复读机不对拟人化需求做过多保证，如有需要请自行引导或编写提示词。
 
 ## 注意事项:
- - 本服务由一位 `16岁自学开发者`(现在17了) 使用AI协作开发，公益项目，如果你愿意捐赠，可以在机器人的**QQ空间**中找到赞赏码以支持项目运营(或是支持开发者)。
+ - 本服务由一位 `16岁自学开发者`(现在17了) 使用AI辅助开发，公益项目，如果你愿意捐赠，可以在机器人的**QQ空间**中找到赞赏码以支持项目运营(或是支持开发者)。
  - 使用者需确认生成内容的合法性，并自行承担使用本服务可能产生的风险。
  - 如果你觉得这个Bot非常好用，请去看一下[`Deepseek`](https://www.deepseek.com/)的官网吧，这个Bot最初就是基于他们的模型API文档开发的。
 
@@ -630,7 +630,6 @@ PS: 转义必须保证转义处理器一字不漏，否则会以普通文本输�
 | `POST` | `/admin/regenerate/admin_key` | 请求头 | `X-Admin-API-Key(str)` | 重新生成管理密钥 | `JSON对象` |
 | `POST` | `/admin/configs/reload` | 请求头 | `X-Admin-API-Key(str)` | 重新加载配置 (警告：某些模块会缓存配置结果，这可能导致模块之间的配置差异！) | `JSON对象` |
 | `POST` | `/admin/configs/{name:str}/seek/{index:int}` | 请求头 | `X-Admin-API-Key(str)` | 移动指针在指定配置栈中的位置 | `JSON对象` |
-| `POST` | `/admin/regenerate/admin_key` | 请求头 | `X-Admin-API-Key(str)` | 重新生成管理密钥 | `JSON对象` |
 | `GET` | `/version` | | | 获取版本信息 | `JSON对象` |
 | `GET` | `/version/api` | | | 获取API版本信息 | `纯文本` |
 | `GET` | `/version/core` | | | 获取核心版本信息 | `纯文本` |
