@@ -19,11 +19,11 @@ class UserMainManagerInterface(ABC):
         pass
     
     @abstractmethod
-    async def set_default_item_id(self, user_id: str, item: str) -> None:
+    async def set_default_branch_id(self, user_id: str, item: str) -> None:
         pass
     
     @abstractmethod
-    async def get_default_item_id(self, user_id: str) -> str:
+    async def get_default_branch_id(self, user_id: str) -> str:
         pass
     
     @abstractmethod
@@ -31,5 +31,5 @@ class UserMainManagerInterface(ABC):
         pass
 
     @abstractmethod
-    async def get_all_item_id(self, user_id: str) -> list:
+    async def get_all_branch_id(self, user_id: str) -> list:
         pass
