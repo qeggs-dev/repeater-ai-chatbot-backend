@@ -3,11 +3,12 @@ from ._args import Args
 from typing import Callable, TypeVar, Generic
 
 T = TypeVar('T', bound=Callable)
+T_Args = TypeVar('T_Args', bound=Args)
 
 @dataclass
-class FuncObject(Generic[T]):
+class FuncObject(Generic[T, T_Args]):
     """A dataclass that represents a function object."""
-    args: Args
+    args: T_Args
     func: T
 
     def __call__(self, *args, **kwargs):
