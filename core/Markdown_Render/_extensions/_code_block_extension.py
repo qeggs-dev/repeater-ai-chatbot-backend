@@ -10,7 +10,7 @@ class CodeBlockExtension(Extension):
 class CodeBlockPreprocessor(Preprocessor):
     FIND_BIG_CODE_BLOCK_PATTERN = re.compile(r"```(.*?)```", re.DOTALL)
     FIND_BIG_CODE_BLOCK_WITH_LANG_PATTERN = re.compile(r"```(.*?)(\n.*?)```", re.DOTALL)
-    FIND_LITTLE_CODE_BLOCK_PATTERN = re.compile(r"`(.*?)`", re.DOTALL)
+    FIND_LITTLE_CODE_BLOCK_PATTERN = re.compile(r"`(.*?)`")
 
     def run(self, lines: Iterable[str]) -> Iterable[str]:
         # 合并文本

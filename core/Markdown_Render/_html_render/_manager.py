@@ -65,8 +65,8 @@ class BrowserPoolManager:
     def _register_lifespan_handlers(cls):
         """注册生命周期处理器"""
         if not cls._is_initialized:
-            StartHandler.add_function(cls._global_startup)
-            ExitHandler.add_function(cls._global_shutdown)
+            StartHandler.add_function(cls._global_startup())
+            ExitHandler.add_function(cls._global_shutdown())
             cls._is_initialized = True
             logger.debug("Registered global lifespan handlers")
     
