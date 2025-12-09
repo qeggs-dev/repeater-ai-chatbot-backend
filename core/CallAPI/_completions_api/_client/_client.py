@@ -115,6 +115,8 @@ class ClientBase(ABC):
         :param request: 请求对象
         :param response: 响应对象
         """
+        logger.info("========== Fast Statistics =========", user_id = user_id)
+        logger.info("Generating statistics...", user_id = user_id)
         logger.info("============= API INFO =============", user_id = user_id)
         logger.info(f"API_URL: {request.url}", user_id = user_id)
         logger.info(f"Model: {response.model}", user_id = user_id)
