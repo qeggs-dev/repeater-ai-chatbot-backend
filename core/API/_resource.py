@@ -31,5 +31,3 @@ browser_pool_manager = HTML_Render.BrowserPoolManager(
         render_config.to_image.executable_path
     )
 )
-
-__version__ = "2.0.1.0"
