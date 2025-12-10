@@ -50,6 +50,7 @@ class ExitCode(Enum):
     SCRIPT_NAME_IS_EMPTY = 9
     SCRIPT_NAME_NOT_PROVIDED = 10
     USER_TERMINATED = 11
+    CONFIG_PARSING_ERROR = 12
 
     UNKNOWN_ERROR = 255
 # endregion
@@ -718,7 +719,7 @@ class SlovesStarter:
         set_title(self.title)
 
         try:
-            self.parse_config(self.load_config())
+            config = self.load_config()
         except FileNotFoundError:
             suffix:int = 0
             while True:
@@ -739,6 +740,12 @@ class SlovesStarter:
                     suffix += 1
             print("Continuing to run the program will operate with the default configuration...")
             self.pause_program(ExitCode.ONLY_PAUSE)
+        
+        try:
+            self.parse_config(config)
+        except Exception as e:
+            print(f"Error parsing config: {e}")
+            self.pause_program(ExitCode.CONFIG_PARSING_ERROR)
         
         @atexit.register
         def exit_handler():
