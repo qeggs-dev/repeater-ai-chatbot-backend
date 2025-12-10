@@ -24,7 +24,7 @@ async def set_config(user_id: str, request: UserConfigs):
     logger.info(
         "Set user config: \n{config}",
         user_id = user_id,
-        config = request.model_dump_json(indent=4, exclude_defaults=True)
+        config = request.model_dump_json(indent=4, ensure_ascii=False, exclude_defaults=True)
     )
     return ORJSONResponse(request.model_dump())
 
