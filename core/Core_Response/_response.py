@@ -1,7 +1,11 @@
-from dataclasses import dataclass, asdict
+from pydantic import BaseModel, ConfigDict
+from ..CallAPI import CompletionsAPI
 
-@dataclass
-class Response:
+class Response(BaseModel):
+    model_config = ConfigDict(
+        validate_assignment=True,
+    )
+
     reasoning_content: str = ""
     content: str = ""
     user_raw_input: str = ""
@@ -13,8 +17,5 @@ class Response:
     create_time: int = 0
     id: str = ""
     finish_reason_cause: str = ""
+    finish_reason_code: CompletionsAPI.FinishReason = CompletionsAPI.FinishReason.STOP
     status: int = 200
-
-    @property
-    def as_dict(self):
-        return asdict(self)

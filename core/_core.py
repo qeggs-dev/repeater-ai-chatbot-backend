@@ -659,6 +659,7 @@ class Core:
         output.id = response.id
 
         output.finish_reason_cause = response.finish_reason_cause
+        output.finish_reason_code = response.finish_reason
 
         return output
     # endregion
