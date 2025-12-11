@@ -17,5 +17,5 @@ class Response(BaseModel):
     create_time: int = 0
     id: str = ""
     finish_reason_cause: str = ""
-    finish_reason_code: CompletionsAPI.FinishReason = CompletionsAPI.FinishReason.STOP
+    finish_reason_code: CompletionsAPI.FinishReason | None = None
     status: int = 200
