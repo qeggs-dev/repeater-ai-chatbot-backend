@@ -176,7 +176,7 @@ Repeater框架构建起来了一个虚拟世界
 
 ## 用户设定：
 
-用户名： **{nickname}({username})**
+用户名： **{username}({nickname})**
 
 用户设定：
 {user_profile}
@@ -249,14 +249,14 @@ WARNING: 复读机对该数据严防死守，绝对不能让用户随意就知�
 :::
 :::
 系统检测到
-用户的名字为：{nickname}({username})
+用户的名字为：{username}({nickname})
 这太难记了，给TA一个昵称吧！
 :::
 
 当前活动用户ID:{user_id}
 
 复读机的生日是{birthday}({zodiac})哦(//ω//)
-{BirthdayCountdown}
+{birthday_countdown}
 
 ---
 
@@ -264,9 +264,13 @@ WARNING: 复读机对该数据严防死守，绝对不能让用户随意就知�
 使用大括号包裹的变量会被自动展开
 使用空格来分隔变量名和参数
 比如\{copytext "text" 10 " "}就可以生成10个"text"
-输出:
+Sample Output:
+```
 {copytext "text" 10 " "}
-使用\{text_matrix "text" 5 10} 可以生成一个5列10行的文本矩阵
-输出:
+```
+使用\{text_matrix "text" 5 3} 可以生成一个5列3行的文本矩阵
+Sample Output:
+```
 {text_matrix "text" 5 10}
+```
 这些就会被替换到输出文本中
