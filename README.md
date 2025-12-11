@@ -614,7 +614,8 @@ PS: 转义必须保证转义处理器一字不漏，否则会以普通文本输�
 | `PUT` | `/userdata/prompt/change/{user_id:str}` | 表单 | `new_branch_id(str)` | 切换提示词 | `纯文本` |
 | `DELETE` | `/userdata/prompt/delete/{user_id:str}` | | | 删除提示词 | `纯文本` |
 | `GET` | `/userdata/config/get/{user_id:str}` | | | 获取配置 | `JSON对象` |
-| `PUT` | `/userdata/config/set/{user_id:str}/{value_type:str}` | 表单 | `key(str)`<br/>`value(Any)` | 设置配置 | `JSON对象` |
+| `PUT` | `/userdata/config/set/{user_id:str}/{key:str}` | 表单 | `type(str)`<br/>`value(Any)` | 设置配置 | `JSON对象` |
+| `PUT` | `/userdata/config/set/{user_id:str}` | 表单 | `config(JSON对象)` | 批量配置设置 | `JSON对象` |
 | `PUT` | `/userdata/config/delkey/{user_id:str}` | 表单 | `key(str)` | 删除配置 | `JSON对象` |
 | `GET` | `/userdata/config/userlist` | | | 获取用户列表 | `JSON列表` |
 | `GET` | `/userdata/config/branchs/{user_id:str}` | | | 获取用户分支ID列表 | `JSON列表` |
