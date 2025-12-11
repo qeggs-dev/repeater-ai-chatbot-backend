@@ -9,6 +9,7 @@ from ._objects import (
     TokensCount,
     Response,
     Top_Logprob,
+    FinishReason,
     Logprob,
     Delta
 )
@@ -23,6 +24,7 @@ __all__ = [
     "TokensCount",
     "Response",
     "Top_Logprob",
+    "FinishReason",
     "Logprob",
     "Delta",
     "Exceptions"
