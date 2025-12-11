@@ -58,7 +58,7 @@ async def delete_config_field(user_id: str, key: str = Form(...)):
     logger.info("Delete user config field: {key}", user_id = user_id, key = key)
 
     # 返回新配置内容
-    return ORJSONResponse(config.model_dump())
+    return ORJSONResponse(config.model_dump(exclude_defaults=True))
 
 @app.delete("/userdata/config/delete/{user_id}")
 async def delete_config(user_id: str):

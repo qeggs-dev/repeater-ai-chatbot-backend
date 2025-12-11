@@ -18,4 +18,4 @@ async def get_config(user_id: str):
     logger.info(f"Get user config", user_id = user_id)
 
     # 返回配置
-    return ORJSONResponse(config.model_dump())
+    return ORJSONResponse(config.model_dump(exclude_defaults=True))

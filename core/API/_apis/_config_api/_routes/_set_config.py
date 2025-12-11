@@ -26,7 +26,9 @@ async def set_config(user_id: str, request: UserConfigs):
         user_id = user_id,
         config = request.model_dump_json(indent=4, ensure_ascii=False, exclude_defaults=True)
     )
-    return ORJSONResponse(request.model_dump())
+    return ORJSONResponse(
+        request.model_dump(exclude_defaults=True)
+    )
 
 @app.put("/userdata/config/set/{user_id}/{key}")
 async def set_config_field(user_id: str, key: str, request: SetConfigRequest):
@@ -89,4 +91,6 @@ async def set_config_field(user_id: str, key: str, request: SetConfigRequest):
     )
 
     # 返回新配置内容
-    return ORJSONResponse(config.model_dump())
+    return ORJSONResponse(
+        config.model_dump(exclude_defaults=True),
+    )
