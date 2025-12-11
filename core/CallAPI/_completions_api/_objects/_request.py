@@ -13,7 +13,7 @@ class Request:
     url: str = ""
     key: str = ""
     model: str = ""
-    user_name: str = ""
+    user_name: str | None = None
     temperature: float = 1.0
     top_p: float = 1.0
     presence_penalty: float = 0.0
