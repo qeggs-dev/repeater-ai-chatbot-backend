@@ -47,7 +47,12 @@ async def chat_endpoint(
             stream = request.stream
         )
         if isinstance(context, Response):
-            return ORJSONResponse(context.as_dict, status_code=200)
+            return ORJSONResponse(
+                context.model_dump(
+                    exclude_defaults = True
+                ),
+                status_code=200
+            )
         else:
             async def generator_wrapper(context: AsyncIterator[CompletionsAPI.Delta]) -> AsyncIterator[bytes]:
                 async for chunk in context:
