@@ -11,7 +11,7 @@ class BaseRequestLog(BaseModel):
         validate_assignment=True,
     )
 
-    type: Literal["repeater.request_log.chat"] = "repeater.request_log.chat"
+    type: Literal["repeater.request_log"] = "repeater.request_log"
     
     url: str = ""
     model: str = ""

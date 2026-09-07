@@ -290,7 +290,7 @@ class RequestLogManager:
                             )
                             continue
                         try:
-                            yield validate_request_log(**data)  # 生成文件日志
+                            yield validate_request_log(request_log_type = data)  # 生成文件日志
                         except ValidationError as e:
                             errors = e.errors()
                             for error in errors:

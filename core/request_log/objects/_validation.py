@@ -1,8 +1,11 @@
 from .request_logs_types import RequestLogTypes
-from pydantic import validate_call
+from typing import Any
+from pydantic import BaseModel
 
-@validate_call
-def validate_request_log(request_log_type: RequestLogTypes) -> RequestLogTypes:
+class ValidateRequestLog(BaseModel):
+    request_log_type: RequestLogTypes
+
+def validate_request_log(request_log_type: Any) -> RequestLogTypes:
     """
     Validate the request log type.
 
@@ -12,5 +15,8 @@ def validate_request_log(request_log_type: RequestLogTypes) -> RequestLogTypes:
     Returns:
         RequestLogTypes: The validated request log type.
     """
-    return request_log_type
+    model = ValidateRequestLog(
+        request_log_type = request_log_type
+    )
 
+    return model.request_log_type
